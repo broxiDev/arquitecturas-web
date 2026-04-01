@@ -5,7 +5,8 @@ CREATE DATABASE IF NOT EXISTS integrador1_db;
 USE integrador1_db;
 
 CREATE TABLE IF NOT EXISTS cliente (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    idCliente INT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL
 );
+

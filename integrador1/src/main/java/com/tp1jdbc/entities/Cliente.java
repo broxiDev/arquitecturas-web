@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Cliente {
 
-    private int id;
+    private int idCliente;
     private String nombre;
     private String email;
 
-    public Cliente(String nombre, String email) {
+    public Cliente(int idCliente, String nombre, String email) {
+        this.idCliente = idCliente;
         this.nombre = nombre;
         this.email = email;
     }
 }
-

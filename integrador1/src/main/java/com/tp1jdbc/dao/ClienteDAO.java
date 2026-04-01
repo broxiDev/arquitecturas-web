@@ -14,13 +14,13 @@ import java.util.List;
 public class ClienteDAO implements Dao<Cliente> {
 
     public void insertar(Cliente c) throws SQLException {
-        String sql = "INSERT INTO cliente (nombre, email) VALUES (?, ?)";
+        String sql = "INSERT INTO cliente (idCliente, nombre, email) VALUES (?, ?, ?)";
         try (Connection con = Conexion.getConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, c.getNombre());
-            ps.setString(2, c.getEmail());
+            ps.setInt(1, c.getIdCliente());
+            ps.setString(2, c.getNombre());
+            ps.setString(3, c.getEmail());
             ps.executeUpdate();
-            System.out.println("Cliente insertado correctamente.");
         }
     }
 
@@ -31,14 +31,13 @@ public class ClienteDAO implements Dao<Cliente> {
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                Cliente c = new Cliente();
-                c.setId(rs.getInt("id"));
-                c.setNombre(rs.getString("nombre"));
-                c.setEmail(rs.getString("email"));
-                clientes.add(c);
+                clientes.add(new Cliente(
+                    rs.getInt("idCliente"),
+                    rs.getString("nombre"),
+                    rs.getString("email")
+                ));
             }
         }
         return clientes;
     }
 }
-
