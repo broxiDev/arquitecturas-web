@@ -13,11 +13,11 @@ docker-compose up --build -d
 | Contraseña | *(vacía)* |
 
 ## Base de datos
-Al levantar el contenedor, `init.sql` se ejecuta automáticamente y crea la tabla `persona`.
+Al levantar el contenedor, `init.sql` se ejecuta automáticamente y crea la tabla `cliente`.
 Solo resta insertar los usuarios necesarios.
 
 ## Requisitos
-- Java 17
+- Java 21
 - Maven
 - Docker Desktop
 

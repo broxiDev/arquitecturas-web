@@ -1,29 +1,31 @@
 package com.tp1jdbc;
 
+import com.tp1jdbc.dao.ClienteDAO;
+import com.tp1jdbc.entities.Cliente;
+
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
+
 
 public class Main {
 
     public static void main(String[] args) {
-        PersonaDAO dao = new PersonaDAO();
+        ClienteDAO dao = new ClienteDAO();
 
-        // Insertar una persona de ejemplo
-/*        Persona nueva = new Persona("Juan", "Perez", "12345678", LocalDate.of(1990, 5, 20), "juan@email.com", "1234567890");
+        // Insertar un cliente de ejemplo
+        Cliente nuevo = new Cliente("Juan Perez 2", "juan@emasdail.com");
         try {
-            dao.insertar(nueva);
+            dao.insertar(nuevo);
         } catch (SQLException e) {
             System.err.println("Error al insertar: " + e.getMessage());
-        }*/
+        }
 
-        // Listar todas las personas
-        try {
-            List<Persona> personas = dao.listarTodos();
-            System.out.println("Personas en la BD:");
-            personas.forEach(System.out::println);
+        // Listar todos los clientes
+/*        try {
+            List<Cliente> clientes = dao.listarTodos();
+            System.out.println("Clientes en la BD:");
+            clientes.forEach(System.out::println);
         } catch (SQLException e) {
             System.err.println("Error al listar: " + e.getMessage());
-        }
+        }*/
     }
 }
