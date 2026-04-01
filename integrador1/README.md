@@ -20,4 +20,4 @@ Solo resta insertar los usuarios necesarios.
 - Java 21
 - Maven
 - Docker Desktop
-
+- Docker Compose
