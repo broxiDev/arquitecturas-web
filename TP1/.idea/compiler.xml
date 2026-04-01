@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="tp1-jdbc" />
+        <module name="arquitecturas-web" />
       </profile>
     </annotationProcessing>
   </component>
