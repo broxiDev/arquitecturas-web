@@ -29,6 +29,11 @@ public class FacturaDAO implements Dao<Factura> {
         }
     }
 
+    /**
+     * @brief Lista todas las facturas almacenadas en la base de datos.
+     * @return lista con todas las facturas existentes
+     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     */
     public List<Factura> listarTodos() throws SQLException {
         List<Factura> facturas = new ArrayList<>();
         String sql = "SELECT * FROM Factura";
