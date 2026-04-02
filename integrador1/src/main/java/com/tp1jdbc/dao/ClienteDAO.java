@@ -55,4 +55,31 @@ public class ClienteDAO implements Dao<Cliente> {
         }
         return clientes;
     }
+
+    /**
+     * @brief Obtiene el cliente con mayor facturacion.
+     * @details La facturacion se calcula como la suma de cantidad vendida por valor del producto.
+     * @return cliente que mas recaudo o null si no hay ventas registradas
+     */
+    public Cliente obtenerClienteConMayorFacturacion() throws SQLException {
+        String sql = "
+            SELECT c.idCliente, c.nombre, c.email
+                FROM Cliente c 
+                INNER JOIN Factura f ON f.idCliente = c.idCliente
+                INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura
+                GROUP BY c.idCliente, c.nombre, c.email
+                ORDER BY SUM(fp.cantidad * (SELECT valor FROM Producto WHERE idProducto = fp.idProducto)) DESC LIMIT 1";
+        try (Connection con = Conexion.getConexion();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()) {
+                return new Cliente(
+                    rs.getInt("idCliente"),
+                    rs.getString("nombre"),
+                    rs.getString("email")
+                );
+            }
+        )
+        return null;
+    }
 }
