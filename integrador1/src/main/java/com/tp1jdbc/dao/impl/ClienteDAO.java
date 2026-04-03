@@ -87,41 +87,47 @@ public class ClienteDAO implements Dao<Cliente> {
         return clientes;
     }
 
-    /**
-     * @brief Obtiene el cliente con mayor facturacion.
-     * @details La facturacion se calcula como la suma de cantidad vendida por valor del producto.
-     * @return cliente que mas recaudo o null si no hay ventas registradas
-     */
-    public Cliente obtenerClienteConMayorFacturacion() throws SQLException {
+    public void obtenerTop5ClientesPorFacturacion() throws SQLException {
+        List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT c.idCliente, c.nombre, c.email " +
                 "FROM Cliente c " +
                 "INNER JOIN Factura f ON f.idCliente = c.idCliente " +
                 "INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura " +
+                "INNER JOIN Producto p ON p.idProducto = fp.idProducto " +
                 "GROUP BY c.idCliente, c.nombre, c.email " +
-                "ORDER BY SUM(fp.cantidad * (SELECT valor FROM Producto WHERE idProducto = fp.idProducto)) DESC LIMIT 1";
-        Statement st = null;
+                "ORDER BY SUM(fp.cantidad * p.valor) DESC " +
+                "LIMIT 5";
+        PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            st = con.createStatement();
-            rs = st.executeQuery(sql);
-            if (rs.next()) {
-                return new Cliente(
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                clientes.add(new Cliente(
                     rs.getInt("idCliente"),
                     rs.getString("nombre"),
                     rs.getString("email")
-                );
+                ));
             }
+            mostrarClientes(clientes);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (rs != null) rs.close();
-                if (st != null) st.close();
+                if (ps != null) ps.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        return null;
+    }
+
+    private void mostrarClientes(List<Cliente> clientes) {
+        System.out.println("=== Top 5 clientes por facturación ===");
+        for (int i = 0; i < clientes.size(); i++) {
+            Cliente c = clientes.get(i);
+            System.out.printf("%d. [ID: %d] %s — %s%n", i + 1, c.getIdCliente(), c.getNombre(), c.getEmail());
+        }
     }
 }

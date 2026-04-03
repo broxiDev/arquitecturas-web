@@ -1,16 +1,28 @@
 package com.tp1jdbc;
 
+import com.tp1jdbc.entities.Producto;
 import com.tp1jdbc.factory.AbstractFactory;
 import com.tp1jdbc.utils.DataLoader;
 
+import java.sql.SQLException;
+
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
+
         AbstractFactory mysqlFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MYSQL_JDBC);
         AbstractFactory mariaDBFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MARIA_DB_JDBC);
 
         poblarDB(mysqlFactory);
         poblarDB(mariaDBFactory);
+        //Borrar o eliminar luego de que se haya pobaldo ambas DB.
+
+        // 3. Producto que mas recaudo
+        Producto p = mysqlFactory.getProductoDAO().obtenerProductoQueMasRecaudo();
+        System.out.println("Producto que mas recaudo: " + p);
+
+        // 4. Clientes que mas facturaron (Top 5)
+        mysqlFactory.getClienteDAO().obtenerTop5ClientesPorFacturacion();
     }
 
     /**
