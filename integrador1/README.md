@@ -28,3 +28,8 @@ Ejecutar el proyecto y volver a comentar la línea para evitar duplicados.
 
 ### 3. Ejecutar
 Correr `Main.java` normalmente con los datos ya cargados.
+
+
+Posibles errores:
+- FATAL: invalid value for parameter "TimeZone": "America/Buenos_Aires"
+  - Solucion: 
