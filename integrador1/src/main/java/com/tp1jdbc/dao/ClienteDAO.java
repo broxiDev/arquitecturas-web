@@ -62,16 +62,15 @@ public class ClienteDAO implements Dao<Cliente> {
      * @return cliente que mas recaudo o null si no hay ventas registradas
      */
     public Cliente obtenerClienteConMayorFacturacion() throws SQLException {
-        String sql = "
-            SELECT c.idCliente, c.nombre, c.email
-                FROM Cliente c 
-                INNER JOIN Factura f ON f.idCliente = c.idCliente
-                INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura
-                GROUP BY c.idCliente, c.nombre, c.email
-                ORDER BY SUM(fp.cantidad * (SELECT valor FROM Producto WHERE idProducto = fp.idProducto)) DESC LIMIT 1";
+        String sql = "SELECT c.idCliente, c.nombre, c.email " +
+                "FROM Cliente c " +
+                "INNER JOIN Factura f ON f.idCliente = c.idCliente " +
+                "INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura " +
+                "GROUP BY c.idCliente, c.nombre, c.email " +
+                "ORDER BY SUM(fp.cantidad * (SELECT valor FROM Producto WHERE idProducto = fp.idProducto)) DESC LIMIT 1";
         try (Connection con = Conexion.getConexion();
-            Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+             Statement st = con.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) {
                 return new Cliente(
                     rs.getInt("idCliente"),
@@ -79,7 +78,7 @@ public class ClienteDAO implements Dao<Cliente> {
                     rs.getString("email")
                 );
             }
-        )
+        }
         return null;
     }
 }

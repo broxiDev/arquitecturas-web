@@ -59,12 +59,11 @@ public class ProductoDAO implements Dao<Producto> {
      * @throws SQLException error producido durante el intento de conexion a la base de datos
      */
     public Producto obtenerProductoQueMasRecaudo() throws SQLException {
-        String sql = "
-            SELECT p.idProducto, p.nombre, p.valor 
-                FROM Producto p
-                INNER JOIN Factura_Producto fp ON fp.idProducto = p.idProducto
-                GROUP BY p.idProducto, p.nombre, p.valor
-                ORDER BY SUM(fp.cantidad * p.valor) DESC LIMIT 1";
+        String sql = "SELECT p.idProducto, p.nombre, p.valor " +
+                "FROM Producto p " +
+                "INNER JOIN Factura_Producto fp ON fp.idProducto = p.idProducto " +
+                "GROUP BY p.idProducto, p.nombre, p.valor " +
+                "ORDER BY SUM(fp.cantidad * p.valor) DESC LIMIT 1";
 
         try (Connection con = Conexion.getConexion();
              Statement st = con.createStatement();
