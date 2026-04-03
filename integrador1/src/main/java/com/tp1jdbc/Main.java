@@ -1,17 +1,16 @@
 package com.tp1jdbc;
 
-import com.tp1jdbc.entities.Cliente;
 import com.tp1jdbc.factory.AbstractFactory;
 import com.tp1jdbc.utils.DataLoader;
-
-import java.sql.SQLException;
 
 public class Main {
 
     public static void main(String[] args) {
-        //AbstractFactory mysqlFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MYSQL_JDBC);
-        AbstractFactory mariaFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MARIA_DB_JDBC);
+        AbstractFactory mysqlFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MYSQL_JDBC);
+        AbstractFactory mariaDBFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MARIA_DB_JDBC);
 
+        poblarDB(mysqlFactory);
+        poblarDB(mariaDBFactory);
     }
 
     /**
