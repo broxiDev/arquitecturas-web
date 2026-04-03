@@ -1,30 +1,25 @@
 package com.tp1jdbc;
 
-import com.tp1jdbc.dao.ClienteDAO;
-import com.tp1jdbc.dao.ProductoDAO;
 import com.tp1jdbc.entities.Cliente;
-import com.tp1jdbc.entities.Producto;
+import com.tp1jdbc.factory.AbstractFactory;
 import com.tp1jdbc.utils.DataLoader;
 
 import java.sql.SQLException;
 
 public class Main {
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
+        //AbstractFactory mysqlFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MYSQL_JDBC);
+        AbstractFactory mariaFactory  = AbstractFactory.getDAOFactory(AbstractFactory.MARIA_DB_JDBC);
 
-        // IMPORTANTE: comentar una vez cargados los datos en la BD
-        DataLoader.inicializarMetadata();
+    }
 
-        //Punto 3: producto que más recaudó
-        ProductoDAO productoDao = new ProductoDAO();
-
-        Producto productoQueMasRecaudo = productoDao.obtenerProductoQueMasRecaudo();
-        System.out.println("Producto que mas recaudo: " + productoQueMasRecaudo);
-
-        //Punto 4: Cliente con mejor Facturacion
-        ClienteDAO clienteDAO = new ClienteDAO();
-
-        Cliente clienteMejorFacturacion = clienteDAO.obtenerClienteConMayorFacturacion();
-        System.out.println("Cliente con mejor facturacion: " + clienteMejorFacturacion);
+    /**
+     * @brief Carga los datos desde los CSVs en la base de datos indicada por la factory.
+     * @param factory [in] factory que provee la conexión y los DAOs de la BD destino
+     */
+    private static void poblarDB(AbstractFactory factory) {
+        DataLoader.inicializarMetadata(factory);
+        factory.closeConnection();
     }
 }

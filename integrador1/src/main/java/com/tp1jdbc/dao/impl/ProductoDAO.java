@@ -1,6 +1,6 @@
-package com.tp1jdbc.dao;
+package com.tp1jdbc.dao.impl;
 
-import com.tp1jdbc.Conexion;
+import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.Producto;
 
 import java.sql.*;
@@ -13,6 +13,11 @@ import java.util.List;
  * @version 1.0
  */
 public class ProductoDAO implements Dao<Producto> {
+    private Connection con;
+
+    public ProductoDAO(Connection con) {
+        this.con = con;
+    }
 
     /**
      * @brief Inserta un producto en la base de datos.
@@ -21,12 +26,23 @@ public class ProductoDAO implements Dao<Producto> {
      */
     public void insertar(Producto p) throws SQLException {
         String sql = "INSERT INTO Producto (idProducto, nombre, valor) VALUES (?, ?, ?)";
-        try (Connection con = Conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(sql);
             ps.setInt(1, p.getIdProducto());
             ps.setString(2, p.getNombre());
             ps.setFloat(3, p.getValor());
             ps.executeUpdate();
+            System.out.println("Producto insertado exitosamente.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                con.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -38,15 +54,27 @@ public class ProductoDAO implements Dao<Producto> {
     public List<Producto> listarTodos() throws SQLException {
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT * FROM Producto";
-        try (Connection con = Conexion.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
             while (rs.next()) {
                 productos.add(new Producto(
                     rs.getInt("idProducto"),
                     rs.getString("nombre"),
                     rs.getFloat("valor")
                 ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return productos;
@@ -64,16 +92,27 @@ public class ProductoDAO implements Dao<Producto> {
                 "INNER JOIN Factura_Producto fp ON fp.idProducto = p.idProducto " +
                 "GROUP BY p.idProducto, p.nombre, p.valor " +
                 "ORDER BY SUM(fp.cantidad * p.valor) DESC LIMIT 1";
+        Statement st = null;
+        ResultSet rs = null;
 
-        try (Connection con = Conexion.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
             if (rs.next()) {
                 return new Producto(
                     rs.getInt("idProducto"),
                     rs.getString("nombre"),
                     rs.getFloat("valor")
                 );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 

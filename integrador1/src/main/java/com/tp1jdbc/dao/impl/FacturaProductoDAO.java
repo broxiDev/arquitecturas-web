@@ -1,6 +1,6 @@
-package com.tp1jdbc.dao;
+package com.tp1jdbc.dao.impl;
 
-import com.tp1jdbc.Conexion;
+import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.FacturaProducto;
 
 import java.sql.*;
@@ -13,6 +13,11 @@ import java.util.List;
  * @version 1.0
  */
 public class FacturaProductoDAO implements Dao<FacturaProducto> {
+    private Connection con;
+
+    public FacturaProductoDAO(Connection con) {
+        this.con = con;
+    }
 
     /**
      * @brief Inserta una relacion entre factura y producto en la base de datos.
@@ -21,12 +26,23 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
      */
     public void insertar(FacturaProducto fp) throws SQLException {
         String sql = "INSERT INTO Factura_Producto (idFactura, idProducto, cantidad) VALUES (?, ?, ?)";
-        try (Connection con = Conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(sql);
             ps.setInt(1, fp.getIdFactura());
             ps.setInt(2, fp.getIdProducto());
             ps.setInt(3, fp.getCantidad());
             ps.executeUpdate();
+            System.out.println("FacturaProducto insertado exitosamente.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                con.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -38,15 +54,27 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
     public List<FacturaProducto> listarTodos() throws SQLException {
         List<FacturaProducto> lista = new ArrayList<>();
         String sql = "SELECT * FROM Factura_Producto";
-        try (Connection con = Conexion.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
             while (rs.next()) {
                 lista.add(new FacturaProducto(
                     rs.getInt("idFactura"),
                     rs.getInt("idProducto"),
                     rs.getInt("cantidad")
                 ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return lista;

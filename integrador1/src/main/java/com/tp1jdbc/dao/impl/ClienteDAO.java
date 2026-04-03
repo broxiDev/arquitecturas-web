@@ -1,7 +1,7 @@
-package com.tp1jdbc.dao;
+package com.tp1jdbc.dao.impl;
 
+import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.Cliente;
-import com.tp1jdbc.Conexion;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +17,11 @@ import java.util.List;
  * @version 1.0
  */
 public class ClienteDAO implements Dao<Cliente> {
+    private Connection con;
+
+    public ClienteDAO(Connection con) {
+        this.con = con;
+    }
 
     /**
      * @brief Inserta un cliente en la base de datos.
@@ -25,12 +30,26 @@ public class ClienteDAO implements Dao<Cliente> {
      */
     public void insertar(Cliente c) throws SQLException {
         String sql = "INSERT INTO Cliente (idCliente, nombre, email) VALUES (?, ?, ?)";
-        try (Connection con = Conexion.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        PreparedStatement ps = null;
+
+        try{
+            ps = con.prepareStatement(sql);
             ps.setInt(1, c.getIdCliente());
             ps.setString(2, c.getNombre());
             ps.setString(3, c.getEmail());
             ps.executeUpdate();
+            System.out.println("Cliente insertado exitosamente.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                con.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -42,15 +61,27 @@ public class ClienteDAO implements Dao<Cliente> {
     public List<Cliente> listarTodos() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT * FROM Cliente";
-        try (Connection con = Conexion.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
             while (rs.next()) {
                 clientes.add(new Cliente(
                     rs.getInt("idCliente"),
                     rs.getString("nombre"),
                     rs.getString("email")
                 ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return clientes;
@@ -68,15 +99,27 @@ public class ClienteDAO implements Dao<Cliente> {
                 "INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura " +
                 "GROUP BY c.idCliente, c.nombre, c.email " +
                 "ORDER BY SUM(fp.cantidad * (SELECT valor FROM Producto WHERE idProducto = fp.idProducto)) DESC LIMIT 1";
-        try (Connection con = Conexion.getConexion();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
             if (rs.next()) {
                 return new Cliente(
                     rs.getInt("idCliente"),
                     rs.getString("nombre"),
                     rs.getString("email")
                 );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return null;

@@ -30,4 +30,3 @@ CREATE TABLE IF NOT EXISTS Factura_Producto (
     FOREIGN KEY (idFactura)  REFERENCES Factura(idFactura),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
-
