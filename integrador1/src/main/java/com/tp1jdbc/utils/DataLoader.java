@@ -1,4 +1,4 @@
-package com.tp1jdbc.utils;
+﻿package com.tp1jdbc.utils;
 
 import com.tp1jdbc.dao.impl.ClienteDAO;
 import com.tp1jdbc.dao.impl.FacturaDAO;
@@ -12,12 +12,18 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * @brief DataLoader
+ * @details Utilidad para cargar datos iniciales desde archivos CSV hacia la base de datos.
+ * @version 1.0
+ */
 public class DataLoader {
 
     /**
-     * Lee los 4 CSVs y los persiste en la BD.
-     * El orden respeta las FK: Cliente → Producto → Factura → Factura_Producto
+     * @brief Lee los 4 CSVs y los persiste en la base de datos.
+     * @details El orden respeta las FK: Cliente -> Producto -> Factura -> Factura_Producto.
      * IMPORTANTE: ejecutar solo 1 vez, luego comentar la llamada en Main.
+     * @param factory [in] fabrica de DAOs usada para obtener acceso a la base de datos
      */
     public static void inicializarMetadata(AbstractFactory factory) {
         try {

@@ -19,6 +19,10 @@ import java.util.List;
 public class ClienteDAO implements Dao<Cliente> {
     private Connection con;
 
+    /**
+     * @brief Crea una instancia de ClienteDAO asociada a una conexion.
+     * @param con [in] conexion JDBC usada para operaciones sobre Cliente
+     */
     public ClienteDAO(Connection con) {
         this.con = con;
     }
@@ -87,6 +91,11 @@ public class ClienteDAO implements Dao<Cliente> {
         return clientes;
     }
 
+    /**
+     * @brief Obtiene y muestra los 5 clientes con mayor facturacion.
+     * @details El ranking se calcula sumando cantidad por valor de producto para cada cliente.
+     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     */
     public void obtenerTop5ClientesPorFacturacion() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT c.idCliente, c.nombre, c.email " +
@@ -123,6 +132,10 @@ public class ClienteDAO implements Dao<Cliente> {
         }
     }
 
+    /**
+     * @brief Muestra una lista de clientes con formato de ranking.
+     * @param clientes [in] lista de clientes a imprimir
+     */
     private void mostrarClientes(List<Cliente> clientes) {
         System.out.println("=== Top 5 clientes por facturación ===");
         for (int i = 0; i < clientes.size(); i++) {

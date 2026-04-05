@@ -10,6 +10,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * @brief MySQLDaoFactory
+ * @details Implementacion concreta de AbstractFactory para MySQL, usando singleton para compartir conexion.
+ * @version 1.0
+ */
 public class MySQLDaoFactory extends AbstractFactory{
 
     private static MySQLDaoFactory instance = null;
@@ -21,7 +26,10 @@ public class MySQLDaoFactory extends AbstractFactory{
     private MySQLDaoFactory() {
     }
 
-    //Este es el chiste del SINGLETON.
+    /**
+     * @brief Devuelve la instancia de la fabrica MySQL.
+     * @return instancia singleton de MySQLDaoFactory
+     */
     public static synchronized MySQLDaoFactory getInstance() {
         if (instance == null) {
             instance = new MySQLDaoFactory();
@@ -29,6 +37,10 @@ public class MySQLDaoFactory extends AbstractFactory{
         return instance;
     }
 
+    /**
+     * @brief Crea la conexion a MySQL si todavia no existe.
+     * @return conexion reutilizable para operaciones DAO
+     */
     public static Connection createConnection() {
         if (conn != null) {
             return conn;
@@ -51,6 +63,9 @@ public class MySQLDaoFactory extends AbstractFactory{
         return conn;
     }
 
+    /**
+     * @brief Cierra la conexion activa de MySQL.
+     */
     public void closeConnection() {
         try {
             conn.close();
@@ -59,21 +74,37 @@ public class MySQLDaoFactory extends AbstractFactory{
         }
     }
 
+    /**
+     * @brief Obtiene el DAO de Cliente para MySQL.
+     * @return instancia de ClienteDAO
+     */
     @Override
     public ClienteDAO getClienteDAO() {
         return new ClienteDAO(createConnection());
     }
 
+    /**
+     * @brief Obtiene el DAO de Factura para MySQL.
+     * @return instancia de FacturaDAO
+     */
     @Override
     public FacturaDAO getFacturaDAO() {
         return new FacturaDAO(createConnection());
     }
 
+    /**
+     * @brief Obtiene el DAO de Producto para MySQL.
+     * @return instancia de ProductoDAO
+     */
     @Override
     public ProductoDAO getProductoDAO() {
         return new ProductoDAO(createConnection());
     }
 
+    /**
+     * @brief Obtiene el DAO de Factura_Producto para MySQL.
+     * @return instancia de FacturaProductoDAO
+     */
     @Override
     public FacturaProductoDAO getFacturaProductoDAO() {
         return new FacturaProductoDAO(createConnection());
