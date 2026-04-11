@@ -6,8 +6,9 @@ import com.tp1jdbc.dao.impl.FacturaProductoDAO;
 import com.tp1jdbc.dao.impl.ProductoDAO;
 
 /**
- * @brief AbstractFactory
- * @details Define la interfaz para obtener los DAOs segun el motor de base de datos.
+ * Define la interfaz abstracta para obtener los DAOs según el motor de base de datos.
+ * Usa el patrón Abstract Factory para desacoplar la creación de DAOs de su implementación concreta.
+ *
  * @version 1.0
  */
 public abstract class AbstractFactory {
@@ -16,38 +17,43 @@ public abstract class AbstractFactory {
         public static final int MARIA_DB_JDBC = 2;
 
         /**
-         * @brief Obtiene el DAO para la entidad Cliente.
-         * @return instancia de ClienteDAO
+         * Obtiene el DAO para la entidad Cliente.
+         *
+         * @return instancia de {@link ClienteDAO}
          */
         public abstract ClienteDAO getClienteDAO();
 
         /**
-         * @brief Obtiene el DAO para la entidad Factura.
-         * @return instancia de FacturaDAO
+         * Obtiene el DAO para la entidad Factura.
+         *
+         * @return instancia de {@link FacturaDAO}
          */
         public abstract FacturaDAO getFacturaDAO();
 
         /**
-         * @brief Obtiene el DAO para la entidad Producto.
-         * @return instancia de ProductoDAO
+         * Obtiene el DAO para la entidad Producto.
+         *
+         * @return instancia de {@link ProductoDAO}
          */
         public abstract ProductoDAO getProductoDAO();
 
         /**
-         * @brief Obtiene el DAO para la relacion Factura_Producto.
-         * @return instancia de FacturaProductoDAO
+         * Obtiene el DAO para la relación Factura_Producto.
+         *
+         * @return instancia de {@link FacturaProductoDAO}
          */
         public abstract FacturaProductoDAO getFacturaProductoDAO();
 
         /**
-         * @brief Cierra la conexion administrada por la fabrica.
+         * Cierra la conexión administrada por la fábrica.
          */
         public abstract void closeConnection();
 
         /**
-         * @brief Devuelve la fabrica segun el identificador recibido.
-         * @param whichFactory [in] identificador del motor de base de datos
-         * @return instancia de AbstractFactory o null si el identificador no existe
+         * Devuelve la fábrica correspondiente al motor de base de datos indicado.
+         *
+         * @param whichFactory identificador del motor de base de datos ({@link #MYSQL_JDBC} o {@link #MARIA_DB_JDBC})
+         * @return instancia de {@code AbstractFactory}, o {@code null} si el identificador no existe
          */
         public static AbstractFactory getDAOFactory(int whichFactory) {
             switch (whichFactory) {

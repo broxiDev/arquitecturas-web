@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief FacturaDAO
- * @details Esta clase implementa las operaciones de acceso a datos para la entidad Factura.
+ * Implementa las operaciones de acceso a datos para la entidad {@link Factura}.
+ *
  * @version 1.0
  */
 public class FacturaDAO implements Dao<Factura> {
@@ -20,9 +20,10 @@ public class FacturaDAO implements Dao<Factura> {
     }
 
     /**
-     * @brief Inserta una factura en la base de datos.
-     * @param f [in] factura a insertar
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Inserta una factura en la base de datos.
+     *
+     * @param f factura a insertar
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void insertar(Factura f) throws SQLException {
         String sql = "INSERT INTO Factura (idFactura, idCliente) VALUES (?, ?)";
@@ -46,9 +47,10 @@ public class FacturaDAO implements Dao<Factura> {
     }
 
     /**
-     * @brief Lista todas las facturas almacenadas en la base de datos.
+     * Lista todas las facturas almacenadas en la base de datos.
+     *
      * @return lista con todas las facturas existentes
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public List<Factura> listarTodos() throws SQLException {
         List<Factura> facturas = new ArrayList<>();
@@ -78,4 +80,3 @@ public class FacturaDAO implements Dao<Factura> {
         return facturas;
     }
 }
-

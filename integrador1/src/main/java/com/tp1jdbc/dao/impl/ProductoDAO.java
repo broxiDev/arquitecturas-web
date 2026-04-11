@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief ProductoDAO
- * @details Esta clase implementa las operaciones de acceso a datos para la entidad Producto.
+ * Implementa las operaciones de acceso a datos para la entidad {@link Producto}.
+ *
  * @version 1.0
  */
 public class ProductoDAO implements Dao<Producto> {
@@ -21,9 +21,10 @@ public class ProductoDAO implements Dao<Producto> {
     }
 
     /**
-     * @brief Inserta un producto en la base de datos.
-     * @param p [in] producto a insertar
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Inserta un producto en la base de datos.
+     *
+     * @param p producto a insertar
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void insertar(Producto p) throws SQLException {
         String sql = "INSERT INTO Producto (idProducto, nombre, valor) VALUES (?, ?, ?)";
@@ -48,9 +49,10 @@ public class ProductoDAO implements Dao<Producto> {
     }
 
     /**
-     * @brief Lista todos los productos almacenados en la base de datos.
+     * Lista todos los productos almacenados en la base de datos.
+     *
      * @return lista con todos los productos existentes
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public List<Producto> listarTodos() throws SQLException {
         List<Producto> productos = new ArrayList<>();
@@ -82,10 +84,11 @@ public class ProductoDAO implements Dao<Producto> {
     }
 
     /**
-     * @brief Obtiene el producto de mayor recaudacion alcanzada.
-     * @details La recaudacion se calcula como la suma de cantidad vendida por valor del producto.
-     * @return producto que mas recaudo o null si no hay ventas registradas
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Obtiene el producto con mayor recaudación.
+     * La recaudación se calcula como la suma de cantidad vendida por valor del producto.
+     *
+     * @return producto que más recaudó, o {@code null} si no hay ventas registradas
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public Producto obtenerProductoQueMasRecaudo() throws SQLException {
         String sql = "SELECT p.idProducto, p.nombre, p.valor " +
@@ -121,10 +124,12 @@ public class ProductoDAO implements Dao<Producto> {
     }
 
     /**
-     * @brief Obtiene el producto de mayor recaudación junto con el monto recaudado.
-     * @details La recaudacion se calcula como la suma de cantidad vendida por valor del producto.
-     * @return ProductoDTO con nombre, valor y recaudacion total, o null si no hay ventas registradas
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Obtiene el producto con mayor recaudación junto con el monto total recaudado.
+     * La recaudación se calcula como la suma de cantidad vendida por valor del producto.
+     *
+     * @return {@link ProductoDTO} con nombre, valor y recaudación total,
+     *         o {@code null} si no hay ventas registradas
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public ProductoDTO obtenerProductoQueMasRecaudoDTO() throws SQLException {
         String sql = "SELECT p.nombre, p.valor, SUM(fp.cantidad * p.valor) AS recaudacion " +
@@ -139,12 +144,13 @@ public class ProductoDAO implements Dao<Producto> {
             st = con.createStatement();
             rs = st.executeQuery(sql);
             if (rs.next()) {
-
-                return new ProductoDTO(
+                ProductoDTO dto = new ProductoDTO(
                         rs.getString("nombre"),
                         rs.getFloat("valor"),
                         rs.getDouble("recaudacion")
                 );
+                System.out.println("Producto que mas recaudo: " + dto);
+                return dto;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -160,4 +166,3 @@ public class ProductoDAO implements Dao<Producto> {
         return null;
     }
 }
-

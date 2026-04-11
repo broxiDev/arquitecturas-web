@@ -12,25 +12,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief ClienteDAO
- * @details Esta clase implementa las operaciones de acceso a datos para la entidad Cliente.
+ * Implementa las operaciones de acceso a datos para la entidad {@link Cliente}.
+ *
  * @version 1.0
  */
 public class ClienteDAO implements Dao<Cliente> {
     private Connection con;
 
     /**
-     * @brief Crea una instancia de ClienteDAO asociada a una conexion.
-     * @param con [in] conexion JDBC usada para operaciones sobre Cliente
+     * Crea una instancia de {@code ClienteDAO} asociada a una conexión JDBC.
+     *
+     * @param con conexión JDBC usada para operaciones sobre Cliente
      */
     public ClienteDAO(Connection con) {
         this.con = con;
     }
 
     /**
-     * @brief Inserta un cliente en la base de datos.
-     * @param c [in] cliente a insertar
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Inserta un cliente en la base de datos.
+     *
+     * @param c cliente a insertar
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void insertar(Cliente c) throws SQLException {
         String sql = "INSERT INTO Cliente (idCliente, nombre, email) VALUES (?, ?, ?)";
@@ -58,9 +60,10 @@ public class ClienteDAO implements Dao<Cliente> {
     }
 
     /**
-     * @brief Lista todos los clientes almacenados en la base de datos.
+     * Lista todos los clientes almacenados en la base de datos.
+     *
      * @return lista con todos los clientes existentes
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public List<Cliente> listarTodos() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
@@ -92,9 +95,10 @@ public class ClienteDAO implements Dao<Cliente> {
     }
 
     /**
-     * @brief Obtiene y muestra los 5 clientes con mayor facturacion.
-     * @details El ranking se calcula sumando cantidad por valor de producto para cada cliente.
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Obtiene y muestra los 5 clientes con mayor facturación.
+     * La facturación se calcula sumando cantidad por valor de producto para cada cliente.
+     *
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void obtenerTop5ClientesPorFacturacion() throws SQLException {
         List<Cliente> clientes = new ArrayList<>();
@@ -133,8 +137,9 @@ public class ClienteDAO implements Dao<Cliente> {
     }
 
     /**
-     * @brief Muestra una lista de clientes con formato de ranking.
-     * @param clientes [in] lista de clientes a imprimir
+     * Muestra una lista de clientes con formato de ranking numerado.
+     *
+     * @param clientes lista de clientes a imprimir
      */
     private void mostrarClientes(List<Cliente> clientes) {
         System.out.println("=== Top 5 clientes por facturación ===");

@@ -30,13 +30,15 @@
 
 ### 2. Poblar la/las DB con datos mock.*
 En main.java
+- a) Ejecutar `Main.java` con la invocacion a los metodos "poblarDB" para cargar datos de prueba en las bases de datos.
+- b) Luego, comentar o borrar las invocaciones a los metodos "poblarDB".
+
 ![img_1.png](resources/img_1.png)
 
-- Para poblar MySQL pasar la instancia de la fabrica al metodo Poblar DB.
+### 3. Seleccionar DB para ejecutar los servicios
 
-- Para poblar MariaDB pasar la instancia de la fabrica al metodo Poblar DB.
+- a) Para ejecutar los servicios contra la DB MySQL, utilizar la fabrica mysqlFactory
+- b) Para ejecutar los servicios contra la MariaDB, utilizar la fabrica mariaDBFactory
 
-- Luego, comentar o borrar la invocacion alos metodos "poblarDB"
-
-### 3. Ejecutar
-Correr `Main.java` normalmente con los datos ya cargados.
+En el siguiente ejemplo, se muestra la invocacion a los servicios utilizando la fabrica mysqlFactory:
+![img.png](src/main/resources/img.png)

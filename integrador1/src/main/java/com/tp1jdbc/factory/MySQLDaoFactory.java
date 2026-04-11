@@ -11,8 +11,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * @brief MySQLDaoFactory
- * @details Implementacion concreta de AbstractFactory para MySQL, usando singleton para compartir conexion.
+ * Implementación concreta de {@link AbstractFactory} para MySQL.
+ * Gestiona la conexión como singleton para ser reutilizada por todos los DAOs.
+ *
  * @version 1.0
  */
 public class MySQLDaoFactory extends AbstractFactory{
@@ -27,8 +28,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Devuelve la instancia de la fabrica MySQL.
-     * @return instancia singleton de MySQLDaoFactory
+     * Devuelve la instancia singleton de esta fábrica.
+     *
+     * @return instancia única de {@code MySQLDaoFactory}
      */
     public static synchronized MySQLDaoFactory getInstance() {
         if (instance == null) {
@@ -38,8 +40,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Crea la conexion a MySQL si todavia no existe.
-     * @return conexion reutilizable para operaciones DAO
+     * Crea y retorna la conexión a MySQL, reutilizándola si ya existe.
+     *
+     * @return conexión JDBC activa
      */
     public static Connection createConnection() {
         if (conn != null) {
@@ -64,7 +67,7 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Cierra la conexion activa de MySQL.
+     * Cierra la conexión activa con MySQL.
      */
     public void closeConnection() {
         try {
@@ -75,8 +78,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Obtiene el DAO de Cliente para MySQL.
-     * @return instancia de ClienteDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Cliente} para MySQL.
+     *
+     * @return instancia de {@link ClienteDAO}
      */
     @Override
     public ClienteDAO getClienteDAO() {
@@ -84,8 +88,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Obtiene el DAO de Factura para MySQL.
-     * @return instancia de FacturaDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Factura} para MySQL.
+     *
+     * @return instancia de {@link FacturaDAO}
      */
     @Override
     public FacturaDAO getFacturaDAO() {
@@ -93,8 +98,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Obtiene el DAO de Producto para MySQL.
-     * @return instancia de ProductoDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Producto} para MySQL.
+     *
+     * @return instancia de {@link ProductoDAO}
      */
     @Override
     public ProductoDAO getProductoDAO() {
@@ -102,8 +108,9 @@ public class MySQLDaoFactory extends AbstractFactory{
     }
 
     /**
-     * @brief Obtiene el DAO de Factura_Producto para MySQL.
-     * @return instancia de FacturaProductoDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.FacturaProducto} para MySQL.
+     *
+     * @return instancia de {@link FacturaProductoDAO}
      */
     @Override
     public FacturaProductoDAO getFacturaProductoDAO() {

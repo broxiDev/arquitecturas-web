@@ -11,8 +11,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * @brief MariaDbDaoFactory
- * @details Implementacion de AbstractFactory para MariaDB, usando singleton para compartir conexion.
+ * Implementación concreta de {@link AbstractFactory} para MariaDB.
+ * Gestiona la conexión como singleton para ser reutilizada por todos los DAOs.
+ *
  * @version 1.0
  */
 public class MariaDbDaoFactory extends AbstractFactory {
@@ -27,8 +28,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Devuelve la instancia de la fabrica MariaDB.
-     * @return instancia singleton de MariaDbDaoFactory
+     * Devuelve la instancia singleton de esta fábrica.
+     *
+     * @return instancia única de {@code MariaDbDaoFactory}
      */
     public static synchronized MariaDbDaoFactory getInstance() {
         if (instance == null) {
@@ -38,8 +40,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Crea la conexion a MariaDB si todavia no existe.
-     * @return conexion reutilizable para operaciones DAO
+     * Crea y retorna la conexión a MariaDB, reutilizándola si ya existe.
+     *
+     * @return conexión JDBC activa
      */
     public static Connection createConnection() {
         if (conn != null) {
@@ -63,7 +66,7 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Cierra la conexion activa de MariaDB.
+     * Cierra la conexión activa con MariaDB.
      */
     public void closeConnection() {
         try {
@@ -74,8 +77,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Obtiene el DAO de Cliente para MariaDB.
-     * @return instancia de ClienteDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Cliente} para MariaDB.
+     *
+     * @return instancia de {@link ClienteDAO}
      */
     @Override
     public ClienteDAO getClienteDAO() {
@@ -83,8 +87,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Obtiene el DAO de Factura para MariaDB.
-     * @return instancia de FacturaDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Factura} para MariaDB.
+     *
+     * @return instancia de {@link FacturaDAO}
      */
     @Override
     public FacturaDAO getFacturaDAO() {
@@ -92,8 +97,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Obtiene el DAO de Producto para MariaDB.
-     * @return instancia de ProductoDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.Producto} para MariaDB.
+     *
+     * @return instancia de {@link ProductoDAO}
      */
     @Override
     public ProductoDAO getProductoDAO() {
@@ -101,8 +107,9 @@ public class MariaDbDaoFactory extends AbstractFactory {
     }
 
     /**
-     * @brief Obtiene el DAO de Factura_Producto para MariaDB.
-     * @return instancia de FacturaProductoDAO
+     * Obtiene el DAO de {@link com.tp1jdbc.entities.FacturaProducto} para MariaDB.
+     *
+     * @return instancia de {@link FacturaProductoDAO}
      */
     @Override
     public FacturaProductoDAO getFacturaProductoDAO() {

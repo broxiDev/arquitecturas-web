@@ -13,17 +13,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * @brief DataLoader
- * @details Utilidad para cargar datos iniciales desde archivos CSV hacia la base de datos.
+ * Utilidad para cargar datos iniciales desde archivos CSV hacia la base de datos.
+ * El orden de inserción respeta las claves foráneas: Cliente → Producto → Factura → Factura_Producto.
+ *
  * @version 1.0
  */
 public class DataLoader {
 
     /**
-     * @brief Lee los 4 CSVs y los persiste en la base de datos.
-     * @details El orden respeta las FK: Cliente -> Producto -> Factura -> Factura_Producto.
-     * IMPORTANTE: ejecutar solo 1 vez, luego comentar la llamada en Main.
-     * @param factory [in] fabrica de DAOs usada para obtener acceso a la base de datos
+     * Lee los cuatro archivos CSV y persiste su contenido en la base de datos.
+     * <p>
+     * <strong>Importante:</strong> ejecutar solo una vez; comentar la llamada en {@code Main} luego de poblar.
+     *
+     * @param factory fábrica de DAOs usada para obtener acceso a la base de datos
      */
     public static void inicializarMetadata(AbstractFactory factory) {
         try {
@@ -59,4 +61,3 @@ public class DataLoader {
         }
     }
 }
-

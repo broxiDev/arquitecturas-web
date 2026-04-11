@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import java.util.Locale;
 
 /**
- * @brief ProductoDTO
- * @details DTO que representa un producto junto con su recaudación total.
+ * DTO que representa un producto junto con su recaudación total.
+ *
  * @version 1.0
  */
 @Data

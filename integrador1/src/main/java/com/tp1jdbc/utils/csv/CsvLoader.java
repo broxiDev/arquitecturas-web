@@ -15,15 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief CsvLoader
- * @details Centraliza la lectura de archivos CSV y su transformacion a entidades del dominio.
+ * Centraliza la lectura de archivos CSV del classpath y su transformación a entidades del dominio.
+ *
  * @version 1.0
  */
 public class CsvLoader {
 
     /**
-     * @brief Abre un recurso CSV para su lectura.
-     * @param archivo [in] nombre del archivo dentro de recursos
+     * Abre un recurso del classpath para su lectura como {@link Reader}.
+     *
+     * @param archivo nombre del archivo dentro de los recursos
      * @return reader asociado al archivo solicitado
      */
     private static Reader abrirRecurso(String archivo) {
@@ -33,9 +34,10 @@ public class CsvLoader {
     }
 
     /**
-     * @brief Carga clientes desde el archivo clientes.csv.
-     * @return lista de clientes leidos desde el CSV
-     * @throws IOException error producido durante la lectura del archivo
+     * Carga clientes desde el archivo {@code clientes.csv}.
+     *
+     * @return lista de clientes leídos desde el CSV
+     * @throws IOException si ocurre un error durante la lectura del archivo
      */
     public static List<Cliente> cargarClientes() throws IOException {
         List<Cliente> lista = new ArrayList<>();
@@ -54,9 +56,10 @@ public class CsvLoader {
     }
 
     /**
-     * @brief Carga productos desde el archivo productos.csv.
-     * @return lista de productos leidos desde el CSV
-     * @throws IOException error producido durante la lectura del archivo
+     * Carga productos desde el archivo {@code productos.csv}.
+     *
+     * @return lista de productos leídos desde el CSV
+     * @throws IOException si ocurre un error durante la lectura del archivo
      */
     public static List<Producto> cargarProductos() throws IOException {
         List<Producto> lista = new ArrayList<>();
@@ -75,9 +78,10 @@ public class CsvLoader {
     }
 
     /**
-     * @brief Carga facturas desde el archivo facturas.csv.
-     * @return lista de facturas leidas desde el CSV
-     * @throws IOException error producido durante la lectura del archivo
+     * Carga facturas desde el archivo {@code facturas.csv}.
+     *
+     * @return lista de facturas leídas desde el CSV
+     * @throws IOException si ocurre un error durante la lectura del archivo
      */
     public static List<Factura> cargarFacturas() throws IOException {
         List<Factura> lista = new ArrayList<>();
@@ -95,9 +99,10 @@ public class CsvLoader {
     }
 
     /**
-     * @brief Carga relaciones factura-producto desde el archivo facturas-productos.csv.
-     * @return lista de relaciones factura-producto leidas desde el CSV
-     * @throws IOException error producido durante la lectura del archivo
+     * Carga las relaciones factura-producto desde el archivo {@code facturas-productos.csv}.
+     *
+     * @return lista de relaciones factura-producto leídas desde el CSV
+     * @throws IOException si ocurre un error durante la lectura del archivo
      */
     public static List<FacturaProducto> cargarFacturasProductos() throws IOException {
         List<FacturaProducto> lista = new ArrayList<>();
@@ -115,4 +120,3 @@ public class CsvLoader {
         return lista;
     }
 }
-

@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief FacturaProductoDAO
- * @details Esta clase implementa las operaciones de acceso a datos para la entidad FacturaProducto.
+ * Implementa las operaciones de acceso a datos para la entidad {@link FacturaProducto}.
+ *
  * @version 1.0
  */
 public class FacturaProductoDAO implements Dao<FacturaProducto> {
@@ -20,9 +20,10 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
     }
 
     /**
-     * @brief Inserta una relacion entre factura y producto en la base de datos.
-     * @param fp [in] objeto de relacion factura-producto a insertar
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * Inserta una relación entre factura y producto en la base de datos.
+     *
+     * @param fp objeto de relación factura-producto a insertar
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void insertar(FacturaProducto fp) throws SQLException {
         String sql = "INSERT INTO Factura_Producto (idFactura, idProducto, cantidad) VALUES (?, ?, ?)";
@@ -47,9 +48,10 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
     }
 
     /**
-     * @brief Lista todas las relaciones factura-producto almacenadas en la base de datos.
+     * Lista todas las relaciones factura-producto almacenadas en la base de datos.
+     *
      * @return lista con todas las relaciones factura-producto existentes
-     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public List<FacturaProducto> listarTodos() throws SQLException {
         List<FacturaProducto> lista = new ArrayList<>();
@@ -80,4 +82,3 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
         return lista;
     }
 }
-
