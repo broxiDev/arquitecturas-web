@@ -2,6 +2,7 @@ package com.tp1jdbc.dao.impl;
 
 import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.Producto;
+import com.tp1jdbc.entities.ProductoDTO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -103,6 +104,46 @@ public class ProductoDAO implements Dao<Producto> {
                     rs.getInt("idProducto"),
                     rs.getString("nombre"),
                     rs.getFloat("valor")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @brief Obtiene el producto de mayor recaudación junto con el monto recaudado.
+     * @details La recaudacion se calcula como la suma de cantidad vendida por valor del producto.
+     * @return ProductoDTO con nombre, valor y recaudacion total, o null si no hay ventas registradas
+     * @throws SQLException error producido durante el intento de conexion a la base de datos
+     */
+    public ProductoDTO obtenerProductoQueMasRecaudoDTO() throws SQLException {
+        String sql = "SELECT p.nombre, p.valor, SUM(fp.cantidad * p.valor) AS recaudacion " +
+                "FROM Producto p " +
+                "INNER JOIN Factura_Producto fp ON fp.idProducto = p.idProducto " +
+                "GROUP BY p.idProducto, p.nombre, p.valor " +
+                "ORDER BY recaudacion DESC LIMIT 1";
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            if (rs.next()) {
+
+                return new ProductoDTO(
+                        rs.getString("nombre"),
+                        rs.getFloat("valor"),
+                        rs.getDouble("recaudacion")
                 );
             }
         } catch (SQLException e) {

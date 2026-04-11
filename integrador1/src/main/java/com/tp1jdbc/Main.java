@@ -1,6 +1,7 @@
 package com.tp1jdbc;
 
 import com.tp1jdbc.entities.Producto;
+import com.tp1jdbc.entities.ProductoDTO;
 import com.tp1jdbc.factory.AbstractFactory;
 import com.tp1jdbc.utils.DataLoader;
 
@@ -18,8 +19,8 @@ public class Main {
         //Borrar o eliminar luego de que se haya pobaldo ambas DB.
 
         // 3. Producto que mas recaudo
-        Producto p = mysqlFactory.getProductoDAO().obtenerProductoQueMasRecaudo();
-        System.out.println("Producto que mas recaudo: " + p);
+        ProductoDTO pDTO = mysqlFactory.getProductoDAO().obtenerProductoQueMasRecaudoDTO();
+        System.out.println("Producto que mas recaudo: " + pDTO);
 
         // 4. Clientes que mas facturaron (Top 5)
         mysqlFactory.getClienteDAO().obtenerTop5ClientesPorFacturacion();

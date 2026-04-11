@@ -1,4 +1,4 @@
-﻿package com.tp1jdbc.utils;
+package com.tp1jdbc.utils;
 
 import com.tp1jdbc.dao.impl.ClienteDAO;
 import com.tp1jdbc.dao.impl.FacturaDAO;
