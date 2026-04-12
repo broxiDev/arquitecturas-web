@@ -3,6 +3,8 @@ package com.tp1jdbc.dao.impl;
 import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.Producto;
 import com.tp1jdbc.entities.ProductoDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ProductoDAO implements Dao<Producto> {
+    private static final Logger logger = LoggerFactory.getLogger(ProductoDAO.class);
     private Connection con;
 
     public ProductoDAO(Connection con) {
@@ -35,7 +38,7 @@ public class ProductoDAO implements Dao<Producto> {
             ps.setString(2, p.getNombre());
             ps.setFloat(3, p.getValor());
             ps.executeUpdate();
-            System.out.println("Producto insertado exitosamente.");
+            logger.debug("Producto insertado: {}", p.getIdProducto());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -81,46 +84,6 @@ public class ProductoDAO implements Dao<Producto> {
             }
         }
         return productos;
-    }
-
-    /**
-     * Obtiene el producto con mayor recaudación.
-     * La recaudación se calcula como la suma de cantidad vendida por valor del producto.
-     *
-     * @return producto que más recaudó, o {@code null} si no hay ventas registradas
-     * @throws SQLException si ocurre un error durante la conexión a la base de datos
-     */
-    public Producto obtenerProductoQueMasRecaudo() throws SQLException {
-        String sql = "SELECT p.idProducto, p.nombre, p.valor " +
-                "FROM Producto p " +
-                "INNER JOIN Factura_Producto fp ON fp.idProducto = p.idProducto " +
-                "GROUP BY p.idProducto, p.nombre, p.valor " +
-                "ORDER BY SUM(fp.cantidad * p.valor) DESC LIMIT 1";
-        Statement st = null;
-        ResultSet rs = null;
-
-        try {
-            st = con.createStatement();
-            rs = st.executeQuery(sql);
-            if (rs.next()) {
-                return new Producto(
-                    rs.getInt("idProducto"),
-                    rs.getString("nombre"),
-                    rs.getFloat("valor")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (st != null) st.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
     }
 
     /**

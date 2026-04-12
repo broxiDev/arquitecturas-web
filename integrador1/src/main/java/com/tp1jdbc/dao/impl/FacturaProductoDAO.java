@@ -2,6 +2,9 @@ package com.tp1jdbc.dao.impl;
 
 import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.FacturaProducto;
+import com.tp1jdbc.entities.FacturaProductoDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import java.util.List;
  * @version 1.0
  */
 public class FacturaProductoDAO implements Dao<FacturaProducto> {
+    private static final Logger logger = LoggerFactory.getLogger(FacturaProductoDAO.class);
     private Connection con;
 
     public FacturaProductoDAO(Connection con) {
@@ -34,7 +38,7 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
             ps.setInt(2, fp.getIdProducto());
             ps.setInt(3, fp.getCantidad());
             ps.executeUpdate();
-            System.out.println("FacturaProducto insertado exitosamente.");
+            logger.debug("FacturaProducto insertado: Factura {} - Producto {}", fp.getIdFactura(), fp.getIdProducto());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -50,12 +54,14 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
     /**
      * Lista todas las relaciones factura-producto almacenadas en la base de datos.
      *
-     * @return lista con todas las relaciones factura-producto existentes
+     * @return lista con todos los DTOs de relaciones factura-producto
      * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
-    public List<FacturaProducto> listarTodos() throws SQLException {
-        List<FacturaProducto> lista = new ArrayList<>();
-        String sql = "SELECT * FROM Factura_Producto";
+    public List<FacturaProductoDTO> listarTodos() throws SQLException {
+        List<FacturaProductoDTO> lista = new ArrayList<>();
+        String sql = "SELECT p.nombre, p.valor, (fp.cantidad * p.valor) AS recaudacion " +
+                     "FROM Factura_Producto fp " +
+                     "INNER JOIN Producto p ON fp.idProducto = p.idProducto";
         Statement st = null;
         ResultSet rs = null;
 
@@ -63,10 +69,10 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while (rs.next()) {
-                lista.add(new FacturaProducto(
-                    rs.getInt("idFactura"),
-                    rs.getInt("idProducto"),
-                    rs.getInt("cantidad")
+                lista.add(new FacturaProductoDTO(
+                        rs.getString("nombre"),
+                        rs.getFloat("valor"),
+                        rs.getDouble("recaudacion")
                 ));
             }
         } catch (SQLException e) {

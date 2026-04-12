@@ -2,6 +2,9 @@ package com.tp1jdbc.dao.impl;
 
 import com.tp1jdbc.dao.Dao;
 import com.tp1jdbc.entities.Cliente;
+import com.tp1jdbc.entities.ClienteDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +20,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ClienteDAO implements Dao<Cliente> {
+    private static final Logger logger = LoggerFactory.getLogger(ClienteDAO.class);
     private Connection con;
 
     /**
@@ -44,7 +48,7 @@ public class ClienteDAO implements Dao<Cliente> {
             ps.setString(2, c.getNombre());
             ps.setString(3, c.getEmail());
             ps.executeUpdate();
-            System.out.println("Cliente insertado exitosamente.");
+            logger.debug("Cliente insertado: {}", c.getIdCliente());
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -65,8 +69,8 @@ public class ClienteDAO implements Dao<Cliente> {
      * @return lista con todos los clientes existentes
      * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
-    public List<Cliente> listarTodos() throws SQLException {
-        List<Cliente> clientes = new ArrayList<>();
+    public List<ClienteDTO> listarTodos() throws SQLException {
+        List<ClienteDTO> clientes = new ArrayList<>();
         String sql = "SELECT * FROM Cliente";
         Statement st = null;
         ResultSet rs = null;
@@ -75,10 +79,9 @@ public class ClienteDAO implements Dao<Cliente> {
             st = con.createStatement();
             rs = st.executeQuery(sql);
             while (rs.next()) {
-                clientes.add(new Cliente(
-                    rs.getInt("idCliente"),
-                    rs.getString("nombre"),
-                    rs.getString("email")
+                clientes.add(new ClienteDTO(
+                        rs.getString("nombre"),
+                        rs.getString("email")
                 ));
             }
         } catch (SQLException e) {
@@ -101,8 +104,8 @@ public class ClienteDAO implements Dao<Cliente> {
      * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
     public void obtenerTop5ClientesPorFacturacion() throws SQLException {
-        List<Cliente> clientes = new ArrayList<>();
-        String sql = "SELECT c.idCliente, c.nombre, c.email " +
+        List<ClienteDTO> clientes = new ArrayList<>();
+        String sql = "SELECT c.nombre, c.email " +
                 "FROM Cliente c " +
                 "INNER JOIN Factura f ON f.idCliente = c.idCliente " +
                 "INNER JOIN Factura_Producto fp ON fp.idFactura = f.idFactura " +
@@ -117,10 +120,9 @@ public class ClienteDAO implements Dao<Cliente> {
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
-                clientes.add(new Cliente(
-                    rs.getInt("idCliente"),
-                    rs.getString("nombre"),
-                    rs.getString("email")
+                clientes.add(new ClienteDTO(
+                        rs.getString("nombre"),
+                        rs.getString("email")
                 ));
             }
             mostrarClientes(clientes);
@@ -141,11 +143,11 @@ public class ClienteDAO implements Dao<Cliente> {
      *
      * @param clientes lista de clientes a imprimir
      */
-    private void mostrarClientes(List<Cliente> clientes) {
+    private void mostrarClientes(List<ClienteDTO> clientes) {
         System.out.println("=== Top 5 clientes por facturación ===");
         for (int i = 0; i < clientes.size(); i++) {
-            Cliente c = clientes.get(i);
-            System.out.printf("%d. [ID: %d] %s — %s%n", i + 1, c.getIdCliente(), c.getNombre(), c.getEmail());
+            ClienteDTO c = clientes.get(i);
+            System.out.printf("%d. %s — %s%n", i + 1, c.getNombre(), c.getEmail());
         }
     }
 }
