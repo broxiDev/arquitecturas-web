@@ -10,6 +10,7 @@
 ### 1. Levantar las bases de datos
 ```bash
  docker-compose up --build -d
+ (Una vez que se crean los contenedores, esperar 5 minutos a que se inicialicen las DB. En logs dice algo like "ready for connections")
 ```
 
 **MySQL**

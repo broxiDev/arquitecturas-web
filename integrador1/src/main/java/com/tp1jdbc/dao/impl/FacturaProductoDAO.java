@@ -57,7 +57,42 @@ public class FacturaProductoDAO implements Dao<FacturaProducto> {
      * @return lista con todos los DTOs de relaciones factura-producto
      * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
-    public List<FacturaProductoDTO> listarTodos() throws SQLException {
+    public List<FacturaProducto> listarTodos() throws SQLException {
+        List<FacturaProducto> lista = new ArrayList<>();
+        String sql = "SELECT * FROM Factura_Producto";
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
+                lista.add(new FacturaProducto(
+                        rs.getInt("idFactura"),
+                        rs.getInt("idProducto"),
+                        rs.getInt("cantidad")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return lista;
+    }
+
+    /**
+     * Lista todas las relaciones factura-producto como DTOs.
+     *
+     * @return lista de FacturaProductoDTO
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
+     */
+    public List<FacturaProductoDTO> listarTodosDTO() throws SQLException {
         List<FacturaProductoDTO> lista = new ArrayList<>();
         String sql = "SELECT p.nombre, p.valor, (fp.cantidad * p.valor) AS recaudacion " +
                      "FROM Factura_Producto fp " +
