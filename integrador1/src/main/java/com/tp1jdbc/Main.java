@@ -17,10 +17,10 @@ public class Main {
         //Borrar o eliminar luego de que se hayan pobaldo ambas DB.
 
         // 3. Producto que mas recaudo
-        //mysqlFactory.getProductoDAO().obtenerProductoQueMasRecaudoDTO();
+        //mariaDBFactory.getProductoDAO().obtenerProductoQueMasRecaudoDTO();
 
         // 4. Clientes que mas facturaron (Top 5)
-        //mysqlFactory.getClienteDAO().obtenerTop5ClientesPorFacturacion();
+        //mariaDBFactory.getClienteDAO().obtenerTop5ClientesPorFacturacion();
     }
 
     private static void poblarDB(AbstractFactory factory) {

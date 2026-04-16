@@ -33,7 +33,7 @@ public class DataLoader {
      */
     public static void inicializarMetadata(AbstractFactory factory) {
         logger.info("=== Iniciando carga de datos desde CSV ===");
-        
+
         try {
             // 1. Clientes
             logger.info("Cargando clientes...");
@@ -69,8 +69,6 @@ public class DataLoader {
 
         } catch (IOException e) {
             logger.error("Error al leer CSV: {}", e.getMessage(), e);
-        } catch (SQLException e) {
-            logger.error("Error al insertar en BD: {}", e.getMessage(), e);
         }
     }
     

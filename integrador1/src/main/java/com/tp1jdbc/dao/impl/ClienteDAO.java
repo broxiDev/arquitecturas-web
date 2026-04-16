@@ -69,7 +69,42 @@ public class ClienteDAO implements Dao<Cliente> {
      * @return lista con todos los clientes existentes
      * @throws SQLException si ocurre un error durante la conexión a la base de datos
      */
-    public List<ClienteDTO> listarTodos() throws SQLException {
+    public List<Cliente> listarTodos() throws SQLException {
+        List<Cliente> clientes = new ArrayList<>();
+        String sql = "SELECT * FROM Cliente";
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = con.createStatement();
+            rs = st.executeQuery(sql);
+            while (rs.next()) {
+                clientes.add(new Cliente(
+                        rs.getInt("idCliente"),
+                        rs.getString("nombre"),
+                        rs.getString("email")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (st != null) st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return clientes;
+    }
+
+    /**
+     * Lista todos los clientes como DTOs.
+     *
+     * @return lista de ClienteDTO con nombre y email
+     * @throws SQLException si ocurre un error durante la conexión a la base de datos
+     */
+    public List<ClienteDTO> listarTodosDTO() throws SQLException {
         List<ClienteDTO> clientes = new ArrayList<>();
         String sql = "SELECT * FROM Cliente";
         Statement st = null;
