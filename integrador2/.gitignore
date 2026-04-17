@@ -1,0 +1,16 @@
+# Contexto personal
+src/main/resources/CONTEXTO.md
+
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
