@@ -17,40 +17,35 @@ import java.util.List;
 @Table(name = "estudiante")
 public class Estudiante {
 
-    public enum Genero {
-        FEMENINO, MASCULINO, OTRO, PREFIERO_NO_DECIRLO
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 80)
+    @Column
     private String nombres;
 
-    @Column(nullable = false, length = 80)
+    @Column
     private String apellido;
 
-    @Column(nullable = false)
+    @Column
     private Integer edad;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private Genero genero;
+    @Column(length = 1)
+    private Character genero;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(name = "numero_documento")
     private String numeroDocumento;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "ciudad_residencia")
     private String ciudadResidencia;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(name = "numero_libreta_universitaria")
     private String numeroLibretaUniversitaria;
 
-    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "estudiante")
     private List<Inscripcion> inscripciones = new ArrayList<>();
 
-    public Estudiante(String nombres, String apellido, Integer edad, Genero genero,
+    public Estudiante(String nombres, String apellido, Integer edad, Character genero,
                       String numeroDocumento, String ciudadResidencia, String numeroLibretaUniversitaria) {
         this.nombres = nombres;
         this.apellido = apellido;
