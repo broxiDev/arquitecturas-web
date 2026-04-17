@@ -55,7 +55,7 @@ public class EstudianteRepository {
     }
 
     // 2e — Recuperar todos los estudiantes por género
-    public List<EstudianteDTO> buscarPorGenero(Estudiante.Genero genero) {
+    public List<EstudianteDTO> buscarPorGenero(Character genero) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
