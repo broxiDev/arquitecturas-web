@@ -30,7 +30,7 @@ public class CarreraRepository {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT c FROM Carrera c WHERE c.nombre = :nombre",
+                    "SELECT c FROM Carrera c WHERE c.nombreCarrera = :nombre",
                     Carrera.class
             ).setParameter("nombre", nombre).getSingleResult();
         } catch (Exception e) {
@@ -45,9 +45,9 @@ public class CarreraRepository {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT new com.tp2jpa.dto.CarreraInscriptosDTO(c.nombre, COUNT(i)) " +
+                    "SELECT new com.tp2jpa.dto.CarreraInscriptosDTO(c.nombreCarrera, COUNT(i)) " +
                     "FROM Carrera c JOIN c.inscripciones i " +
-                    "GROUP BY c.id, c.nombre " +
+                    "GROUP BY c.idCarrera, c.nombreCarrera " +
                     "ORDER BY COUNT(i) DESC",
                     CarreraInscriptosDTO.class
             ).getResultList();
@@ -62,14 +62,14 @@ public class CarreraRepository {
         try {
             return em.createQuery(
                     "SELECT new com.tp2jpa.dto.CarreraReporteDTO(" +
-                    "  c.nombre, " +
-                    "  i.antiguedadEnAnios, " +
+                    "  c.nombreCarrera, " +
+                    "  i.antiguedad, " +
                     "  COUNT(i), " +
-                    "  SUM(CASE WHEN i.graduado = true THEN 1L ELSE 0L END)" +
+                    "  SUM(CASE WHEN i.graduacion > 0 THEN 1L ELSE 0L END)" +
                     ") " +
                     "FROM Carrera c JOIN c.inscripciones i " +
-                    "GROUP BY c.nombre, i.antiguedadEnAnios " +
-                    "ORDER BY c.nombre ASC, i.antiguedadEnAnios ASC",
+                    "GROUP BY c.nombreCarrera, i.antiguedad " +
+                    "ORDER BY c.nombreCarrera ASC, i.antiguedad ASC",
                     CarreraReporteDTO.class
             ).getResultList();
         } finally {
@@ -77,4 +77,3 @@ public class CarreraRepository {
         }
     }
 }
-

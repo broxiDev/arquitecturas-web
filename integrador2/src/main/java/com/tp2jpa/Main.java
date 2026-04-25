@@ -13,13 +13,13 @@ public class Main {
         EstudianteRepository estudianteRepo = new EstudianteRepository();
 
         Estudiante estudiante = new Estudiante(
-                "Nahuel",       // nombres
-                "Di Fiore",      // apellido
-                32,           // edad
-                'M',          // genero
-                "37385519",   // numeroDocumento
-                "Loberia",   // ciudadResidencia
-                "1"       // numeroLibretaUniversitaria
+                37385519L,   // dni
+                "Nahuel",    // nombre
+                "Di Fiore",  // apellido
+                32,          // edad
+                "Masculino", // genero
+                "Loberia",   // ciudad
+                1L           // lu
         );
 
         estudianteRepo.guardar(estudiante);

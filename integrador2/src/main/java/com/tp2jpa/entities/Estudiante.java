@@ -18,11 +18,11 @@ import java.util.List;
 public class Estudiante {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "dni")
+    private Long dni;
 
     @Column
-    private String nombres;
+    private String nombre;
 
     @Column
     private String apellido;
@@ -30,29 +30,26 @@ public class Estudiante {
     @Column
     private Integer edad;
 
-    @Column(length = 1)
-    private Character genero;
+    @Column
+    private String genero;
 
-    @Column(name = "numero_documento")
-    private String numeroDocumento;
+    @Column
+    private String ciudad;
 
-    @Column(name = "ciudad_residencia")
-    private String ciudadResidencia;
-
-    @Column(name = "numero_libreta_universitaria")
-    private String numeroLibretaUniversitaria;
+    @Column
+    private Long lu;
 
     @OneToMany(mappedBy = "estudiante")
-    private List<Inscripcion> inscripciones = new ArrayList<>();
+    private List<EstudianteCarrera> inscripciones = new ArrayList<>();
 
-    public Estudiante(String nombres, String apellido, Integer edad, Character genero,
-                      String numeroDocumento, String ciudadResidencia, String numeroLibretaUniversitaria) {
-        this.nombres = nombres;
+    public Estudiante(Long dni, String nombre, String apellido, Integer edad,
+                      String genero, String ciudad, Long lu) {
+        this.dni = dni;
+        this.nombre = nombre;
         this.apellido = apellido;
         this.edad = edad;
         this.genero = genero;
-        this.numeroDocumento = numeroDocumento;
-        this.ciudadResidencia = ciudadResidencia;
-        this.numeroLibretaUniversitaria = numeroLibretaUniversitaria;
+        this.ciudad = ciudad;
+        this.lu = lu;
     }
 }

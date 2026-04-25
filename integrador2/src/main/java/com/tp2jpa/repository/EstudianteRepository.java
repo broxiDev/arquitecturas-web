@@ -29,8 +29,8 @@ public class EstudianteRepository {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombres, e.apellido, " +
-                    "e.numeroLibretaUniversitaria, e.genero, e.ciudadResidencia) " +
+                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
+                    "e.lu, e.genero, e.ciudad) " +
                     "FROM Estudiante e ORDER BY e.apellido ASC",
                     EstudianteDTO.class
             ).getResultList();
@@ -40,11 +40,11 @@ public class EstudianteRepository {
     }
 
     // 2d — Recuperar un estudiante por número de libreta universitaria
-    public Estudiante buscarPorLU(String lu) {
+    public Estudiante buscarPorLU(Long lu) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT e FROM Estudiante e WHERE e.numeroLibretaUniversitaria = :lu",
+                    "SELECT e FROM Estudiante e WHERE e.lu = :lu",
                     Estudiante.class
             ).setParameter("lu", lu).getSingleResult();
         } catch (Exception e) {
@@ -55,12 +55,12 @@ public class EstudianteRepository {
     }
 
     // 2e — Recuperar todos los estudiantes por género
-    public List<EstudianteDTO> buscarPorGenero(Character genero) {
+    public List<EstudianteDTO> buscarPorGenero(String genero) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombres, e.apellido, " +
-                    "e.numeroLibretaUniversitaria, e.genero, e.ciudadResidencia) " +
+                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
+                    "e.lu, e.genero, e.ciudad) " +
                     "FROM Estudiante e WHERE e.genero = :genero ORDER BY e.apellido ASC",
                     EstudianteDTO.class
             ).setParameter("genero", genero).getResultList();
@@ -74,10 +74,10 @@ public class EstudianteRepository {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery(
-                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombres, e.apellido, " +
-                    "e.numeroLibretaUniversitaria, e.genero, e.ciudadResidencia) " +
+                    "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
+                    "e.lu, e.genero, e.ciudad) " +
                     "FROM Estudiante e JOIN e.inscripciones i JOIN i.carrera c " +
-                    "WHERE c.nombre = :carrera AND e.ciudadResidencia = :ciudad " +
+                    "WHERE c.nombreCarrera = :carrera AND e.ciudad = :ciudad " +
                     "ORDER BY e.apellido ASC",
                     EstudianteDTO.class
             ).setParameter("carrera", carrera)
@@ -88,4 +88,3 @@ public class EstudianteRepository {
         }
     }
 }
-

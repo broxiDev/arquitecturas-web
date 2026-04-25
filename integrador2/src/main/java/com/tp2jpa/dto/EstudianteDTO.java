@@ -9,9 +9,9 @@ import lombok.ToString;
 @ToString
 public class EstudianteDTO {
 
-    private final String nombres;
+    private final String nombre;
     private final String apellido;
-    private final String numeroLibretaUniversitaria;
-    private final Character genero;
-    private final String ciudadResidencia;
+    private final Long lu;
+    private final String genero;
+    private final String ciudad;
 }

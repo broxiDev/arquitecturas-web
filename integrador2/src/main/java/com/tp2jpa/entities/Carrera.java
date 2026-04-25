@@ -1,20 +1,16 @@
 package com.tp2jpa.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @ToString(exclude = "inscripciones")
 @Entity
@@ -22,16 +18,21 @@ import java.util.List;
 public class Carrera {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_carrera")
+    private Long idCarrera;
+
+    @Column(name = "carrera")
+    private String nombreCarrera;
 
     @Column
-    private String nombre;
+    private Integer duracion;
 
     @OneToMany(mappedBy = "carrera")
-    private List<Inscripcion> inscripciones = new ArrayList<>();
+    private List<EstudianteCarrera> inscripciones = new ArrayList<>();
 
-    public Carrera(String nombre) {
-        this.nombre = nombre;
+    public Carrera(Long idCarrera, String nombreCarrera, Integer duracion) {
+        this.idCarrera = idCarrera;
+        this.nombreCarrera = nombreCarrera;
+        this.duracion = duracion;
     }
 }
