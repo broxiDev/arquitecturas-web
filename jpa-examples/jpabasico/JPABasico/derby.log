@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Fri Jan 14 10:17:39 ART 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.15.2.0 - (1873585): instance a816c00e-017e-58bc-8907-00000f69a650 
+on database directory /Users/adiazpace/Documents/eclipse-workspace-2020/JPABasico/exampleDBJPA with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@4b85612c 
+Loaded from file:/Users/adiazpace/.m2/repository/org/apache/derby/derby/10.15.2.0/derby-10.15.2.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=11.0.7+8-LTS
+user.dir=/Users/adiazpace/Documents/eclipse-workspace-2020/JPABasico
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.16
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

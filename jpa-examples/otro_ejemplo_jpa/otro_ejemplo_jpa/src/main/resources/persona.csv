@@ -1,0 +1,11 @@
+id,nombre,edad,mail,direccion
+1,Juan Perez,30,juan@mail.com,1
+2,Ana Lopez,25,ana@mail.com,1
+3,Luis Gomez,40,luis@mail.com,2
+4,Maria Ruiz,35,maria@mail.com,2
+5,Laura Diaz,22,laura@mail.com,3
+6,Pedro Pons,50,pedro@mail.com,4
+7,Sofia León,28,sofia@mail.com,4
+8,Juan Perez,30,juanperez@mail.com,5
+9,Ana Lopez,25,anita@mail.com,5
+10,Marcos Gil,60,luis2@mail.com,6

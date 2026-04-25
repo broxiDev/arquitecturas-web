@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/Users/Tripulante/broxi/workspace/facu/arquitecturas-web\" config --local user.name)",
+      "Bash(git -C \"C:/Users/Tripulante/broxi/workspace/facu/arquitecturas-web\" config --local user.email)",
+      "Bash(git *)"
+    ]
+  }
+}
