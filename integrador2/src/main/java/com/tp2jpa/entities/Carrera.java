@@ -18,6 +18,7 @@ import java.util.List;
 public class Carrera {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_carrera")
     private Long idCarrera;
 

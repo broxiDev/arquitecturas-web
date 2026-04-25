@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS estudiante;
 DROP TABLE IF EXISTS carrera;
 
 CREATE TABLE carrera (
-    id_carrera  BIGINT NOT NULL,
+    id_carrera  BIGINT NOT NULL AUTO_INCREMENT,
     carrera     VARCHAR(120),
     duracion    INT,
     PRIMARY KEY (id_carrera)
