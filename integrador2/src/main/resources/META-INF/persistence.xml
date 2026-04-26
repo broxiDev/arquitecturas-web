@@ -9,7 +9,7 @@
 
         <class>com.tp2jpa.entities.Estudiante</class>
         <class>com.tp2jpa.entities.Carrera</class>
-        <class>com.tp2jpa.entities.Inscripcion</class>
+        <class>com.tp2jpa.entities.EstudianteCarrera</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
