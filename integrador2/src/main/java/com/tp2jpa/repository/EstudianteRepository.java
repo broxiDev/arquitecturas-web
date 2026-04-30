@@ -6,9 +6,16 @@ import jakarta.persistence.EntityManager;
 
 import java.util.List;
 
+/**
+ * Repositorio de Estudiante.
+ */
 public class EstudianteRepository {
 
-    // 2a — Dar de alta un estudiante
+    /**
+     * Persiste un estudiante.
+     *
+     * @param estudiante estudiante a guardar
+     */
     public void guardar(Estudiante estudiante) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -23,7 +30,11 @@ public class EstudianteRepository {
         }
     }
 
-    // 2c — Recuperar todos los estudiantes ordenados por apellido
+    /**
+     * Recupera todos los estudiantes ordenados por apellido.
+     *
+     * @return lista de estudiantes
+     */
     public List<Estudiante> buscarTodos() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -36,23 +47,12 @@ public class EstudianteRepository {
         }
     }
 
-    // Version DTO (proyeccion parcial):
-    // import com.tp2jpa.dto.EstudianteDTO;
-    // public List<EstudianteDTO> buscarTodos() {
-    //     EntityManager em = JPAUtil.getEntityManager();
-    //     try {
-    //         return em.createQuery(
-    //                 "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
-    //                 "e.lu, e.genero, e.ciudad) " +
-    //                 "FROM Estudiante e ORDER BY e.apellido ASC",
-    //                 EstudianteDTO.class
-    //         ).getResultList();
-    //     } finally {
-    //         em.close();
-    //     }
-    // }
-
-    // 2d — Recuperar un estudiante por número de libreta universitaria
+    /**
+     * Recupera un estudiante por numero de libreta universitaria.
+     *
+     * @param lu numero de libreta
+     * @return estudiante encontrado o null si no existe
+     */
     public Estudiante buscarPorLU(Long lu) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -67,7 +67,12 @@ public class EstudianteRepository {
         }
     }
 
-    // 2e — Recuperar todos los estudiantes por género
+    /**
+     * Recupera todos los estudiantes de un genero.
+     *
+     * @param genero genero de filtro
+     * @return lista de estudiantes
+     */
     public List<Estudiante> buscarPorGenero(String genero) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -80,22 +85,13 @@ public class EstudianteRepository {
         }
     }
 
-    // Version DTO (proyeccion parcial):
-    // public List<EstudianteDTO> buscarPorGenero(String genero) {
-    //     EntityManager em = JPAUtil.getEntityManager();
-    //     try {
-    //         return em.createQuery(
-    //                 "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
-    //                 "e.lu, e.genero, e.ciudad) " +
-    //                 "FROM Estudiante e WHERE e.genero = :genero ORDER BY e.apellido ASC",
-    //                 EstudianteDTO.class
-    //         ).setParameter("genero", genero).getResultList();
-    //     } finally {
-    //         em.close();
-    //     }
-    // }
-
-    // 2g — Recuperar estudiantes de una carrera filtrado por ciudad
+    /**
+     * Recupera estudiantes de una carrera filtrados por ciudad.
+     *
+     * @param carrera nombre de la carrera
+     * @param ciudad ciudad de residencia
+     * @return lista de estudiantes
+     */
     public List<Estudiante> buscarPorCarreraYCiudad(String carrera, String ciudad) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -111,23 +107,4 @@ public class EstudianteRepository {
             em.close();
         }
     }
-
-    // Version DTO (proyeccion parcial):
-    // public List<EstudianteDTO> buscarPorCarreraYCiudad(String carrera, String ciudad) {
-    //     EntityManager em = JPAUtil.getEntityManager();
-    //     try {
-    //         return em.createQuery(
-    //                 "SELECT new com.tp2jpa.dto.EstudianteDTO(e.nombre, e.apellido, " +
-    //                 "e.lu, e.genero, e.ciudad) " +
-    //                 "FROM Estudiante e JOIN e.inscripciones i JOIN i.carrera c " +
-    //                 "WHERE c.nombreCarrera = :carrera AND e.ciudad = :ciudad " +
-    //                 "ORDER BY e.apellido ASC",
-    //                 EstudianteDTO.class
-    //         ).setParameter("carrera", carrera)
-    //          .setParameter("ciudad", ciudad)
-    //          .getResultList();
-    //     } finally {
-    //         em.close();
-    //     }
-    // }
 }

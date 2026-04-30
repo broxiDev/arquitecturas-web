@@ -6,9 +6,20 @@ import com.tp2jpa.entities.EstudianteCarrera;
 import com.tp2jpa.factory.JPAUtil;
 import jakarta.persistence.EntityManager;
 
+/**
+ * Repositorio de operaciones sobre la entidad intermedia estudiante-carrera.
+ */
 public class EstudianteCarreraRepository {
 
-    // 2b — Matricular un estudiante en una carrera
+    /**
+     * Matricula un estudiante en una carrera.
+     *
+     * @param estudiante estudiante a matricular
+     * @param carrera carrera destino
+     * @param inscripcion año de inscripcion
+     * @param graduacion año de graduacion
+     * @param antiguedad antiguedad inicial en carrera
+     */
     public void matricular(Estudiante estudiante, Carrera carrera, int inscripcion, int graduacion, int antiguedad) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
