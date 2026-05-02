@@ -7,6 +7,7 @@ import com.tp2jpa.factory.JPAUtil;
 import jakarta.persistence.EntityManager;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -77,44 +78,64 @@ public class CarreraRepository {
     /**
      * Genera el reporte de carreras con inscriptos y egresados por año.
      * El resultado se ordena por carrera (alfabetico) y año (cronologico).
-     *  
+     *
      * @return lista de filas del reporte
      */
     public List<CarreraReporteDTO> generarReporte() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            String sql = """
-                    SELECT t.carrera, t.anio, SUM(t.inscriptos) AS inscriptos, SUM(t.egresados) AS egresados
-                    FROM (
-                        SELECT c.carrera AS carrera, ec.inscripcion AS anio, COUNT(*) AS inscriptos, 0 AS egresados
-                        FROM carrera c
-                        JOIN estudiante_carrera ec ON c.id_carrera = ec.id_carrera
-                        WHERE ec.inscripcion IS NOT NULL AND ec.inscripcion > 0
-                        GROUP BY c.carrera, ec.inscripcion
+            List<CarreraReporteDTO> porInscripcion = em.createQuery(
+                    "SELECT new com.tp2jpa.dto.CarreraReporteDTO(c.nombreCarrera, ec.inscripcion, COUNT(ec), 0L) " +
+                    "FROM EstudianteCarrera ec JOIN ec.carrera c " +
+                    "WHERE ec.inscripcion > 0 " +
+                    "GROUP BY c.nombreCarrera, ec.inscripcion " +
+                    "ORDER BY c.nombreCarrera ASC, ec.inscripcion ASC",
+                    CarreraReporteDTO.class
+            ).getResultList();
 
-                        UNION ALL
+            List<CarreraReporteDTO> porGraduacion = em.createQuery(
+                    "SELECT new com.tp2jpa.dto.CarreraReporteDTO(c.nombreCarrera, ec.graduacion, 0L, COUNT(ec)) " +
+                    "FROM EstudianteCarrera ec JOIN ec.carrera c " +
+                    "WHERE ec.graduacion > 0 " +
+                    "GROUP BY c.nombreCarrera, ec.graduacion " +
+                    "ORDER BY c.nombreCarrera ASC, ec.graduacion ASC",
+                    CarreraReporteDTO.class
+            ).getResultList();
 
-                        SELECT c.carrera AS carrera, ec.graduacion AS anio, 0 AS inscriptos, COUNT(*) AS egresados
-                        FROM carrera c
-                        JOIN estudiante_carrera ec ON c.id_carrera = ec.id_carrera
-                        WHERE ec.graduacion IS NOT NULL AND ec.graduacion > 0
-                        GROUP BY c.carrera, ec.graduacion
-                    ) t
-                    GROUP BY t.carrera, t.anio
-                    ORDER BY t.carrera ASC, t.anio ASC
-                    """;
+            // base: arrancamos con los inscriptos
+            List<CarreraReporteDTO> reporte = new ArrayList<>(porInscripcion);
 
-            @SuppressWarnings("unchecked")
-            List<Object[]> filas = em.createNativeQuery(sql).getResultList();
-            List<CarreraReporteDTO> reporte = new ArrayList<>();
-
-            for (Object[] fila : filas) {
-                String carrera = (String) fila[0];
-                Integer anio = ((Number) fila[1]).intValue();
-                Long inscriptos = ((Number) fila[2]).longValue();
-                Long egresados = ((Number) fila[3]).longValue();
-                reporte.add(new CarreraReporteDTO(carrera, anio, inscriptos, egresados));
+            // por cada fila de egresados, buscamos si ya existe esa carrera+año y sumamos
+            for (CarreraReporteDTO egresado : porGraduacion) {
+                boolean encontrado = false;
+                for (int i = 0; i < reporte.size(); i++) {
+                    CarreraReporteDTO existente = reporte.get(i);
+                    if (existente.getCarrera().equals(egresado.getCarrera()) &&
+                        existente.getAnio().equals(egresado.getAnio())) {
+                        reporte.set(i, new CarreraReporteDTO(
+                                existente.getCarrera(),
+                                existente.getAnio(),
+                                existente.getInscriptos(),
+                                egresado.getEgresados()
+                        ));
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) {
+                    reporte.add(egresado);
+                }
             }
+
+            // ordenar por carrera y año
+            reporte.sort(new Comparator<CarreraReporteDTO>() {
+                @Override
+                public int compare(CarreraReporteDTO a, CarreraReporteDTO b) {
+                    int cmp = a.getCarrera().compareTo(b.getCarrera());
+                    if (cmp != 0) return cmp;
+                    return a.getAnio().compareTo(b.getAnio());
+                }
+            });
 
             return reporte;
         } finally {

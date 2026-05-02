@@ -18,40 +18,40 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
+        // ejecutar solo una vez para cargar CSV
+        poblarDB();
 
-        //poblarDB(); // ejecutar solo una vez para cargar CSV
-
-        System.out.println("\n=== 2a - Alta de estudiante ===");
+        // 2a - Alta de estudiante
         //darDeAltaEstudiante();
 
-        System.out.println("\n=== 2b - Matricular en carrera ===");
+        // 2b - Matricular en carrera
         //matricularEstudiante();
 
-        System.out.println("\n=== 2c - Todos los estudiantes (por apellido) ===");
-        listarTodosLosEstudiantes();
+        // 2c - Todos los estudiantes (por apellido)
+        //listarTodosLosEstudiantes();
 
-        System.out.println("\n=== 2d - Estudiante por libreta universitaria ===");
-        buscarEstudiantePorLU(999001L);
+        // 2d - Estudiante por libreta universitaria
+        //buscarEstudiantePorLU(999001L);
 
-        System.out.println("\n=== 2e - Estudiantes por genero ===");
-        listarEstudiantesPorGenero("Masculino");
+        // 2e - Estudiantes por genero
+        //listarEstudiantesPorGenero("Polygender");
 
-        System.out.println("\n=== 2f - Carreras con inscriptos ===");
-        listarCarrerasConInscriptos();
+        // 2f - Carreras con inscriptos
+        //listarCarrerasConInscriptos();
 
-        System.out.println("\n=== 2g - Estudiantes por carrera y ciudad ===");
-        listarEstudiantesPorCarreraYCiudad("TUDAI", "Lobercity");
+        // 2g - Estudiantes por carrera y ciudad
+        //listarEstudiantesPorCarreraYCiudad("Ingenieria Electronica", "Ganhe");
 
-        System.out.println("\n=== 3 - Reporte anual de carreras ===");
-        generarReporteCarreras();
+        // 3 - Reporte anual de carreras
+        //generarReporteCarreras();
 
-        JPAUtil.close();
     }
 
     /**
      * Da de alta un estudiante de ejemplo.
      */
     private static void darDeAltaEstudiante() {
+        System.out.println("\n=== 2a - Alta de estudiante ===");
         EstudianteRepository repo = new EstudianteRepository();
 
         Estudiante nuevo = new Estudiante(
@@ -72,6 +72,7 @@ public class Main {
      * Matricula un estudiante de ejemplo en una carrera.
      */
     private static void matricularEstudiante() {
+        System.out.println("\n=== 2b - Matricular en carrera ===");
         EstudianteRepository estudianteRepo = new EstudianteRepository();
         CarreraRepository carreraRepo = new CarreraRepository();
         EstudianteCarreraRepository inscripcionRepo = new EstudianteCarreraRepository();
@@ -92,6 +93,7 @@ public class Main {
      * Lista todos los estudiantes ordenados por apellido.
      */
     private static void listarTodosLosEstudiantes() {
+        System.out.println("\n=== 2c - Todos los estudiantes (por apellido) ===");
         EstudianteRepository repo = new EstudianteRepository();
         List<Estudiante> estudiantes = repo.buscarTodos();
         System.out.println("Total: " + estudiantes.size() + " estudiantes");
@@ -106,6 +108,7 @@ public class Main {
      * @param lu numero de libreta universitaria
      */
     private static void buscarEstudiantePorLU(Long lu) {
+        System.out.println("\n=== 2d - Estudiante por libreta universitaria ===");
         EstudianteRepository repo = new EstudianteRepository();
         Estudiante estudiante = repo.buscarPorLU(lu);
 
@@ -123,6 +126,7 @@ public class Main {
      * @param genero genero buscado
      */
     private static void listarEstudiantesPorGenero(String genero) {
+        System.out.println("\n=== 2e - Estudiantes por genero ===");
         EstudianteRepository repo = new EstudianteRepository();
         List<Estudiante> estudiantes = repo.buscarPorGenero(genero);
 
@@ -136,6 +140,7 @@ public class Main {
      * Lista carreras con inscriptos ordenadas por cantidad.
      */
     private static void listarCarrerasConInscriptos() {
+        System.out.println("\n=== 2f - Carreras con inscriptos ===");
         CarreraRepository repo = new CarreraRepository();
         List<CarreraInscriptosDTO> carreras = repo.buscarCarrerasConInscriptos();
 
@@ -151,6 +156,7 @@ public class Main {
      * @param ciudad ciudad de residencia
      */
     private static void listarEstudiantesPorCarreraYCiudad(String carrera, String ciudad) {
+        System.out.println("\n=== 2g - Estudiantes por carrera y ciudad ===");
         EstudianteRepository repo = new EstudianteRepository();
         List<Estudiante> estudiantes = repo.buscarPorCarreraYCiudad(carrera, ciudad);
 
@@ -164,11 +170,18 @@ public class Main {
      * Genera y muestra el reporte anual de carreras.
      */
     private static void generarReporteCarreras() {
+        System.out.println("\n=== 3 - Reporte anual de carreras ===");
         CarreraRepository repo = new CarreraRepository();
         List<CarreraReporteDTO> reporte = repo.generarReporte();
 
+        String carreraActual = null;
         for (CarreraReporteDTO fila : reporte) {
-            System.out.println(fila);
+            if (!fila.getCarrera().equals(carreraActual)) {
+                carreraActual = fila.getCarrera();
+                System.out.println("\nCarrera: " + carreraActual);
+            }
+            System.out.printf("  Año %d — Inscriptos: %d  |  Egresados: %d%n",
+                    fila.getAnio(), fila.getInscriptos(), fila.getEgresados());
         }
     }
 
