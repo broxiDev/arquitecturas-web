@@ -19,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
         // ejecutar solo una vez para cargar CSV
-        poblarDB();
+        //poblarDB();
 
         // 2a - Alta de estudiante
         //darDeAltaEstudiante();
@@ -34,7 +34,7 @@ public class Main {
         //buscarEstudiantePorLU(999001L);
 
         // 2e - Estudiantes por genero
-        //listarEstudiantesPorGenero("Polygender");
+        listarEstudiantesPorGenero("Masculino");
 
         // 2f - Carreras con inscriptos
         //listarCarrerasConInscriptos();
@@ -144,8 +144,10 @@ public class Main {
         CarreraRepository repo = new CarreraRepository();
         List<CarreraInscriptosDTO> carreras = repo.buscarCarrerasConInscriptos();
 
-        for (CarreraInscriptosDTO dto : carreras) {
-            System.out.println(dto);
+        for (int i = 0; i < carreras.size(); i++) {
+            CarreraInscriptosDTO dto = carreras.get(i);
+            System.out.printf("  %d. %-30s %d inscriptos%n",
+                    i + 1, dto.getNombre(), dto.getCantidadInscriptos());
         }
     }
 
