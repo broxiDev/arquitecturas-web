@@ -19,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) {
         // ejecutar solo una vez para cargar CSV
-        //poblarDB();
+        poblarDB();
 
         // 2a - Alta de estudiante
         //darDeAltaEstudiante();
@@ -34,7 +34,7 @@ public class Main {
         //buscarEstudiantePorLU(999001L);
 
         // 2e - Estudiantes por genero
-        listarEstudiantesPorGenero("Masculino");
+        //listarEstudiantesPorGenero("Masculino");
 
         // 2f - Carreras con inscriptos
         //listarCarrerasConInscriptos();
