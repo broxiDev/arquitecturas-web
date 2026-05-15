@@ -1,6 +1,7 @@
 package com.tp2jpa.entities;
 
 import jakarta.persistence.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * Entidad que representa a un estudiante.
  */
+@Schema(description = "Entidad Estudiante: contiene datos personales y referencias a inscripciones")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,36 +24,36 @@ import java.util.List;
 @Table(name = "estudiante")
 public class Estudiante {
 
-    /** Documento nacional de identidad (clave primaria). */
+    @Schema(description = "Documento nacional de identidad (clave primaria)")
     @Id
     @Column(name = "dni")
     private Long dni;
 
-    /** Nombre del estudiante. */
+    @Schema(description = "Nombre del estudiante")
     @Column
     private String nombre;
 
-    /** Apellido del estudiante. */
+    @Schema(description = "Apellido del estudiante")
     @Column
     private String apellido;
 
-    /** Edad del estudiante. */
+    @Schema(description = "Edad del estudiante")
     @Column
     private Integer edad;
 
-    /** Genero del estudiante. */
+    @Schema(description = "Género del estudiante")
     @Column
     private String genero;
 
-    /** Ciudad de residencia del estudiante. */
+    @Schema(description = "Ciudad de residencia del estudiante")
     @Column
     private String ciudad;
 
-    /** Libreta universitaria del estudiante. */
+    @Schema(description = "Número de libreta universitaria")
     @Column
     private Long lu;
 
-    /** Historial de inscripciones a carreras. */
+    @Schema(description = "Historial de inscripciones a carreras (relación OneToMany)")
     @JsonIgnore
     @OneToMany(mappedBy = "estudiante")
     private List<EstudianteCarrera> inscripciones = new ArrayList<>();

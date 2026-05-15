@@ -13,6 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Servicio que implementa las operaciones de negocio referentes a estudiantes.
+ *
+ * Provee métodos para listar, buscar por LU, generar consultas por género y
+ * matricular estudiantes en carreras. Esta clase es transaccional y usa
+ * repositorios JPA para persistencia.
+ */
 @Service("EstudianteServicio")
 public class EstudianteServicio implements BaseService<Estudiante> {
 

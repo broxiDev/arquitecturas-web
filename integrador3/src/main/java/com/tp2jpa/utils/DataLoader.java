@@ -21,6 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+/**
+ * Utilidad para cargar datos iniciales desde CSV al iniciar la aplicación.
+ *
+ * Se usa en ambientes de desarrollo para poblar las tablas `carrera`,
+ * `estudiante` y `estudiante_carrera` si la base de datos está vacía.
+ */
 public class DataLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
@@ -35,6 +41,10 @@ public class DataLoader {
     private EstudianteCarreraRepository ecRepository;
 
     @Transactional
+    /**
+     * Carga datos desde los CSV ubicados en `src/main/resources` usando `CsvLoader`.
+     * Omite la carga si ya existen carreras en la base de datos.
+     */
     public void cargarDatos() throws IOException {
         if (!carreraRepository.findAll().isEmpty()) {
             logger.info("Base de datos ya contiene datos, omitiendo carga.");

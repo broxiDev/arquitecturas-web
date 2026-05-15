@@ -13,6 +13,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Servicio para operaciones sobre `Carrera`.
+ *
+ * Proporciona métodos CRUD básicos y consultas agregadas para generar
+ * listados de carreras con cantidad de inscriptos y reportes anuales.
+ */
 @Service("CarreraServicio")
 public class CarreraServicio implements BaseService<Carrera> {
 

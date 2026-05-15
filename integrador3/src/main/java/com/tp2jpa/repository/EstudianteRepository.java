@@ -8,6 +8,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositorio JPA para la entidad `Estudiante`.
+ *
+ * Define consultas específicas utilizadas por el servicio de estudiantes,
+ * incluyendo búsqueda por LU, género y combinación carrera/ciudad.
+ */
 @Repository("EstudianteRepository")
 public interface EstudianteRepository extends RepoBase<Estudiante, Long> {
 

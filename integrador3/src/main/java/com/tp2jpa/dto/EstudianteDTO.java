@@ -1,5 +1,6 @@
 package com.tp2jpa.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -7,23 +8,24 @@ import lombok.ToString;
 /**
  * DTO para representar datos basicos de un estudiante.
  */
+@Schema(description = "Datos básicos de un estudiante para respuestas de la API")
 @Getter
 @AllArgsConstructor
 @ToString
 public class EstudianteDTO {
 
-    /** Nombre del estudiante. */
+    @Schema(description = "Nombre del estudiante")
     private final String nombre;
 
-    /** Apellido del estudiante. */
+    @Schema(description = "Apellido del estudiante")
     private final String apellido;
 
-    /** Libreta universitaria. */
+    @Schema(description = "Número de libreta universitaria")
     private final Long lu;
 
-    /** Genero del estudiante. */
+    @Schema(description = "Género del estudiante")
     private final String genero;
 
-    /** Ciudad de residencia. */
+    @Schema(description = "Ciudad de residencia")
     private final String ciudad;
 }

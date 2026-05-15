@@ -1,6 +1,7 @@
 package com.tp2jpa.entities;
 
 import jakarta.persistence.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * Entidad que representa una carrera universitaria.
  */
+@Schema(description = "Entidad Carrera: información básica de una carrera universitaria")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,21 +24,21 @@ import java.util.List;
 @Table(name = "carrera")
 public class Carrera {
 
-    /** Identificador unico de la carrera. */
+    @Schema(description = "Identificador único de la carrera")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_carrera")
     private Long idCarrera;
 
-    /** Nombre de la carrera. */
+    @Schema(description = "Nombre de la carrera")
     @Column(name = "carrera")
     private String nombreCarrera;
 
-    /** Duracion estimada en años. */
+    @Schema(description = "Duración estimada en años")
     @Column
     private Integer duracion;
 
-    /** Lista de inscripciones de estudiantes a la carrera. */
+    @Schema(description = "Lista de inscripciones de estudiantes a la carrera (OneToMany)")
     @JsonIgnore
     @OneToMany(mappedBy = "carrera")
     private List<EstudianteCarrera> inscripciones = new ArrayList<>();

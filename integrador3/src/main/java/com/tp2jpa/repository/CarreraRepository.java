@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repositorio JPA para `Carrera` con consultas agregadas para generar
+ * listados de inscriptos y reportes anuales.
+ */
 @Repository("CarreraRepository")
 public interface CarreraRepository extends RepoBase<Carrera, Long> {
 
