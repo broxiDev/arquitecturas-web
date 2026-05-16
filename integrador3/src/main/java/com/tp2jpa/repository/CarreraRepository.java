@@ -15,7 +15,7 @@ import java.util.List;
 @Repository("CarreraRepository")
 public interface CarreraRepository extends RepoBase<Carrera, Long> {
 
-    @Query("SELECT new com.tp2jpa.dto.CarreraInscriptosDTO(c.nombreCarrera, COUNT(i)) " +
+    @Query("SELECT new com.tp2jpa.dto.CarreraInscriptosDTO(c.idCarrera, c.nombreCarrera, COUNT(i)) " +
            "FROM Carrera c JOIN c.inscripciones i " +
            "GROUP BY c.idCarrera, c.nombreCarrera " +
            "ORDER BY COUNT(i) DESC")

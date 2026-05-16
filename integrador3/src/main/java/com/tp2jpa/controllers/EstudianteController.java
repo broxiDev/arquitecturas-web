@@ -4,6 +4,7 @@ import com.tp2jpa.dto.MatricularRequestDTO;
 import com.tp2jpa.entities.Estudiante;
 import com.tp2jpa.servicios.EstudianteServicio;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class EstudianteController {
     @Autowired
     private EstudianteServicio estudianteServicio;
 
-    @Operation(summary = "Listar todos los estudiantes ordenados por apellido")
+    @Operation(summary = "c) Recuperar todos los estudiantes ordenados por apellido")
     @GetMapping("")
     public ResponseEntity<?> getAll() {
         try {
@@ -29,9 +30,9 @@ public class EstudianteController {
         }
     }
 
-    @Operation(summary = "Recuperar un estudiante por número de libreta universitaria")
+    @Operation(summary = "d) Recuperar un estudiante por número de libreta universitaria")
     @GetMapping("/lu/{lu}")
-    public ResponseEntity<?> getByLU(@PathVariable Long lu) {
+    public ResponseEntity<?> getByLU(@Parameter(example = "1001") @PathVariable Long lu) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(estudianteServicio.buscarPorLU(lu));
         } catch (Exception e) {
@@ -40,9 +41,9 @@ public class EstudianteController {
         }
     }
 
-    @Operation(summary = "Recuperar todos los estudiantes por género")
+    @Operation(summary = "e) Recuperar todos los estudiantes por género")
     @GetMapping("/genero/{genero}")
-    public ResponseEntity<?> getByGenero(@PathVariable String genero) {
+    public ResponseEntity<?> getByGenero(@Parameter(example = "Male") @PathVariable String genero) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(estudianteServicio.buscarPorGenero(genero));
         } catch (Exception e) {
@@ -51,9 +52,11 @@ public class EstudianteController {
         }
     }
 
-    @Operation(summary = "Recuperar estudiantes de una carrera filtrados por ciudad de residencia")
+    @Operation(summary = "g) Recuperar estudiantes de una carrera filtrados por ciudad")
     @GetMapping("/carrera/{carrera}")
-    public ResponseEntity<?> getByCarreraYCiudad(@PathVariable String carrera, @RequestParam String ciudad) {
+    public ResponseEntity<?> getByCarreraYCiudad(
+            @Parameter(example = "TUDAI") @PathVariable String carrera,
+            @Parameter(example = "Paquera") @RequestParam String ciudad) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(estudianteServicio.buscarPorCarreraYCiudad(carrera, ciudad));
@@ -63,7 +66,7 @@ public class EstudianteController {
         }
     }
 
-    @Operation(summary = "Dar de alta un estudiante")
+    @Operation(summary = "a) Dar de alta un estudiante")
     @PostMapping("")
     public ResponseEntity<?> save(@RequestBody Estudiante entity) {
         try {
@@ -74,11 +77,11 @@ public class EstudianteController {
         }
     }
 
-    @Operation(summary = "Matricular un estudiante en una carrera")
+    @Operation(summary = "b) Matricular un estudiante en una carrera")
     @PostMapping("/{dni}/carreras/{idCarrera}")
     public ResponseEntity<?> matricular(
-            @PathVariable Long dni,
-            @PathVariable Long idCarrera,
+            @Parameter(example = "12345670") @PathVariable Long dni,
+            @Parameter(example = "1") @PathVariable Long idCarrera,
             @RequestBody MatricularRequestDTO request) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(

@@ -24,32 +24,32 @@ import java.util.List;
 @Table(name = "estudiante")
 public class Estudiante {
 
-    @Schema(description = "Documento nacional de identidad (clave primaria)")
+    @Schema(description = "Documento nacional de identidad (clave primaria)", example = "12345670")
     @Id
     @Column(name = "dni")
     private Long dni;
 
-    @Schema(description = "Nombre del estudiante")
+    @Schema(description = "Nombre del estudiante", example = "Bronn")
     @Column
     private String nombre;
 
-    @Schema(description = "Apellido del estudiante")
+    @Schema(description = "Apellido del estudiante", example = "of the Blackwater")
     @Column
     private String apellido;
 
-    @Schema(description = "Edad del estudiante")
+    @Schema(description = "Edad del estudiante", example = "35")
     @Column
     private Integer edad;
 
-    @Schema(description = "Género del estudiante")
+    @Schema(description = "Género del estudiante", example = "Male")
     @Column
     private String genero;
 
-    @Schema(description = "Ciudad de residencia del estudiante")
+    @Schema(description = "Ciudad de residencia del estudiante", example = "Kings Landing")
     @Column
     private String ciudad;
 
-    @Schema(description = "Número de libreta universitaria")
+    @Schema(description = "Número de libreta universitaria", example = "1001")
     @Column
     private Long lu;
 

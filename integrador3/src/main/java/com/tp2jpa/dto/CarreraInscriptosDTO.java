@@ -14,6 +14,9 @@ import lombok.ToString;
 @ToString
 public class CarreraInscriptosDTO {
 
+    @Schema(description = "Identificador de la carrera")
+    private final Long idCarrera;
+
     @Schema(description = "Nombre de la carrera")
     private final String nombre;
 

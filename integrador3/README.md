@@ -5,18 +5,24 @@
 - Maven
 - Docker
 
-## Levantar
-
+## Levantar la db
 ```bash
 docker-compose up -d
+```
+Esperá ~30 segundos a que levante MySQL. Si todo sale bien, verás un mensaje similar a este:
+![img_2.png](img_2.png)
+
+## Ejecutar el servicio
+- Si usás un IDE, ejecutá la clase `com.tp2jpa.Main`
+- Si usás la terminal, ejecutá en la raíz del proyecto:
+
+```bash
 mvn spring-boot:run
 ```
+En la primera ejecución el servicio carga los datos desde los archivos CSV automáticamente. En ejecuciones posteriores se saltará esta etapa si los datos ya existen.
 
-App: `http://localhost:8001`  
-Swagger UI: `http://localhost:8001/swagger-ui.html`  
-OpenAPI JSON: `http://localhost:8001/v3/api-docs`
-
-> La primera vez carga los datos desde los CSV automáticamente.
+## Swagger UI
+Swagger UI: [http://localhost:8001/swagger-ui.html](http://localhost:8001/swagger-ui.html)
 
 ## Endpoints
 
@@ -31,30 +37,6 @@ OpenAPI JSON: `http://localhost:8001/v3/api-docs`
 | GET | `/carreras` | Carreras con inscriptos (desc) |
 | GET | `/carreras/reporte` | Inscriptos y egresados por año |
 
-## Ejemplos
-
-**Alta de estudiante**
-```json
-POST /estudiantes
-{
-  "dni": 99999999,
-  "nombre": "Juan",
-  "apellido": "Perez",
-  "edad": 22,
-  "genero": "Male",
-  "ciudad": "Tandil",
-  "lu": 12345
-}
-```
-
-**Matricular**
-```json
-POST /estudiantes/99999999/carreras/1
-{
-  "inscripcion": 2024,
-  "graduacion": 0,
-  "antiguedad": 1
-}
 ```
 
 ## Consola MySQL

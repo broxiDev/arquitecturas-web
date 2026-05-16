@@ -2,6 +2,9 @@ package com.tp2jpa.controllers;
 
 import com.tp2jpa.servicios.CarreraServicio;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +21,16 @@ public class CarreraController {
     @Autowired
     private CarreraServicio carreraServicio;
 
-    @Operation(summary = "Recuperar carreras con estudiantes inscriptos ordenadas por cantidad de inscriptos")
+    @Operation(
+        summary = "f) Recuperar carreras con inscriptos ordenadas por cantidad",
+        responses = @ApiResponse(responseCode = "200", content = @Content(examples = @ExampleObject(value = """
+            [
+              { "idCarrera": 3, "nombre": "Ingenieria de Sistemas", "cantidadInscriptos": 25 },
+              { "idCarrera": 1, "nombre": "TUDAI", "cantidadInscriptos": 18 },
+              { "idCarrera": 2, "nombre": "Abogacia", "cantidadInscriptos": 12 }
+            ]
+            """)))
+    )
     @GetMapping("")
     public ResponseEntity<?> getCarrerasConInscriptos() {
         try {
@@ -29,7 +41,7 @@ public class CarreraController {
         }
     }
 
-    @Operation(summary = "Generar reporte de carreras con inscriptos y egresados por año")
+    @Operation(summary = "h) Generar reporte de carreras con inscriptos y egresados por año")
     @GetMapping("/reporte")
     public ResponseEntity<?> getReporte() {
         try {
