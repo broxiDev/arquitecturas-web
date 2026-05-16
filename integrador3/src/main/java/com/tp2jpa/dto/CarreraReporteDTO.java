@@ -30,7 +30,7 @@ public class CarreraReporteDTO {
         this.inscriptos = inscriptos;
         this.egresados = egresados;
     }
-}
+
     // Hibernate puede resolver 0L como Integer en SELECT new
     public CarreraReporteDTO(String carrera, Integer anio, Long inscriptos, Integer egresados) {
         this(carrera, anio, inscriptos, egresados.longValue());
