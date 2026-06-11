@@ -4,7 +4,10 @@
       "Bash(git -C \"C:/Users/Tripulante/broxi/workspace/facu/arquitecturas-web\" config --local user.name)",
       "Bash(git -C \"C:/Users/Tripulante/broxi/workspace/facu/arquitecturas-web\" config --local user.email)",
       "Bash(git *)",
-      "Bash(mvn clean *)"
+      "Bash(mvn clean *)",
+      "Bash(Get-ChildItem -Recurse -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object FullName)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Tripulante\\\\broxi\\\\workspace\\\\facu\\\\arquitecturas-web\\\\integrador3\" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName | ForEach-Object { $_.FullName })"
     ]
   }
 }
