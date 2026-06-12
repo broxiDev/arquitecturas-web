@@ -22,3 +22,9 @@
 - Sistema de microservicios con un API Gateway central (Spring Cloud Gateway) y servicios independientes.
 - Cada microservicio con su propia base de datos (Database per Service).
 - Comunicación síncrona via OpenFeign entre servicios.
+
+## Frontend
+- **React 18** — Biblioteca de UI con hooks y JSX.
+- **Vite 6** — Bundler y dev server rápido con HMR.
+- **Tailwind CSS v3** — Framework de estilos utilitarios, mobile-first.
+- **Zustand 5** — Estado global ligero con API de hooks.

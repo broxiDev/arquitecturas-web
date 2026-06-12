@@ -5,7 +5,7 @@ FarmacyFood es un sistema backend de microservicios que conecta una cocina fanta
 # FarmacyFood — Guía de Producto
 
 ## Visión General
-Sistema backend de microservicios que conecta una cocina fantasma con heladeras inteligentes distribuidas en comercios, permitiendo a los usuarios descubrir, comprar y recibir comida saludable desde su celular.
+Sistema de microservicios con frontend web que conecta una cocina fantasma con heladeras inteligentes distribuidas en comercios, permitiendo a los usuarios descubrir, comprar y recibir comida saludable desde su celular.
 
 ## Misión
 Dar respuesta a las necesidades dietarías de las personas mediante opciones de comidas sabrosas y que promuevan estilos de vida activos.
@@ -45,6 +45,15 @@ Dar respuesta a las necesidades dietarías de las personas mediante opciones de 
 
 ### F6 — Notificaciones
 - Notificaciones push cuando un producto favorito está disponible
+
+### Cliente Frontend (MVP Mock)
+- **React 18 + Vite** — Interfaz web mobile-first para simulación de features core (F1-F3)
+- Catálogo de productos con filtrado por categoría dietaria
+- Gestión de heladeras con indicadores de estado y stock
+- Órdenes con creación, detalle, pago y cancelación
+- Navegación mobile-first con tabs inferiores
+- Capa de servicios API preparada para conectar a microservicios reales
+- Datos mock en JSON estático, servicios con firmas REST originales
 
 ## Microservicios
 - **product-service** — Catálogo de productos (F1)
