@@ -1,0 +1,54 @@
+[
+  {
+    "id": "o001",
+    "userId": "u001",
+    "fridgeId": "f001",
+    "items": [
+      { "productId": "p001", "productName": "Ensalada Mediterranea", "quantity": 2, "unitPrice": 2850.00 },
+      { "productId": "p004", "productName": "Smoothie Verde Detox", "quantity": 1, "unitPrice": 1800.00 }
+    ],
+    "total": 7500.00,
+    "status": "picked_up",
+    "paymentId": "pay_abc123",
+    "createdAt": "2026-06-08T14:30:00Z"
+  },
+  {
+    "id": "o002",
+    "userId": "u002",
+    "fridgeId": "f002",
+    "items": [
+      { "productId": "p009", "productName": "Bowl de Salmon y Arroz", "quantity": 1, "unitPrice": 4500.00 },
+      { "productId": "p005", "productName": "Pasta de Lentejas", "quantity": 1, "unitPrice": 2950.00 }
+    ],
+    "total": 7450.00,
+    "status": "paid",
+    "paymentId": "pay_def456",
+    "createdAt": "2026-06-10T09:15:00Z"
+  },
+  {
+    "id": "o003",
+    "userId": "u001",
+    "fridgeId": "f004",
+    "items": [
+      { "productId": "p007", "productName": "Hamburguesa de Garbanzos", "quantity": 2, "unitPrice": 3100.00 }
+    ],
+    "total": 6200.00,
+    "status": "pending",
+    "paymentId": null,
+    "createdAt": "2026-06-11T18:00:00Z"
+  },
+  {
+    "id": "o004",
+    "userId": "u003",
+    "fridgeId": "f006",
+    "items": [
+      { "productId": "p010", "productName": "Acai Bowl", "quantity": 2, "unitPrice": 3400.00 },
+      { "productId": "p002", "productName": "Buddha Bowl de Quinoa", "quantity": 1, "unitPrice": 3200.00 },
+      { "productId": "p003", "productName": "Wrap de Pollo y Espinaca", "quantity": 1, "unitPrice": 2700.00 }
+    ],
+    "total": 12700.00,
+    "status": "cancelled",
+    "paymentId": null,
+    "createdAt": "2026-06-11T20:30:00Z"
+  }
+]

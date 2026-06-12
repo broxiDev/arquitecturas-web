@@ -1,0 +1,5 @@
+[
+  { "id": "u001", "name": "Maria Gonzalez", "email": "maria@test.com", "dietaryPreferences": ["vegetariano", "sin gluten"] },
+  { "id": "u002", "name": "Juan Perez", "email": "juan@test.com", "dietaryPreferences": ["vegano"] },
+  { "id": "u003", "name": "Carolina Ruiz", "email": "caro@test.com", "dietaryPreferences": ["sin gluten"] }
+]

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "f001",
+    "name": "Heladera Palermo",
+    "location": { "lat": -34.5886, "lng": -58.4322, "address": "Av. Santa Fe 2345, Palermo" },
+    "status": "active",
+    "lastMaintenance": "2026-06-01T08:00:00Z",
+    "stock": [
+      { "productId": "p001", "quantity": 5 },
+      { "productId": "p002", "quantity": 3 },
+      { "productId": "p004", "quantity": 8 },
+      { "productId": "p010", "quantity": 4 }
+    ]
+  },
+  {
+    "id": "f002",
+    "name": "Heladera Recoleta",
+    "location": { "lat": -34.5945, "lng": -58.4042, "address": "Av. Libertador 6250, Recoleta" },
+    "status": "active",
+    "lastMaintenance": "2026-06-03T10:00:00Z",
+    "stock": [
+      { "productId": "p003", "quantity": 6 },
+      { "productId": "p005", "quantity": 4 },
+      { "productId": "p009", "quantity": 2 }
+    ]
+  },
+  {
+    "id": "f003",
+    "name": "Heladera Caballito",
+    "location": { "lat": -34.6196, "lng": -58.4432, "address": "Rivadavia 5200, Caballito" },
+    "status": "maintenance",
+    "lastMaintenance": "2026-06-10T09:00:00Z",
+    "stock": [
+      { "productId": "p006", "quantity": 0 },
+      { "productId": "p008", "quantity": 0 }
+    ]
+  },
+  {
+    "id": "f004",
+    "name": "Heladera Belgrano",
+    "location": { "lat": -34.5632, "lng": -58.4567, "address": "Av. Cabildo 1200, Belgrano" },
+    "status": "active",
+    "lastMaintenance": "2026-05-28T07:00:00Z",
+    "stock": [
+      { "productId": "p001", "quantity": 3 },
+      { "productId": "p007", "quantity": 5 },
+      { "productId": "p008", "quantity": 7 }
+    ]
+  },
+  {
+    "id": "f005",
+    "name": "Heladera Almagro",
+    "location": { "lat": -34.6026, "lng": -58.4193, "address": "Av. Corrientes 4100, Almagro" },
+    "status": "out_of_service",
+    "lastMaintenance": "2026-05-20T11:00:00Z",
+    "stock": []
+  },
+  {
+    "id": "f006",
+    "name": "Heladera Villa Crespo",
+    "location": { "lat": -34.5846, "lng": -58.4485, "address": "Av. Corrientes 5500, Villa Crespo" },
+    "status": "active",
+    "lastMaintenance": "2026-06-05T08:30:00Z",
+    "stock": [
+      { "productId": "p002", "quantity": 4 },
+      { "productId": "p003", "quantity": 3 },
+      { "productId": "p010", "quantity": 6 }
+    ]
+  }
+]

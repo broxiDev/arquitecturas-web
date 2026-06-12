@@ -14,5 +14,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Frontend React Mock para simular features core F1-F3**
+- [x] **Track: Frontend React Mock para simular features core F1-F3**
   *Link: [./tracks/frontend_react_mock_20260612/](./tracks/frontend_react_mock_20260612/)*

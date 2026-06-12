@@ -1,0 +1,92 @@
+[
+  {
+    "id": "p001",
+    "name": "Ensalada Mediterranea",
+    "description": "Mix de verdes frescas con tomate cherry, aceitunas y queso feta, aderezado con vinagreta de limon.",
+    "dietaryCategory": "vegetariano",
+    "price": 2850.00,
+    "imageUrl": "/images/ensalada-mediterranea.jpg",
+    "createdAt": "2026-05-01T10:00:00Z"
+  },
+  {
+    "id": "p002",
+    "name": "Buddha Bowl de Quinoa",
+    "description": "Quinoa con garbanzos asados, palta, zanahoria y salsa tahini casera.",
+    "dietaryCategory": "vegano",
+    "price": 3200.00,
+    "imageUrl": "/images/buddha-bowl.jpg",
+    "createdAt": "2026-05-02T11:00:00Z"
+  },
+  {
+    "id": "p003",
+    "name": "Wrap de Pollo y Espinaca",
+    "description": "Wrap integral con pechuga de pollo a la plancha, espinaca fresca y queso crema.",
+    "dietaryCategory": "sin gluten",
+    "price": 2700.00,
+    "imageUrl": "/images/wrap-pollo.jpg",
+    "createdAt": "2026-05-03T09:00:00Z"
+  },
+  {
+    "id": "p004",
+    "name": "Smoothie Verde Detox",
+    "description": "Espinaca, pepino, manzana verde, jengibre y agua de coco. Ideal para empezar el dia.",
+    "dietaryCategory": "vegano",
+    "price": 1800.00,
+    "imageUrl": "/images/smoothie-verde.jpg",
+    "createdAt": "2026-05-04T08:00:00Z"
+  },
+  {
+    "id": "p005",
+    "name": "Pasta de Lentejas",
+    "description": "Pasta de lentejas con salsa de tomates frescos, albahaca y parmesano.",
+    "dietaryCategory": "vegetariano",
+    "price": 2950.00,
+    "imageUrl": "/images/pasta-lentejas.jpg",
+    "createdAt": "2026-05-05T12:00:00Z"
+  },
+  {
+    "id": "p006",
+    "name": "Tarta de Verduras Sin Gluten",
+    "description": "Masa de arroz con relleno de verduras de estacion y queso.",
+    "dietaryCategory": "sin gluten",
+    "price": 2600.00,
+    "imageUrl": "/images/tarta-verduras.jpg",
+    "createdAt": "2026-05-06T10:30:00Z"
+  },
+  {
+    "id": "p007",
+    "name": "Hamburguesa de Garbanzos",
+    "description": "Medallones de garbanzos con especias, servidos en pan integral con palta y tomate.",
+    "dietaryCategory": "vegano",
+    "price": 3100.00,
+    "imageUrl": "/images/hamburguesa-garbanzos.jpg",
+    "createdAt": "2026-05-07T13:00:00Z"
+  },
+  {
+    "id": "p008",
+    "name": "Sopa de Calabaza",
+    "description": "Crema de calabaza con semillas tostadas y un toque de jengibre.",
+    "dietaryCategory": "vegetariano",
+    "price": 2200.00,
+    "imageUrl": "/images/sopa-calabaza.jpg",
+    "createdAt": "2026-05-08T11:30:00Z"
+  },
+  {
+    "id": "p009",
+    "name": "Bowl de Salmon y Arroz",
+    "description": "Salmon asado sobre arroz integral con edamame y salsa de soja.",
+    "dietaryCategory": "sin gluten",
+    "price": 4500.00,
+    "imageUrl": "/images/bowl-salmon.jpg",
+    "createdAt": "2026-05-09T12:30:00Z"
+  },
+  {
+    "id": "p010",
+    "name": "Acai Bowl",
+    "description": "Base de acai con granola artesanal, frutos rojos, banana y miel.",
+    "dietaryCategory": "vegetariano",
+    "price": 3400.00,
+    "imageUrl": "/images/acai-bowl.jpg",
+    "createdAt": "2026-05-10T08:30:00Z"
+  }
+]
