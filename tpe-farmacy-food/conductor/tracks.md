@@ -7,7 +7,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [ ] **Track: Setup del proyecto y contratos comunes entre microservicios**
   *Link: [./tracks/setup_y_contratos_20260611/](./tracks/setup_y_contratos_20260611/)*
 
----
 
-- [x] **Track: Descomposición de features en tareas por microservicio**
-  *Link: [./tracks/descomposicion_features_20260611/](./tracks/descomposicion_features_20260611/)*
