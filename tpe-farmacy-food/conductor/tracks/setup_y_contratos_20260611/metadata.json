@@ -1,0 +1,8 @@
+{
+  "track_id": "setup_y_contratos_20260611",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-11T22:00:00Z",
+  "updated_at": "2026-06-11T22:00:00Z",
+  "description": "Setup del proyecto multi-módulo Maven con Spring Boot, 7 microservicios (product, fridge, order, kitchen, recommendation, user, notification), API Gateway, Eureka discovery, Docker Compose y seguridad JWT"
+}

@@ -1,0 +1,26 @@
+services:
+  mysql-estudiantes:
+    image: mysql:8.0
+    container_name: msvc_estudiantes_db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: msvc_estudiantes_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data_estudiantes:/var/lib/mysql
+
+  mysql-carreras:
+    image: mysql:8.0
+    container_name: msvc_carreras_db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: msvc_carreras_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data_carreras:/var/lib/mysql
+
+volumes:
+  db_data_estudiantes:
+  db_data_carreras:

@@ -1,0 +1,15 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: notification-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+  api-docs:
+    path: /api/v1/notificaciones/v3/api-docs

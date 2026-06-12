@@ -1,0 +1,64 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/productos/**
+        - id: fridge-service
+          uri: lb://fridge-service
+          predicates:
+            - Path=/api/v1/heladeras/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/ordenes/**
+        - id: kitchen-service
+          uri: lb://kitchen-service
+          predicates:
+            - Path=/api/v1/cocina/**
+        - id: recommendation-service
+          uri: lb://recommendation-service
+          predicates:
+            - Path=/api/v1/recomendaciones/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/usuarios/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notificaciones/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: product-service
+        url: /api/v1/productos/v3/api-docs
+      - name: fridge-service
+        url: /api/v1/heladeras/v3/api-docs
+      - name: order-service
+        url: /api/v1/ordenes/v3/api-docs
+      - name: kitchen-service
+        url: /api/v1/cocina/v3/api-docs
+      - name: recommendation-service
+        url: /api/v1/recomendaciones/v3/api-docs
+      - name: user-service
+        url: /api/v1/usuarios/v3/api-docs
+      - name: notification-service
+        url: /api/v1/notificaciones/v3/api-docs
