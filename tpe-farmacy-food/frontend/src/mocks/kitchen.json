@@ -1,0 +1,39 @@
+[
+  {
+    "date": "2026-06-12",
+    "items": [
+      { "productId": "p002", "productName": "Buddha Bowl de Quinoa", "suggestedQuantity": 15 },
+      { "productId": "p004", "productName": "Smoothie Verde Detox", "suggestedQuantity": 20 },
+      { "productId": "p007", "productName": "Hamburguesa de Garbanzos", "suggestedQuantity": 12 },
+      { "productId": "p001", "productName": "Ensalada Mediterranea", "suggestedQuantity": 18 },
+      { "productId": "p010", "productName": "Acai Bowl", "suggestedQuantity": 10 }
+    ]
+  },
+  {
+    "date": "2026-06-11",
+    "items": [
+      { "productId": "p003", "productName": "Wrap de Pollo y Espinaca", "suggestedQuantity": 14 },
+      { "productId": "p009", "productName": "Bowl de Salmon y Arroz", "suggestedQuantity": 8 },
+      { "productId": "p008", "productName": "Sopa de Calabaza", "suggestedQuantity": 16 },
+      { "productId": "p005", "productName": "Pasta de Lentejas", "suggestedQuantity": 11 }
+    ]
+  },
+  {
+    "date": "2026-06-10",
+    "items": [
+      { "productId": "p001", "productName": "Ensalada Mediterranea", "suggestedQuantity": 22 },
+      { "productId": "p002", "productName": "Buddha Bowl de Quinoa", "suggestedQuantity": 13 },
+      { "productId": "p006", "productName": "Tarta de Verduras Sin Gluten", "suggestedQuantity": 9 },
+      { "productId": "p004", "productName": "Smoothie Verde Detox", "suggestedQuantity": 25 },
+      { "productId": "p010", "productName": "Acai Bowl", "suggestedQuantity": 12 }
+    ]
+  },
+  {
+    "date": "2026-06-09",
+    "items": [
+      { "productId": "p007", "productName": "Hamburguesa de Garbanzos", "suggestedQuantity": 17 },
+      { "productId": "p003", "productName": "Wrap de Pollo y Espinaca", "suggestedQuantity": 10 },
+      { "productId": "p009", "productName": "Bowl de Salmon y Arroz", "suggestedQuantity": 6 }
+    ]
+  }
+]

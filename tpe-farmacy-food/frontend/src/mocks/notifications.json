@@ -1,0 +1,56 @@
+[
+  {
+    "id": "n001",
+    "userId": "u001",
+    "message": "El Buddha Bowl de Quinoa esta disponible nuevamente en la Heladera Palermo",
+    "productId": "p002",
+    "productName": "Buddha Bowl de Quinoa",
+    "read": false,
+    "createdAt": "2026-06-12T09:30:00Z"
+  },
+  {
+    "id": "n002",
+    "userId": "u001",
+    "message": "La Sopa de Calabaza ya se encuentra en la Heladera Belgrano",
+    "productId": "p008",
+    "productName": "Sopa de Calabaza",
+    "read": false,
+    "createdAt": "2026-06-12T08:15:00Z"
+  },
+  {
+    "id": "n003",
+    "userId": "u001",
+    "message": "Nuevo producto disponible: Acai Bowl en la Heladera Recoleta",
+    "productId": "p010",
+    "productName": "Acai Bowl",
+    "read": true,
+    "createdAt": "2026-06-11T14:20:00Z"
+  },
+  {
+    "id": "n004",
+    "userId": "u002",
+    "message": "La Hamburguesa de Garbanzos fue repuesta en la Heladera Villa Crespo",
+    "productId": "p007",
+    "productName": "Hamburguesa de Garbanzos",
+    "read": false,
+    "createdAt": "2026-06-12T10:00:00Z"
+  },
+  {
+    "id": "n005",
+    "userId": "u002",
+    "message": "El Smoothie Verde Detox vuelve a estar disponible",
+    "productId": "p004",
+    "productName": "Smoothie Verde Detox",
+    "read": true,
+    "createdAt": "2026-06-11T16:45:00Z"
+  },
+  {
+    "id": "n006",
+    "userId": "u003",
+    "message": "El Bowl de Salmon y Arroz esta disponible en la Heladera Recoleta",
+    "productId": "p009",
+    "productName": "Bowl de Salmon y Arroz",
+    "read": false,
+    "createdAt": "2026-06-12T07:50:00Z"
+  }
+]
