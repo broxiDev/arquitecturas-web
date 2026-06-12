@@ -77,3 +77,4 @@ Dar respuesta a las necesidades dietarías de las personas mediante opciones de 
 | 3 | order-service |
 | 4 | kitchen-service + recommendation-service |
 | 5 | user-service + notification-service + api-gateway |
+
