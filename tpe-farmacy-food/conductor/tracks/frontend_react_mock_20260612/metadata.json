@@ -1,0 +1,8 @@
+{
+  "track_id": "frontend_react_mock_20260612",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-12T00:00:00Z",
+  "updated_at": "2026-06-12T00:00:00Z",
+  "description": "Agregar frontend React con mock data para simular features core F1-F3 del MVP FarmacyFood"
+}
