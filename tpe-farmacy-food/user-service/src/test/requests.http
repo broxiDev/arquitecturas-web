@@ -1,0 +1,50 @@
+### Health check
+GET http://localhost:8086/api/v1/usuarios/health
+
+### Registrar usuario vegano
+POST http://localhost:8086/api/v1/usuarios/register
+Content-Type: application/json
+
+{
+  "name": "María González",
+  "email": "maria@test.com",
+  "passwordHash": "hash123",
+  "dietaryPreferences": ["vegano"]
+}
+
+### Registrar usuario sin gluten
+POST http://localhost:8086/api/v1/usuarios/register
+Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "email": "juan@test.com",
+  "passwordHash": "abc456",
+  "dietaryPreferences": ["sin gluten"]
+}
+
+### Registrar usuario con múltiples preferencias
+POST http://localhost:8086/api/v1/usuarios/register
+Content-Type: application/json
+
+{
+  "name": "Carolina Ruiz",
+  "email": "caro@test.com",
+  "passwordHash": "pass789",
+  "dietaryPreferences": ["vegetariano", "sin gluten"]
+}
+
+### Obtener usuario por ID
+GET http://localhost:8086/api/v1/usuarios/1
+
+### Obtener usuario inexistente (debe dar 404)
+GET http://localhost:8086/api/v1/usuarios/999
+
+### Actualizar preferencias dietarias
+PUT http://localhost:8086/api/v1/usuarios/1/preferences
+Content-Type: application/json
+
+["vegetariano", "sin gluten", "vegano"]
+
+### Obtener historial de compras (requiere order-service corriendo)
+GET http://localhost:8086/api/v1/usuarios/1/history
