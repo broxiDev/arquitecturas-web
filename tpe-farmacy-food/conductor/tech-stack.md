@@ -41,6 +41,30 @@
 - **Docker + Docker Compose** — Contenerización de microservicios y bases de datos.
 - **OpenAPI / Swagger** — Documentación interactiva de todas las APIs REST.
 
+### Docker Strategy: Database per Service (Individual Containers)
+
+Each microservice has its own `docker-compose.yml` with dedicated database containers. The root `docker-compose.yml` uses the `include` directive to compose everything together.
+
+| Scenario | Command | What runs |
+|---|---|---|
+| **Individual dev** | `docker compose up` inside service folder | Only that service's DBs |
+| **Full integration** | `docker compose up` in project root | All services + all DBs |
+
+**Structure:**
+```
+tpe-farmacy-food/
+├── docker-compose.yml              ← Orchestrator (includes all services)
+├── kitchen-service/
+│   └── docker-compose.yml          ← kitchen-postgres, kitchen-mongo
+├── order-service/
+│   └── docker-compose.yml          ← order-postgres
+├── product-service/
+│   └── docker-compose.yml          ← product-postgres
+└── ...
+```
+
+**Naming convention:** `<service>-postgres`, `<service>-mongo` to avoid container name collisions.
+
 ## Arquitectura
 - Sistema de microservicios con un API Gateway central (Spring Cloud Gateway) y servicios independientes.
 - Cada microservicio con su propia base de datos (Database per Service).
