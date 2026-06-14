@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @Operation(summary = "Registrar un nuevo usuario")
-    @PostMapping("/register")
+    @PostMapping("/registrar")
     public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.register(user));
     }
@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @Operation(summary = "Actualizar preferencias dietarias del usuario")
-    @PutMapping("/{id}/preferences")
+    @PutMapping("/{id}/preferencias")
     public ResponseEntity<User> updatePreferences(
             @PathVariable Long id,
             @RequestBody List<String> dietaryPreferences) {
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @Operation(summary = "Obtener historial de compras del usuario (consulta a order-service)")
-    @GetMapping("/{id}/history")
+    @GetMapping("/{id}/historial")
     public ResponseEntity<List<?>> getPurchaseHistory(@PathVariable Long id) {
         if (service.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();

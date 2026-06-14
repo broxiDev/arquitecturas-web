@@ -2,7 +2,7 @@
 GET http://localhost:8086/api/v1/usuarios/health
 
 ### Registrar usuario vegano
-POST http://localhost:8086/api/v1/usuarios/register
+POST http://localhost:8086/api/v1/usuarios/registrar
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ### Registrar usuario sin gluten
-POST http://localhost:8086/api/v1/usuarios/register
+POST http://localhost:8086/api/v1/usuarios/registrar
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ Content-Type: application/json
 }
 
 ### Registrar usuario con múltiples preferencias
-POST http://localhost:8086/api/v1/usuarios/register
+POST http://localhost:8086/api/v1/usuarios/registrar
 Content-Type: application/json
 
 {
@@ -41,10 +41,10 @@ GET http://localhost:8086/api/v1/usuarios/1
 GET http://localhost:8086/api/v1/usuarios/999
 
 ### Actualizar preferencias dietarias
-PUT http://localhost:8086/api/v1/usuarios/1/preferences
+PUT http://localhost:8086/api/v1/usuarios/1/preferencias
 Content-Type: application/json
 
 ["vegetariano", "sin gluten", "vegano"]
 
 ### Obtener historial de compras (requiere order-service corriendo)
-GET http://localhost:8086/api/v1/usuarios/1/history
+GET http://localhost:8086/api/v1/usuarios/1/historial
