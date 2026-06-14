@@ -35,6 +35,13 @@ tpe-farmacy-food/
     └── ...
 ```
 
+### Convenciones de Base de Datos
+
+- **Usuario:** `root` (todos los servicios)
+- **Password:** Sin password (autenticación trust)
+- **PostgreSQL:** Se requiere `POSTGRES_HOST_AUTH_METHOD: trust` en el docker-compose
+- **MongoDB:** Sin autenticación por defecto (no requiere configuración extra)
+
 ### Convenciones de Nombres de Contenedores
 
 | Servicio | Contenedor Postgres | Contenedor Mongo |
@@ -92,8 +99,8 @@ services:
     container_name: kitchen-postgres
     environment:
       POSTGRES_DB: kitchen_db
-      POSTGRES_USER: kitchen
-      POSTGRES_PASSWORD: kitchen_pass
+      POSTGRES_USER: root
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:

@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: farmacyfood_postgres
     environment:
-      POSTGRES_USER: farmacyfood
-      POSTGRES_PASSWORD: farmacyfood
+      POSTGRES_USER: root
       POSTGRES_DB: farmacyfood
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
