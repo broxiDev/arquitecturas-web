@@ -131,6 +131,48 @@ Al levantar Docker con `docker compose down -v && docker compose up -d` se carga
 
 ---
 
+## Queries para probar en DBeaver
+
+### PostgreSQL — SQL
+
+```sql
+-- Ver el plan diario
+SELECT * FROM daily_plan;
+
+-- Ver los items del plan
+SELECT * FROM plan_item;
+
+-- Ver plan con sus items (join)
+SELECT dp.date, pi.product_name, pi.suggested_quantity
+FROM daily_plan dp
+JOIN plan_item pi ON dp.id = pi.daily_plan_id
+WHERE dp.date = CURRENT_DATE;
+
+-- Ver todos los productos sugeridos ordenados por cantidad
+SELECT pi.product_name, pi.suggested_quantity
+FROM plan_item pi
+JOIN daily_plan dp ON dp.id = pi.daily_plan_id
+ORDER BY pi.suggested_quantity DESC;
+```
+
+### MongoDB — Script (pestaña Script en DBeaver)
+
+```js
+// Ver todas las ventas
+db.ventas_historicas.find()
+
+// Ventas del producto 101
+db.ventas_historicas.find({ productId: NumberLong(101) })
+
+// Ventas de la heladera 1
+db.ventas_historicas.find({ fridgeId: NumberLong(1) })
+
+// Ventas de los últimos 2 días
+db.ventas_historicas.find({ date: { $gte: new Date(Date.now() - 172800000) } })
+```
+
+---
+
 ## Integraciones
 
 ### OpenFeign Clients
