@@ -1,6 +1,8 @@
 package com.farmacyfood.user.controller;
 
 import com.farmacyfood.user.entity.User;
+import com.farmacyfood.user.exception.GlobalExceptionHandler;
+import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,9 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
@@ -92,7 +96,7 @@ class UserControllerTest {
 
     @Test
     void updatePreferences_retorna404() throws Exception {
-        when(service.updatePreferences(eq(99L), any())).thenThrow(new RuntimeException("Not found"));
+        when(service.updatePreferences(eq(99L), any())).thenThrow(new UserNotFoundException("Usuario no encontrado con id: 99"));
 
         mockMvc.perform(put("/api/v1/usuarios/99/preferencias")
                         .contentType(MediaType.APPLICATION_JSON)

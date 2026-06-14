@@ -2,6 +2,8 @@ package com.farmacyfood.user.service;
 
 import com.farmacyfood.user.client.OrderServiceClient;
 import com.farmacyfood.user.entity.User;
+import com.farmacyfood.user.exception.DuplicateEmailException;
+import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User register(User user) {
+        if (repository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateEmailException("El email " + user.getEmail() + " ya está registrado");
+        }
         return repository.save(user);
     }
 
@@ -36,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User updatePreferences(Long id, List<String> dietaryPreferences) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
         user.setDietaryPreferences(dietaryPreferences);
         return repository.save(user);
     }

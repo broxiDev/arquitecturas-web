@@ -2,6 +2,8 @@ package com.farmacyfood.user.service;
 
 import com.farmacyfood.user.client.OrderServiceClient;
 import com.farmacyfood.user.entity.User;
+import com.farmacyfood.user.exception.DuplicateEmailException;
+import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,7 @@ class UserServiceImplTest {
 
     @Test
     void register_guardaUsuario() {
+        when(repository.findByEmail("mati@test.com")).thenReturn(Optional.empty());
         User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
         when(repository.save(user)).thenAnswer(invocation -> {
             User saved = invocation.getArgument(0);
@@ -40,7 +43,17 @@ class UserServiceImplTest {
 
         assertEquals(1L, result.getId());
         assertEquals("Mati", result.getName());
+        verify(repository).findByEmail("mati@test.com");
         verify(repository).save(user);
+    }
+
+    @Test
+    void register_cuandoEmailYaExiste_lanzaExcepcion() {
+        when(repository.findByEmail("mati@test.com")).thenReturn(Optional.of(new User()));
+        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+
+        assertThrows(DuplicateEmailException.class, () -> service.register(user));
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -83,7 +96,7 @@ class UserServiceImplTest {
     void updatePreferences_cuandoNoExiste() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.updatePreferences(99L, List.of("vegano")));
+        assertThrows(UserNotFoundException.class, () -> service.updatePreferences(99L, List.of("vegano")));
     }
 
     @Test
