@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/farmacyfood_notification
 
 eureka:
   client:
