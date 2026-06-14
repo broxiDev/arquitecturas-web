@@ -7,4 +7,9 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [ ] **Track: Setup del proyecto y contratos comunes entre microservicios**
   *Link: [./tracks/setup_y_contratos_20260611/](./tracks/setup_y_contratos_20260611/)*
 
+---
+
+- [ ] **Track: Kitchen Endpoints**
+*Link: [./tracks/kitchen_endpoints_20260614/](./tracks/kitchen_endpoints_20260614/)*
+
 
