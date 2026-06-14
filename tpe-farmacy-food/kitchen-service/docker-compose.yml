@@ -6,6 +6,7 @@ services:
       POSTGRES_DB: kitchen_db
       POSTGRES_USER: root
       POSTGRES_HOST_AUTH_METHOD: trust
+      TZ: UTC
     ports:
       - "5432:5432"
     volumes:

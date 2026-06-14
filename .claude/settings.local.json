@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tripulante\\\\broxi\\\\workspace\\\\facu\\\\arquitecturas-web\\\\integrador3\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tripulante\\\\broxi\\\\workspace\\\\facu\\\\arquitecturas-web\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tripulante\\\\broxi\\\\workspace\\\\facu\\\\arquitecturas-web\\\\microservicios-cursos-usuarios\" -Directory -Force)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Tripulante\\\\broxi\\\\facu\\\\arqui\\\\parciales\\\\ejemplo-punto5\" -Recurse -Force)",
+      "Bash(mvn spring-boot:run)"
+    ]
+  }
+}
