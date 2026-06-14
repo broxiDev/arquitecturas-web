@@ -1,26 +1,2 @@
-services:
-  postgres:
-    image: postgres:16
-    container_name: farmacyfood_postgres
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_DB: farmacyfood
-      POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  mongodb:
-    image: mongo:7
-    container_name: farmacyfood_mongodb
-    environment:
-      MONGO_INITDB_DATABASE: farmacyfood
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  postgres_data:
-  mongo_data:
+include:
+  - path: ./kitchen-service/docker-compose.yml
