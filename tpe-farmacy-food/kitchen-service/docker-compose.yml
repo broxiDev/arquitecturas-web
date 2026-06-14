@@ -1,0 +1,26 @@
+services:
+  kitchen-postgres:
+    image: postgres:16
+    container_name: kitchen-postgres
+    environment:
+      POSTGRES_DB: kitchen_db
+      POSTGRES_USER: root
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - kitchen_postgres_data:/var/lib/postgresql/data
+
+  kitchen-mongo:
+    image: mongo:7
+    container_name: kitchen-mongo
+    environment:
+      MONGO_INITDB_DATABASE: kitchen_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - kitchen_mongo_data:/data/db
+
+volumes:
+  kitchen_postgres_data:
+  kitchen_mongo_data:

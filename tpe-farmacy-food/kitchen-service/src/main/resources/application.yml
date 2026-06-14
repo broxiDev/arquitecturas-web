@@ -4,6 +4,26 @@ server:
 spring:
   application:
     name: kitchen-service
+  profiles:
+    active: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kitchen_db
+    username: root
+    password:
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/kitchen_db
 
 eureka:
   client:

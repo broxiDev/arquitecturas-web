@@ -1,67 +1,67 @@
 # Implementation Plan: Kitchen Service Endpoints
 
 ## Phase 1: Docker Setup & Dependencies
-- [ ] Task: Create `kitchen-service/docker-compose.yml`
-    - [ ] Define `kitchen-postgres` container (PostgreSQL 16, DB: `kitchen_db`)
-    - [ ] Define `kitchen-mongo` container (MongoDB 7, DB: `kitchen_db`)
-    - [ ] Define volumes for data persistence
-- [ ] Task: Update root `docker-compose.yml` as orchestrator
-    - [ ] Add `include` directive pointing to `kitchen-service/docker-compose.yml`
-- [ ] Task: Add Maven dependencies (`spring-boot-starter-data-mongodb`, `postgresql`, `validation`)
-    - [ ] Update `pom.xml` with required dependencies
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Create `kitchen-service/docker-compose.yml`
+    - [x] Define `kitchen-postgres` container (PostgreSQL 16, DB: `kitchen_db`)
+    - [x] Define `kitchen-mongo` container (MongoDB 7, DB: `kitchen_db`)
+    - [x] Define volumes for data persistence
+- [x] Task: Update root `docker-compose.yml` as orchestrator
+    - [x] Add `include` directive pointing to `kitchen-service/docker-compose.yml`
+- [x] Task: Add Maven dependencies (`spring-boot-starter-data-mongodb`, `postgresql`, `validation`)
+    - [x] Update `pom.xml` with required dependencies
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Entities & Database Config
-- [ ] Task: Configure Database Sources
-    - [ ] Configure PostgreSQL datasource in `application.yml`
-    - [ ] Configure MongoDB connection in `application.yml`
-    - [ ] Create `PostgresConfig.java` and `MongoConfig.java` if necessary
-- [ ] Task: Define Entities
-    - [ ] Create `DailyPlan.java` entity (PostgreSQL)
-    - [ ] Create `PlanItem.java` entity (PostgreSQL)
-    - [ ] Create `VentaHistorica.java` document (MongoDB)
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task: Configure Database Sources
+    - [x] Configure PostgreSQL datasource in `application.yml`
+    - [x] Configure MongoDB connection in `application.yml`
+    - [x] Create `PostgresConfig.java` and `MongoConfig.java` if necessary
+- [x] Task: Define Entities
+    - [x] Create `DailyPlan.java` entity (PostgreSQL)
+    - [x] Create `PlanItem.java` entity (PostgreSQL)
+    - [x] Create `VentaHistorica.java` document (MongoDB)
+- [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ## Phase 3: DTOs & Repositories
-- [ ] Task: Create DTOs
-    - [ ] Create `PlanDiarioResponseDTO.java`
-    - [ ] Create `ItemPlanDTO.java`
-    - [ ] Create `VentaHistoricaResponseDTO.java`
-    - [ ] Create `VentasResumenDTO.java` (optional, for future use)
-    - [ ] Create `ProductoVentaDTO.java` (optional, for future use)
-- [ ] Task: Implement Repositories
-    - [ ] Create `PlanDiarioRepository.java` (JPA)
-    - [ ] Create `ItemPlanRepository.java` (JPA)
-    - [ ] Create `VentaHistoricaRepository.java` (MongoDB)
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
+- [x] Task: Create DTOs
+    - [x] Create `PlanDiarioResponseDTO.java`
+    - [x] Create `ItemPlanDTO.java`
+    - [x] Create `VentaHistoricaResponseDTO.java`
+    - [x] Create `VentasResumenDTO.java` (optional, for future use)
+    - [x] Create `ProductoVentaDTO.java` (optional, for future use)
+- [x] Task: Implement Repositories
+    - [x] Create `PlanDiarioRepository.java` (JPA)
+    - [x] Create `ItemPlanRepository.java` (JPA)
+    - [x] Create `VentaHistoricaRepository.java` (MongoDB)
+- [x] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
 
 ## Phase 4: Core Implementation
-- [ ] Task: Implement External Clients (OpenFeign + Mocks)
-    - [ ] Create `OrdenClient.java` interface
-    - [ ] Create `OrdenClientMockImpl.java` (`@Profile("dev")`)
-    - [ ] Create `OrdenClientFeignImpl.java` (`@Profile("!dev")`)
-    - [ ] Create `ProductoClient.java` interface
-    - [ ] Create `ProductoClientMockImpl.java` (`@Profile("dev")`)
-    - [ ] Create `ProductoClientFeignImpl.java` (`@Profile("!dev")`)
-- [ ] Task: Implement Services
-    - [ ] Create `PlanDiarioService.java` interface and `PlanDiarioServiceImpl.java`
+- [x] Task: Implement External Clients (OpenFeign + Mocks)
+    - [x] Create `OrdenClient.java` interface
+    - [x] Create `OrdenClientMockImpl.java` (`@Profile("dev")`)
+    - [x] Create `OrdenClientFeignImpl.java` (`@Profile("!dev")`)
+    - [x] Create `ProductoClient.java` interface
+    - [x] Create `ProductoClientMockImpl.java` (`@Profile("dev")`)
+    - [x] Create `ProductoClientFeignImpl.java` (`@Profile("!dev")`)
+- [x] Task: Implement Services
+    - [x] Create `PlanDiarioService.java` interface and `PlanDiarioServiceImpl.java`
         - Logic: Fetch history, calculate averages, save plan
-    - [ ] Create `HistorialVentasService.java` interface and `HistorialVentasServiceImpl.java`
+    - [x] Create `HistorialVentasService.java` interface and `HistorialVentasServiceImpl.java`
         - Logic: Query MongoDB with filters
-- [ ] Task: Implement Controllers
-    - [ ] Create `PlanDiarioController.java`
+- [x] Task: Implement Controllers
+    - [x] Create `PlanDiarioController.java`
         - GET `/api/v1/cocina/plan-diario`
         - POST `/api/v1/cocina/plan-diario`
-    - [ ] Create `HistorialVentasController.java`
+    - [x] Create `HistorialVentasController.java`
         - GET `/api/v1/cocina/historial-ventas`
-- [ ] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
 ## Phase 5: Testing & Documentation
-- [ ] Task: Write Unit Tests
-    - [ ] Test Service logic (calculation, repository calls)
-    - [ ] Test Controller endpoints (MockMvc)
-- [ ] Task: Integration Testing
-    - [ ] Verify Feign client integration (mock or local)
-- [ ] Task: API Documentation
-    - [ ] Verify Swagger annotations and documentation generation
-- [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
+- [x] Task: Write Unit Tests
+    - [x] Test Service logic (calculation, repository calls)
+    - [x] Test Controller endpoints (MockMvc)
+- [x] Task: Integration Testing
+    - [x] Verify Feign client integration (mock or local)
+- [x] Task: API Documentation
+    - [x] Verify Swagger annotations and documentation generation
+- [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
