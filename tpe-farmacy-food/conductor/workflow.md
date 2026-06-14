@@ -16,3 +16,14 @@ This task requires a human-in-the-loop checkpoint before proceeding to the next 
 - After completing each task, create a markdown file in `conductor/notes/`
 - File naming: `YYYYMMDD-HHMM-task-description.md`
 - Content: Brief summary of what was done, decisions made, and any blockers
+
+## Git Staging and Cleanup Protocol
+When committing changes that involve moving or deleting files (e.g., archiving tracks), always stage deletions explicitly using `git add -A` on the affected paths. This ensures that:
+- Moved files (e.g., track folder to `conductor/archive/`) include the deletion of the original location in the same commit
+- Modified conductor docs (`product.md`, `tech-stack.md`, `tracks.md`) are staged together
+- No orphaned unstaged changes remain after a commit
+
+**Example for archiving a track:**
+```bash
+git add -A <project>/conductor/tracks/<track_id>/ <project>/conductor/archive/<track_id>/ <project>/conductor/tracks.md <project>/conductor/product.md <project>/conductor/tech-stack.md <project>/conductor/product-guidelines.md && git commit -m "chore(conductor): Archive track '<description>'"
+```

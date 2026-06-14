@@ -9,5 +9,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Descomposición de features en tareas por microservicio**
-  *Link: [./tracks/descomposicion_features_20260611/](./tracks/descomposicion_features_20260611/)*
+- [ ] **Track: Kitchen Endpoints**
+*Link: [./tracks/kitchen_endpoints_20260614/](./tracks/kitchen_endpoints_20260614/)*
+
+

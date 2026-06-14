@@ -11,12 +11,59 @@
 
 ## Bases de Datos
 - **PostgreSQL** — Base de datos relacional principal para datos estructurados (usuarios, pedidos, productos).
+  - product-service, fridge-service, order-service, user-service: PostgreSQL principal
+  - kitchen-service: PostgreSQL para DailyPlan y PlanItem (datos transaccionales)
 - **MongoDB** — Base de datos NoSQL para datos flexibles (preferencias, historial, recomendaciones).
+  - kitchen-service: MongoDB para VentaHistorica (datos históricos agregados)
+  - recommendation-service: MongoDB para perfiles de preferencia, historial cacheado y recomendaciones
+  - notification-service: MongoDB para suscripciones y auditoría de notificaciones
+
+## Dependencias por Microservicio
+- **Spring Data JPA** — Usado en product-service, fridge-service, order-service, user-service, kitchen-service (PostgreSQL)
+- **Spring Data MongoDB** — Usado en kitchen-service, recommendation-service, notification-service
+- **Spring Cloud OpenFeign** — Usado en fridge-service, order-service, user-service, kitchen-service, recommendation-service
+- **spring-boot-starter-validation** — Usado en todos los servicios con entidades
+- **Lombok** — Usado en todos los servicios
+- **SpringDoc OpenAPI** — Usado en todos los servicios para documentación Swagger
+
+## Patrones de Integración
+- **Comunicación síncrona** via OpenFeign entre servicios:
+    - fridge-service → notification-service (cambio de estado de heladera)
+    - order-service → fridge-service, user-service (verificar stock, validar usuario)
+    - kitchen-service → order-service (historial de ventas)
+    - user-service → order-service (historial de compras del usuario)
+    - recommendation-service → user-service, order-service, product-service (datos para recomendaciones)
+- **Gateway de pago mockeado** en order-service (PagoGateway interface con MockImpl para MVP)
+- **Firebase Cloud Messaging mockeado** en notification-service (interface NotificacionPushService con MockImpl para MVP)
 
 ## Infraestructura y DevOps
 - **Maven** — Gestión de dependencias y build multi-módulo.
 - **Docker + Docker Compose** — Contenerización de microservicios y bases de datos.
 - **OpenAPI / Swagger** — Documentación interactiva de todas las APIs REST.
+
+### Docker Strategy: Database per Service (Individual Containers)
+
+Each microservice has its own `docker-compose.yml` with dedicated database containers. The root `docker-compose.yml` uses the `include` directive to compose everything together.
+
+| Scenario | Command | What runs |
+|---|---|---|
+| **Individual dev** | `docker compose up` inside service folder | Only that service's DBs |
+| **Full integration** | `docker compose up` in project root | All services + all DBs |
+
+**Structure:**
+```
+tpe-farmacy-food/
+├── docker-compose.yml              ← Orchestrator (includes all services)
+├── kitchen-service/
+│   └── docker-compose.yml          ← kitchen-postgres, kitchen-mongo
+├── order-service/
+│   └── docker-compose.yml          ← order-postgres
+├── product-service/
+│   └── docker-compose.yml          ← product-postgres
+└── ...
+```
+
+**Naming convention:** `<service>-postgres`, `<service>-mongo` to avoid container name collisions.
 
 ## Arquitectura
 - Sistema de microservicios con un API Gateway central (Spring Cloud Gateway) y servicios independientes.

@@ -47,11 +47,15 @@ Dar respuesta a las necesidades dietarías de las personas mediante opciones de 
 - Notificaciones push cuando un producto favorito está disponible
 
 ### Cliente Frontend (MVP Mock)
-- **React 18 + Vite** — Interfaz web mobile-first para simulación de features core (F1-F3)
+- **React 18 + Vite** — Interfaz web mobile-first para simulación de todas las features MVP (F1-F6)
 - Catálogo de productos con filtrado por categoría dietaria
 - Gestión de heladeras con indicadores de estado y stock
 - Órdenes con creación, detalle, pago y cancelación
+- Reporte diario de cocina con selector de fecha y tabla de producción
+- Recomendaciones personalizadas por usuario con razones y badges de categoría
+- Notificaciones con lista leído/no leído y suscripción a productos favoritos
 - Navegación mobile-first con tabs inferiores
+- 6 tabs de navegación (Catálogo, Heladeras, Órdenes, Cocina, Recomendaciones, Notificaciones)
 - Capa de servicios API preparada para conectar a microservicios reales
 - Datos mock en JSON estático, servicios con firmas REST originales
 
@@ -73,3 +77,4 @@ Dar respuesta a las necesidades dietarías de las personas mediante opciones de 
 | 3 | order-service |
 | 4 | kitchen-service + recommendation-service |
 | 5 | user-service + notification-service + api-gateway |
+

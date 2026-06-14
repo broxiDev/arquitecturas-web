@@ -1,0 +1,28 @@
+[
+  {
+    "userId": "u001",
+    "userName": "Maria Gonzalez",
+    "recommendations": [
+      { "productId": "p002", "productName": "Buddha Bowl de Quinoa", "reason": "Basado en tu historial", "dietaryCategory": "vegano", "price": 3200.00 },
+      { "productId": "p008", "productName": "Sopa de Calabaza", "reason": "Usuarios similares", "dietaryCategory": "vegetariano", "price": 2200.00 },
+      { "productId": "p006", "productName": "Tarta de Verduras Sin Gluten", "reason": "Basado en tu historial", "dietaryCategory": "sin gluten", "price": 2600.00 }
+    ]
+  },
+  {
+    "userId": "u002",
+    "userName": "Juan Perez",
+    "recommendations": [
+      { "productId": "p007", "productName": "Hamburguesa de Garbanzos", "reason": "Tendencia de la semana", "dietaryCategory": "vegano", "price": 3100.00 },
+      { "productId": "p004", "productName": "Smoothie Verde Detox", "reason": "Usuarios similares", "dietaryCategory": "vegano", "price": 1800.00 },
+      { "productId": "p002", "productName": "Buddha Bowl de Quinoa", "reason": "Basado en tu historial", "dietaryCategory": "vegano", "price": 3200.00 }
+    ]
+  },
+  {
+    "userId": "u003",
+    "userName": "Carolina Ruiz",
+    "recommendations": [
+      { "productId": "p009", "productName": "Bowl de Salmon y Arroz", "reason": "Usuarios similares", "dietaryCategory": "sin gluten", "price": 4500.00 },
+      { "productId": "p003", "productName": "Wrap de Pollo y Espinaca", "reason": "Basado en tu historial", "dietaryCategory": "sin gluten", "price": 2700.00 }
+    ]
+  }
+]
