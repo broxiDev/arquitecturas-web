@@ -2,7 +2,62 @@
 
 **Puerto:** 8084  
 **Base Path:** `/api/v1/cocina`  
-**Bases de Datos:** PostgreSQL (planes) + MongoDB (historial)
+**Bases de Datos:** PostgreSQL (planes) + MongoDB (historial)  
+**Swagger:** http://localhost:8084/swagger-ui.html
+
+---
+
+## Probar endpoints
+
+### Health check
+```bash
+curl http://localhost:8084/api/v1/cocina/health
+```
+
+### Plan diario — Obtener el plan de hoy
+```bash
+curl http://localhost:8084/api/v1/cocina/plan-diario
+```
+
+### Plan diario — Obtener plan de una fecha específica
+```bash
+curl "http://localhost:8084/api/v1/cocina/plan-diario?fecha=2026-06-14"
+```
+
+### Plan diario — Generar plan (calcula promedio de ventas de los últimos 7 días)
+```bash
+curl -X POST "http://localhost:8084/api/v1/cocina/plan-diario?fecha=2026-06-14"
+```
+
+### Historial — Todas las ventas
+```bash
+curl http://localhost:8084/api/v1/cocina/historial-ventas
+```
+
+### Historial — Filtrar por producto
+```bash
+curl "http://localhost:8084/api/v1/cocina/historial-ventas?productId=101"
+```
+
+### Historial — Filtrar por heladera
+```bash
+curl "http://localhost:8084/api/v1/cocina/historial-ventas?fridgeId=1"
+```
+
+### Historial — Filtrar por rango de fechas
+```bash
+curl "http://localhost:8084/api/v1/cocina/historial-ventas?from=2026-06-01&to=2026-06-14"
+```
+
+### Historial — Filtros combinados
+```bash
+curl "http://localhost:8084/api/v1/cocina/historial-ventas?productId=101&from=2026-06-01&to=2026-06-14"
+```
+
+### Plan no existe (devuelve 404)
+```bash
+curl http://localhost:8084/api/v1/cocina/plan-diario?fecha=2099-01-01
+```
 
 ---
 
@@ -30,19 +85,6 @@ GET /api/v1/cocina/plan-diario
         └── 404 si no existe plan para hoy
 ```
 
-**Ejemplo de respuesta:**
-```json
-{
-  "id": 1,
-  "date": "2026-06-14",
-  "createdAt": "2026-06-14T08:00:00",
-  "items": [
-    { "productId": 101, "productName": "Ensalada César", "suggestedQuantity": 10 },
-    { "productId": 102, "productName": "Bowl Proteico", "suggestedQuantity": 6 }
-  ]
-}
-```
-
 **Endpoints:**
 | Método | Path | Descripción |
 |---|---|---|
@@ -56,36 +98,6 @@ GET /api/v1/cocina/plan-diario
 
 El admin de cocina necesita ver el historial de ventas para análisis y toma de decisiones.
 
-**Flujo de consulta:**
-```
-GET /api/v1/cocina/historial-ventas?from=2026-06-01&to=2026-06-14&fridgeId=123
-    └── Query en MongoDB (VentaHistorica)
-        ├── Filtros opcionales: from, to, productId, fridgeId
-        └── Devuelve lista de registros de ventas
-```
-
-**Ejemplo de respuesta:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Ensalada César",
-    "fridgeId": 1,
-    "quantity": 12,
-    "totalAmount": 6000.00,
-    "date": "2026-06-13"
-  },
-  {
-    "productId": 101,
-    "productName": "Ensalada César",
-    "fridgeId": 2,
-    "quantity": 8,
-    "totalAmount": 4000.00,
-    "date": "2026-06-12"
-  }
-]
-```
-
 **Endpoints:**
 | Método | Path | Descripción |
 |---|---|---|
@@ -93,6 +105,29 @@ GET /api/v1/cocina/historial-ventas?from=2026-06-01&to=2026-06-14&fridgeId=123
 | GET | `/api/v1/cocina/historial-ventas?from=&to=` | Filtrar por rango de fechas |
 | GET | `/api/v1/cocina/historial-ventas?productId=` | Filtrar por producto |
 | GET | `/api/v1/cocina/historial-ventas?fridgeId=` | Filtrar por heladera |
+
+---
+
+## Datos de ejemplo
+
+Al levantar Docker con `docker compose down -v && docker compose up -d` se cargan automáticamente:
+
+**PostgreSQL (plan diario):**
+| Producto | Cantidad sugerida |
+|---|---|
+| Ensalada César | 10 |
+| Bowl Proteico | 6 |
+| Wrap de Pollo | 8 |
+
+**MongoDB (ventas históricas):**
+| Producto | Heladera | Cantidad | Monto | Fecha |
+|---|---|---|---|---|
+| Ensalada César | 1 | 12 | $6000 | ayer |
+| Ensalada César | 2 | 8 | $4000 | hace 2 días |
+| Bowl Proteico | 1 | 5 | $3500 | ayer |
+| Bowl Proteico | 1 | 7 | $4900 | hace 3 días |
+| Wrap de Pollo | 3 | 10 | $4500 | ayer |
+| Wrap de Pollo | 2 | 6 | $2700 | hace 2 días |
 
 ---
 
@@ -121,7 +156,8 @@ Para cambiar, modificar `spring.profiles.active` en `application.yml`.
 ### Desarrollo individual
 ```bash
 cd kitchen-service/
-docker compose up -d
+docker compose down -v   # Resetear datos
+docker compose up -d     # Levantar con datos de ejemplo
 ```
 
 Esto levanta:
@@ -132,49 +168,6 @@ Esto levanta:
 ```bash
 cd tpe-farmacy-food/
 docker compose up -d
-```
-
----
-
-## Estructura de paquetes
-
-```
-com.farmacyfood.kitchen/
-├── KitchenServiceApplication.java
-├── controller/
-│   ├── PlanDiarioController.java
-│   └── HistorialVentasController.java
-├── service/
-│   ├── PlanDiarioService.java
-│   ├── PlanDiarioServiceImpl.java
-│   ├── HistorialVentasService.java
-│   └── HistorialVentasServiceImpl.java
-├── repository/
-│   ├── PlanDiarioRepository.java       # JPA (PostgreSQL)
-│   ├── ItemPlanRepository.java         # JPA (PostgreSQL)
-│   └── VentaHistoricaRepository.java   # MongoDB
-├── entity/
-│   ├── postgres/
-│   │   ├── DailyPlan.java
-│   │   └── PlanItem.java
-│   └── mongo/
-│       └── VentaHistorica.java
-├── dto/
-│   ├── PlanDiarioResponseDTO.java
-│   ├── ItemPlanDTO.java
-│   ├── VentaHistoricaResponseDTO.java
-│   ├── VentasResumenDTO.java
-│   └── ProductoVentaDTO.java
-├── client/
-│   ├── OrdenClient.java
-│   ├── OrdenClientMockImpl.java
-│   ├── OrdenClientFeign.java
-│   ├── ProductoClient.java
-│   ├── ProductoClientMockImpl.java
-│   └── ProductoClientFeign.java
-└── exception/
-    ├── PlanNotFoundException.java
-    └── GlobalExceptionHandler.java
 ```
 
 ---
