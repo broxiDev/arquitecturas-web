@@ -1,2 +1,3 @@
 include:
   - path: ./kitchen-service/docker-compose.yml
+  - path: ./fridge-service/docker-compose.yml
