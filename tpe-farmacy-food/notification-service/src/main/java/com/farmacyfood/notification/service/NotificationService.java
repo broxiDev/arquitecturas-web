@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface NotificationService {
 
-    void enviarNotificationes(Long fridgeId, List<Long> productIds);
+    void enviarNotificaciones(Long fridgeId, List<Long> productIds);
 
     List<NotificationResponseDTO> obtenerPorUserId(Long userId);
 
