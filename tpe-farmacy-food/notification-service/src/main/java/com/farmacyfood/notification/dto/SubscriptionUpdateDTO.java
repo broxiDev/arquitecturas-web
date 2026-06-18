@@ -2,7 +2,7 @@ package com.farmacyfood.notification.dto;
 
 import java.util.List;
 
-public record SuscripcionUpdateDTO(
+public record SubscriptionUpdateDTO(
         String deviceToken,
         List<Long> productPreferences
 ) {}

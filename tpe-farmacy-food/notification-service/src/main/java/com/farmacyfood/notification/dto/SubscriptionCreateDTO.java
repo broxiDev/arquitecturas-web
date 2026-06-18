@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record SuscripcionCreateDTO(
+public record SubscriptionCreateDTO(
         @NotNull Long userId,
         @NotBlank String deviceToken,
         List<Long> productPreferences

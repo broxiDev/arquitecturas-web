@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Document(collection = "notificaciones")
-public class Notificacion {
+public class Notification {
 
     @Id
     private String id;
@@ -18,9 +18,9 @@ public class Notificacion {
     private LocalDateTime sentAt;
     private LocalDateTime readAt;
 
-    public Notificacion() {}
+    public Notification() {}
 
-    public Notificacion(Long userId, Long productId, Long fridgeId, String message) {
+    public Notification(Long userId, Long productId, Long fridgeId, String message) {
         this.userId = userId;
         this.productId = productId;
         this.fridgeId = fridgeId;

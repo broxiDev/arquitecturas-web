@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "suscripciones")
-public class Suscripcion {
+public class Subscription {
 
     @Id
     private String id;
@@ -17,9 +17,9 @@ public class Suscripcion {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Suscripcion() {}
+    public Subscription() {}
 
-    public Suscripcion(Long userId, String deviceToken, List<Long> productPreferences) {
+    public Subscription(Long userId, String deviceToken, List<Long> productPreferences) {
         this.userId = userId;
         this.deviceToken = deviceToken;
         this.productPreferences = productPreferences;
