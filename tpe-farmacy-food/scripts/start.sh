@@ -1,9 +1,11 @@
 #!/bin/bash
 # Start all FarmacyFood microservices
-set -e
 
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$BASE"
+
+PID_DIR="/tmp/farmacyfood-pids"
+mkdir -p "$PID_DIR"
 
 echo "=== FarmacyFood - Iniciando servicios ==="
 
@@ -13,9 +15,9 @@ docker compose up -d 2>/dev/null || echo "  Docker no disponible, omitiendo BD"
 echo "[2/9] Iniciando Eureka (discovery-service :8761)..."
 mvn spring-boot:run -pl discovery-service -q &>/tmp/discovery.log &
 DISCOVERY_PID=$!
+echo "$DISCOVERY_PID" > "$PID_DIR/discovery-service.pid"
 sleep 8
 
-# Wait for Eureka
 for i in $(seq 1 10); do
   if curl -s http://localhost:8761/ > /dev/null 2>&1; then
     echo "  Eureka OK"
@@ -41,11 +43,13 @@ for entry in "${SERVICES[@]}"; do
   port="${entry##*:}"
   echo "[*] Iniciando $svc (:${port})..."
   mvn spring-boot:run -pl "$svc" -q &>"/tmp/${svc}.log" &
-  PIDS+=($!)
+  pid=$!
+  echo "$pid" > "$PID_DIR/${svc}.pid"
+  PIDS+=($pid)
 done
 
 echo ""
-echo "=== Esperando que todos los servicios estén listos... ==="
+echo "=== Esperando que todos los servicios esten listos... ==="
 sleep 30
 
 echo ""
@@ -64,3 +68,4 @@ echo "=== Swagger:   http://localhost:8080/swagger-ui.html ==="
 echo ""
 echo "Para detener: ./scripts/stop.sh"
 echo "Logs en /tmp/*.log"
+echo "PIDs en $PID_DIR/"
