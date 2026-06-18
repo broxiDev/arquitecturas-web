@@ -31,4 +31,13 @@ public class GlobalExceptionHandler {
             LocalDateTime.now().toString()
         ));
     }
+
+    @ExceptionHandler(PlanAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlePlanAlreadyExists(PlanAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(
+            "Conflict",
+            ex.getMessage(),
+            LocalDateTime.now().toString()
+        ));
+    }
 }

@@ -5,6 +5,7 @@ import com.farmacyfood.kitchen.dto.PlanDiarioResponseDTO;
 import com.farmacyfood.kitchen.dto.VentaHistoricaResponseDTO;
 import com.farmacyfood.kitchen.entity.postgres.DailyPlan;
 import com.farmacyfood.kitchen.entity.postgres.PlanItem;
+import com.farmacyfood.kitchen.exception.PlanAlreadyExistsException;
 import com.farmacyfood.kitchen.exception.PlanNotFoundException;
 import com.farmacyfood.kitchen.repository.PlanDiarioRepository;
 import org.junit.jupiter.api.Test;
@@ -89,5 +90,16 @@ class PlanDiarioServiceImplTest {
         assertNotNull(result);
         assertEquals(date, result.date());
         verify(planDiarioRepository).save(any(DailyPlan.class));
+    }
+
+    @Test
+    void generarPlan_throwsWhenPlanAlreadyExists() {
+        LocalDate date = LocalDate.now();
+        DailyPlan existingPlan = DailyPlan.builder().id(1L).date(date).items(List.of()).build();
+
+        when(planDiarioRepository.findByDate(date)).thenReturn(Optional.of(existingPlan));
+
+        assertThrows(PlanAlreadyExistsException.class, () -> planDiarioService.generarPlan(date));
+        verify(planDiarioRepository, never()).save(any());
     }
 }
