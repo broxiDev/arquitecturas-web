@@ -6,6 +6,7 @@ import com.farmacyfood.notification.dto.SubscriptionUpdateDTO;
 import com.farmacyfood.notification.entity.Subscription;
 import com.farmacyfood.notification.exception.SubscriptionNotFoundException;
 import com.farmacyfood.notification.repository.SubscriptionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,11 +15,8 @@ import java.util.Optional;
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
 
-    private final SubscriptionRepository repository;
-
-    public SubscriptionServiceImpl(SubscriptionRepository repository) {
-        this.repository = repository;
-    }
+    @Autowired
+    private SubscriptionRepository repository;
 
     @Override
     public SubscriptionResponseDTO crearOActualizar(SubscriptionCreateDTO dto) {

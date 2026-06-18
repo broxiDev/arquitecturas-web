@@ -10,6 +10,7 @@ import com.farmacyfood.notification.service.SubscriptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,13 +28,11 @@ import java.util.List;
 @Tag(name = "Notification Service", description = "Push alerts and subscriptions")
 public class NotificationController {
 
-    private final SubscriptionService subscriptionService;
-    private final NotificationService notificationService;
+    @Autowired
+    private SubscriptionService subscriptionService;
 
-    public NotificationController(SubscriptionService subscriptionService, NotificationService notificationService) {
-        this.subscriptionService = subscriptionService;
-        this.notificationService = notificationService;
-    }
+    @Autowired
+    private NotificationService notificationService;
 
     @Operation(summary = "Crear o actualizar suscripcion de un usuario")
     @PostMapping("/suscribir")

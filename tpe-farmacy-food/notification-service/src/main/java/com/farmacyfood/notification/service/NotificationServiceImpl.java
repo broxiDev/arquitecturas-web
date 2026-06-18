@@ -7,6 +7,7 @@ import com.farmacyfood.notification.exception.NotificationNotFoundException;
 import com.farmacyfood.notification.repository.NotificationRepository;
 import com.farmacyfood.notification.repository.SubscriptionRepository;
 import com.farmacyfood.notification.service.push.NotificationPushService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,17 +16,14 @@ import java.util.List;
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationRepository notificationRepository;
-    private final SubscriptionRepository subscriptionRepository;
-    private final NotificationPushService pushService;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   SubscriptionRepository subscriptionRepository,
-                                   NotificationPushService pushService) {
-        this.notificationRepository = notificationRepository;
-        this.subscriptionRepository = subscriptionRepository;
-        this.pushService = pushService;
-    }
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private NotificationPushService pushService;
 
     @Override
     public void enviarNotificaciones(Long fridgeId, List<Long> productIds) {
