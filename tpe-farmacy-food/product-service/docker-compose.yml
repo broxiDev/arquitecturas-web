@@ -1,0 +1,16 @@
+services:
+  product-postgres:
+    image: postgres:16
+    container_name: product-postgres
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: root
+      POSTGRES_HOST_AUTH_METHOD: trust
+      TZ: UTC
+    ports:
+      - "5437:5432"
+    volumes:
+      - product_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  product_postgres_data:
