@@ -1,13 +1,13 @@
 services:
   mongo-notification:
     image: mongo:7
-    container_name: farmacyfood_mongo_notification
+    container_name: notification-mongo
     environment:
-      MONGO_INITDB_DATABASE: farmacyfood_notification
+      MONGO_INITDB_DATABASE: notification_db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
-      - mongo_notification_data:/data/db
+      - notification_mongo_data:/data/db
 
 volumes:
-  mongo_notification_data:
+  notification_mongo_data:

@@ -1,6 +1,7 @@
 package com.farmacyfood.user.service;
 
 import com.farmacyfood.user.client.OrderServiceClient;
+import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateEmailException;
 import com.farmacyfood.user.exception.UserNotFoundException;
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<?> getPurchaseHistory(Long userId) {
+    public List<OrderSummaryDTO> getPurchaseHistory(Long userId) {
         return orderClient.getOrdersByUserId(userId);
     }
 }

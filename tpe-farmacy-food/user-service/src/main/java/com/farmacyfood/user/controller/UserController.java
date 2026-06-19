@@ -1,5 +1,6 @@
 package com.farmacyfood.user.controller;
 
+import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.dto.UserRegistrationRequest;
 import com.farmacyfood.user.dto.UserResponse;
 import com.farmacyfood.user.entity.User;
@@ -50,7 +51,7 @@ public class UserController {
 
     @Operation(summary = "Obtener historial de compras del usuario (consulta a order-service)")
     @GetMapping("/{id}/historial")
-    public ResponseEntity<List<?>> getPurchaseHistory(@PathVariable Long id) {
+    public ResponseEntity<List<OrderSummaryDTO>> getPurchaseHistory(@PathVariable Long id) {
         if (service.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }

@@ -1,15 +1,15 @@
 services:
   postgres-user:
     image: postgres:16
-    container_name: farmacyfood_postgres_user
+    container_name: user-postgres
     environment:
-      POSTGRES_USER: farmacyfood
-      POSTGRES_PASSWORD: farmacyfood
+      POSTGRES_USER: root
       POSTGRES_DB: user_db
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
-      - postgres_user_data:/var/lib/postgresql/data
+      - user_postgres_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_user_data:
+  user_postgres_data:

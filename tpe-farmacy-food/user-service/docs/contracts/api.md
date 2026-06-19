@@ -115,9 +115,32 @@
 **Comportamiento:**
 1. Verifica que el usuario existe (si no → `404`)
 2. Delega a `order-service` via Feign (`GET /api/v1/ordenes/usuario/{userId}`)
-3. Retorna lo que devuelva order-service sin transformación
+3. Retorna la respuesta tipada como `List<OrderSummaryDTO>`
 
-**Respuesta:** `200 OK` — `List<?>` (formato definido por order-service)  
+**Respuesta:** `200 OK` — `List<OrderSummaryDTO>`
+
+**OrderSummaryDTO:**
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `orderId` | `Long` | ID de la orden |
+| `userId` | `Long` | ID del usuario |
+| `fridgeId` | `Long` | ID de la heladera |
+| `items` | `List<OrderItemSummaryDTO>` | Productos de la orden |
+| `total` | `double` | Monto total |
+| `status` | `String` | Estado (`PENDING`, `PAID`, etc.) |
+| `paymentId` | `String` | ID del pago (si fue pagada) |
+| `createdAt` | `LocalDateTime` | Fecha de creación |
+| `updatedAt` | `LocalDateTime` | Última actualización |
+
+**OrderItemSummaryDTO:**
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `productId` | `Long` | ID del producto |
+| `quantity` | `int` | Cantidad |
+| `price` | `double` | Precio unitario |
+
 **Error:** `404 Not Found` si el usuario no existe
 
 ---

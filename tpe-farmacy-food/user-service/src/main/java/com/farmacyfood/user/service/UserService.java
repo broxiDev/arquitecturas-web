@@ -1,5 +1,6 @@
 package com.farmacyfood.user.service;
 
+import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public interface UserService {
 
     User updatePreferences(Long id, List<String> dietaryPreferences);
 
-    List<?> getPurchaseHistory(Long userId);
+    List<OrderSummaryDTO> getPurchaseHistory(Long userId);
 }
