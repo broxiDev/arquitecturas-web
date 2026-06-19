@@ -4,6 +4,20 @@ server:
 spring:
   application:
     name: recommendation-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5436/recommendation_db
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
 
 eureka:
   client:
@@ -13,3 +27,15 @@ eureka:
 springdoc:
   api-docs:
     path: /api/v1/recomendaciones/v3/api-docs
+
+recommendation:
+  cache:
+    ttl-hours: 6
+
+clients:
+  user-service:
+    url: http://localhost:8086
+  order-service:
+    url: http://localhost:8083
+  product-service:
+    url: http://localhost:8081

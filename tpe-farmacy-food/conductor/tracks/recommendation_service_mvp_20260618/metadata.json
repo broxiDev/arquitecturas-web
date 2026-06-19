@@ -1,0 +1,8 @@
+{
+  "track_id": "recommendation_service_mvp_20260618",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-18T12:00:00Z",
+  "updated_at": "2026-06-18T12:00:00Z",
+  "description": "Implementar recommendation-service MVP con PostgreSQL, OpenFeign clients y endpoint de recomendaciones básicas"
+}
