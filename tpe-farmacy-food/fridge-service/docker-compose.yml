@@ -1,0 +1,16 @@
+services:
+  fridge-postgres:
+    image: postgres:16
+    container_name: fridge-postgres
+    environment:
+      POSTGRES_DB: fridge_db
+      POSTGRES_USER: root
+      POSTGRES_HOST_AUTH_METHOD: trust
+      TZ: UTC
+    ports:
+      - "5433:5432"
+    volumes:
+      - fridge_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  fridge_postgres_data:

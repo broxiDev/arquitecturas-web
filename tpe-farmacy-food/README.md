@@ -25,3 +25,4 @@ Sistema backend de microservicios que conecta una cocina fantasma con heladeras 
 |---|---|---|
 | Eureka | 8761 | [http://localhost:8761](http://localhost:8761) |
 | API Gateway | 8080 | [http://localhost:8080](http://localhost:8080) |
+

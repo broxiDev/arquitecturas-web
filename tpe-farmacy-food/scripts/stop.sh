@@ -1,9 +1,10 @@
 #!/bin/bash
 # Stop all FarmacyFood microservices
-set -e
 
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$BASE"
+
+PID_DIR="/tmp/farmacyfood-pids"
 
 echo "=== FarmacyFood - Deteniendo servicios ==="
 
@@ -20,22 +21,30 @@ SERVICES=(
 )
 
 for svc in "${SERVICES[@]}"; do
-  pids=$(ps aux | grep "spring-boot:run.*${svc}" | grep -v grep | awk '{print $2}')
-  if [ -n "$pids" ]; then
-    echo "  Deteniendo $svc (PID: $pids)..."
-    kill $pids 2>/dev/null
+  pid=""
+  if [ -f "$PID_DIR/${svc}.pid" ]; then
+    pid=$(cat "$PID_DIR/${svc}.pid" 2>/dev/null)
   fi
+  if [ -z "$pid" ]; then
+    pid=$(pgrep -f "spring-boot:run.*${svc}" 2>/dev/null || true)
+  fi
+  if [ -n "$pid" ]; then
+    echo "  Deteniendo $svc (PID: $pid)..."
+    kill $pid 2>/dev/null || true
+  fi
+  rm -f "$PID_DIR/${svc}.pid"
 done
 
-# Also kill any remaining java processes from this project
 sleep 2
-remaining=$(ps aux | grep -E "com\.farmacyfood\." | grep -v grep | awk '{print $2}')
+remaining=$(pgrep -f "com\.farmacyfood\." 2>/dev/null || true)
 if [ -n "$remaining" ]; then
   echo "  Limpiando procesos restantes..."
-  kill $remaining 2>/dev/null
+  kill $remaining 2>/dev/null || true
 fi
 
 echo "  Docker Compose..."
 docker compose down 2>/dev/null || true
+
+rm -rf "$PID_DIR"
 
 echo "=== Servicios detenidos ==="
