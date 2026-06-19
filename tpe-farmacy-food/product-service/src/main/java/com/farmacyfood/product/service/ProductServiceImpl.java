@@ -52,8 +52,10 @@ public class ProductServiceImpl implements ProductService {
                 .dietaryCategory(productRequest.dietaryCategory())
                 .price(productRequest.price())
                 .imageUrl(productRequest.imageUrl())
+                .nutritionalInfo(productRequest.nutritionalInfo())
+                .conservacionTemperature(productRequest.conservacionTemperature())
                 .build();
-        
+
         Product savedProduct = productRepository.save(product);
         return mapToResponse(savedProduct);
     }
@@ -64,13 +66,15 @@ public class ProductServiceImpl implements ProductService {
         log.info("Actualizando producto con ID: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado con id: " + id));
-        
+
         product.setName(productRequest.name());
         product.setDescription(productRequest.description());
         product.setDietaryCategory(productRequest.dietaryCategory());
         product.setPrice(productRequest.price());
         product.setImageUrl(productRequest.imageUrl());
-        
+        product.setNutritionalInfo(productRequest.nutritionalInfo());
+        product.setConservacionTemperature(productRequest.conservacionTemperature());
+
         Product updatedProduct = productRepository.save(product);
         return mapToResponse(updatedProduct);
     }
@@ -102,6 +106,9 @@ public class ProductServiceImpl implements ProductService {
                 product.getDietaryCategory(),
                 product.getPrice(),
                 product.getImageUrl(),
+                product.getNutritionalInfo(),
+                product.getConservacionTemperature(),
+                product.getCatalogo() != null ? product.getCatalogo().getCocinaId() : null,
                 product.getCreatedAt(),
                 product.getUpdatedAt()
         );

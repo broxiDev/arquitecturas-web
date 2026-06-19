@@ -40,4 +40,13 @@ public class GlobalExceptionHandler {
             LocalDateTime.now().toString()
         ));
     }
+
+    @ExceptionHandler(CatalogoException.class)
+    public ResponseEntity<ErrorResponse> handleCatalogoError(CatalogoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(
+            "Error en el catálogo",
+            ex.getMessage(),
+            LocalDateTime.now().toString()
+        ));
+    }
 }

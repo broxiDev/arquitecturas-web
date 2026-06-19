@@ -1,8 +1,8 @@
-package com.farmacyfood.product.dto;
+package com.farmacyfood.kitchen.dto;
 
 import java.math.BigDecimal;
 
-public record ProductRequest(
+public record ProductoRequest(
     String name,
     String description,
     String dietaryCategory,

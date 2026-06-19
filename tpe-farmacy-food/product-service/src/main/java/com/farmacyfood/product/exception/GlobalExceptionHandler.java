@@ -32,6 +32,15 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(InvalidProductDataException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidProductData(InvalidProductDataException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(
+            "Datos de producto inválidos",
+            ex.getMessage(),
+            LocalDateTime.now().toString()
+        ));
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(

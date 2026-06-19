@@ -33,6 +33,17 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "nutritional_info", length = 2000)
+    private String nutritionalInfo;
+
+    @Column(name = "conservacion_temperature")
+    private BigDecimal conservacionTemperature;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "catalogo_id")
+    @ToString.Exclude
+    private Catalogo catalogo;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
