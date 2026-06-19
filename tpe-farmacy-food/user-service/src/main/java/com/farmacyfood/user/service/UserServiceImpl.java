@@ -5,6 +5,7 @@ import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateEmailException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,13 +15,11 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository repository;
-    private final OrderServiceClient orderClient;
+    @Autowired
+    private UserRepository repository;
 
-    public UserServiceImpl(UserRepository repository, OrderServiceClient orderClient) {
-        this.repository = repository;
-        this.orderClient = orderClient;
-    }
+    @Autowired
+    private OrderServiceClient orderClient;
 
     @Override
     @Transactional
