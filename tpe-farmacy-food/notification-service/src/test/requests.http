@@ -1,0 +1,69 @@
+### Health check
+GET http://localhost:8087/api/v1/notificaciones/health
+
+### Suscribir usuario 1 al producto 1 y 5
+POST http://localhost:8087/api/v1/notificaciones/suscribir
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "deviceToken": "device-abc-123",
+  "productPreferences": [1, 5]
+}
+
+### Suscribir usuario 2 al producto 1
+POST http://localhost:8087/api/v1/notificaciones/suscribir
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "deviceToken": "device-xyz-789",
+  "productPreferences": [1]
+}
+
+### Obtener suscripcion de usuario 1
+GET http://localhost:8087/api/v1/notificaciones/suscribir/1
+
+### Obtener suscripcion de usuario 2
+GET http://localhost:8087/api/v1/notificaciones/suscribir/2
+
+### Obtener suscripcion de usuario inexistente (deberia dar 404)
+GET http://localhost:8087/api/v1/notificaciones/suscribir/99
+
+### Actualizar suscripcion de usuario 1 (cambiar preferencias)
+PUT http://localhost:8087/api/v1/notificaciones/suscribir/1
+Content-Type: application/json
+
+{
+  "deviceToken": "device-abc-456",
+  "productPreferences": [1, 5, 10]
+}
+
+### Enviar notificacion de heladera 2 reconectada con producto 1
+POST http://localhost:8087/api/v1/notificaciones/enviar
+Content-Type: application/json
+
+{
+  "fridgeId": 2,
+  "productIds": [1]
+}
+
+### Enviar notificacion de heladera 3 reconectada con productos 5 y 10
+POST http://localhost:8087/api/v1/notificaciones/enviar
+Content-Type: application/json
+
+{
+  "fridgeId": 3,
+  "productIds": [5, 10]
+}
+
+### Obtener notificaciones de usuario 1
+GET http://localhost:8087/api/v1/notificaciones/usuario/1
+
+### Obtener notificaciones de usuario 2
+GET http://localhost:8087/api/v1/notificaciones/usuario/2
+
+### --- PASO PREVIO: ejecutar "Obtener notificaciones de usuario 1" arriba, copiar un "id" del response y pegarlo abajo ---
+
+### Marcar notificacion como leida (reemplazar ID con uno copiado del GET /usuario/1)
+PUT http://localhost:8087/api/v1/notificaciones/6a348992c4061806d62d1876/leer

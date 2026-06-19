@@ -143,10 +143,15 @@ class NotificationControllerTest {
 
     @Test
     void marcarComoLeida_retorna200() throws Exception {
-        doNothing().when(notificationService).marcarComoLeida("n1");
+        NotificationResponseDTO response = new NotificationResponseDTO(
+                "n1", 100L, 10L, 1L, "mensaje", true, LocalDateTime.now());
+
+        when(notificationService.marcarComoLeida("n1")).thenReturn(response);
 
         mockMvc.perform(put("/api/v1/notificaciones/n1/leer"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("n1"))
+                .andExpect(jsonPath("$.read").value(true));
 
         verify(notificationService).marcarComoLeida("n1");
     }

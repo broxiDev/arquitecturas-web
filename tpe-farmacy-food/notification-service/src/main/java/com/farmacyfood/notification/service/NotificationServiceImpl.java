@@ -53,11 +53,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void marcarComoLeida(String id) {
+    public NotificationResponseDTO marcarComoLeida(String id) {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new NotificationNotFoundException("Notification no encontrada con id: " + id));
         notification.setRead(true);
         notification.setReadAt(LocalDateTime.now());
-        notificationRepository.save(notification);
+        return NotificationResponseDTO.from(notificationRepository.save(notification));
     }
 }

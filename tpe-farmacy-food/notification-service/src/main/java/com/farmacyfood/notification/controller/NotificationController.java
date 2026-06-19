@@ -73,8 +73,8 @@ public class NotificationController {
 
     @Operation(summary = "Marcar notificacion como leida")
     @PutMapping("/{id}/leer")
-    public ResponseEntity<Void> marcarComoLeida(@PathVariable String id) {
-        notificationService.marcarComoLeida(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<NotificationResponseDTO> marcarComoLeida(@PathVariable String id) {
+        NotificationResponseDTO response = notificationService.marcarComoLeida(id);
+        return ResponseEntity.ok(response);
     }
 }

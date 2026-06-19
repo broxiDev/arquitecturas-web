@@ -125,11 +125,13 @@ class NotificationServiceImplTest {
         notif.setId("n1");
 
         when(notificationRepository.findById("n1")).thenReturn(Optional.of(notif));
+        when(notificationRepository.save(notif)).thenReturn(notif);
 
-        service.marcarComoLeida("n1");
+        NotificationResponseDTO result = service.marcarComoLeida("n1");
 
-        assertTrue(notif.getRead());
+        assertTrue(result.read());
         assertNotNull(notif.getReadAt());
+        assertEquals("n1", result.id());
         verify(notificationRepository).save(notif);
     }
 
