@@ -58,4 +58,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                         "Suscripción no encontrada para userId: " + userId));
         return SubscriptionResponseDTO.from(suscripcion);
     }
+
+    @Override
+    public void eliminar(Long userId) {
+        Subscription suscripcion = repository.findByUserId(userId)
+                .orElseThrow(() -> new SubscriptionNotFoundException(
+                        "Suscripción no encontrada para userId: " + userId));
+        repository.delete(suscripcion);
+    }
 }

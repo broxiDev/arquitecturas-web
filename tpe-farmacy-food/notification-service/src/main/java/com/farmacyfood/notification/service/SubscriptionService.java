@@ -11,4 +11,6 @@ public interface SubscriptionService {
     SubscriptionResponseDTO actualizar(Long userId, SubscriptionUpdateDTO dto);
 
     SubscriptionResponseDTO obtenerPorUserId(Long userId);
+
+    void eliminar(Long userId);
 }

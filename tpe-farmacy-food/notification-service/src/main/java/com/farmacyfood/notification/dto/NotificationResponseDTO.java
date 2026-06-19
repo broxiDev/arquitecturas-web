@@ -11,7 +11,8 @@ public record NotificationResponseDTO(
         Long fridgeId,
         String message,
         Boolean read,
-        LocalDateTime sentAt
+        LocalDateTime sentAt,
+        LocalDateTime readAt
 ) {
     public static NotificationResponseDTO from(Notification notificacion) {
         return new NotificationResponseDTO(
@@ -21,7 +22,8 @@ public record NotificationResponseDTO(
                 notificacion.getFridgeId(),
                 notificacion.getMessage(),
                 notificacion.getRead(),
-                notificacion.getSentAt()
+                notificacion.getSentAt(),
+                notificacion.getReadAt()
         );
     }
 }

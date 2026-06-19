@@ -63,6 +63,12 @@ GET http://localhost:8087/api/v1/notificaciones/usuario/1
 ### Obtener notificaciones de usuario 2
 GET http://localhost:8087/api/v1/notificaciones/usuario/2
 
+### Obtener notificaciones no leidas de usuario 1
+GET http://localhost:8087/api/v1/notificaciones/usuario/1/no-leidas
+
+### Eliminar suscripcion de usuario 2
+DELETE http://localhost:8087/api/v1/notificaciones/suscribir/2
+
 ### --- PASO PREVIO: ejecutar "Obtener notificaciones de usuario 1" arriba, copiar un "id" del response y pegarlo abajo ---
 
 ### Marcar notificacion como leida (reemplazar ID con uno copiado del GET /usuario/1)

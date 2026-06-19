@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/notificaciones")
-@Tag(name = "Notification Service", description = "Push alerts")
 public class HealthController {
 
     @Operation(summary = "Health check del servicio")

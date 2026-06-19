@@ -131,7 +131,7 @@ class NotificationControllerTest {
     @Test
     void obtenerPorUsuario_retorna200() throws Exception {
         NotificationResponseDTO notif = new NotificationResponseDTO(
-                "n1", 100L, 10L, 1L, "mensaje", false, LocalDateTime.now());
+                "n1", 100L, 10L, 1L, "mensaje", false, LocalDateTime.now(), null);
 
         when(notificationService.obtenerPorUserId(100L)).thenReturn(List.of(notif));
 
@@ -144,7 +144,7 @@ class NotificationControllerTest {
     @Test
     void marcarComoLeida_retorna200() throws Exception {
         NotificationResponseDTO response = new NotificationResponseDTO(
-                "n1", 100L, 10L, 1L, "mensaje", true, LocalDateTime.now());
+                "n1", 100L, 10L, 1L, "mensaje", true, LocalDateTime.now(), LocalDateTime.now());
 
         when(notificationService.marcarComoLeida("n1")).thenReturn(response);
 

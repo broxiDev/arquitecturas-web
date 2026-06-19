@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,6 +58,13 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Eliminar suscripcion de un usuario")
+    @DeleteMapping("/suscribir/{userId}")
+    public ResponseEntity<Void> eliminarSuscripcion(@PathVariable Long userId) {
+        subscriptionService.eliminar(userId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Recibir notificacion de heladera reconectada")
     @PostMapping("/enviar")
     public ResponseEntity<Void> enviarNotificaciones(@Valid @RequestBody SendNotificationRequest request) {
@@ -68,6 +76,13 @@ public class NotificationController {
     @GetMapping("/usuario/{userId}")
     public ResponseEntity<List<NotificationResponseDTO>> obtenerPorUsuario(@PathVariable Long userId) {
         List<NotificationResponseDTO> notificaciones = notificationService.obtenerPorUserId(userId);
+        return ResponseEntity.ok(notificaciones);
+    }
+
+    @Operation(summary = "Obtener notificaciones no leidas de un usuario")
+    @GetMapping("/usuario/{userId}/no-leidas")
+    public ResponseEntity<List<NotificationResponseDTO>> obtenerNoLeidas(@PathVariable Long userId) {
+        List<NotificationResponseDTO> notificaciones = notificationService.obtenerNoLeidas(userId);
         return ResponseEntity.ok(notificaciones);
     }
 
