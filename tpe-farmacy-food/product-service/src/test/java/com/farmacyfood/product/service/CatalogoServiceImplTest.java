@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,6 +119,29 @@ class CatalogoServiceImplTest {
 
         assertNotNull(response);
         verify(catalogoRepository).save(any(Catalogo.class));
+    }
+
+    @Test
+    void getProductsByCocina_whenKitchenHasProducts_returnsList() {
+        when(productRepository.findByCocinaId("cocina-sur")).thenReturn(List.of(testProduct));
+
+        List<ProductResponse> responses = catalogoService.getProductsByCocina("cocina-sur");
+
+        assertNotNull(responses);
+        assertEquals(1, responses.size());
+        assertEquals("Ensalada Test", responses.getFirst().name());
+        verify(productRepository).findByCocinaId("cocina-sur");
+    }
+
+    @Test
+    void getProductsByCocina_whenNoProducts_returnsEmptyList() {
+        when(productRepository.findByCocinaId("cocina-vacia")).thenReturn(List.of());
+
+        List<ProductResponse> responses = catalogoService.getProductsByCocina("cocina-vacia");
+
+        assertNotNull(responses);
+        assertTrue(responses.isEmpty());
+        verify(productRepository).findByCocinaId("cocina-vacia");
     }
 
     @Test

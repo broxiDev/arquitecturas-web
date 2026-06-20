@@ -95,6 +95,18 @@ public class ProductController {
     }
 
     @Operation(
+        summary = "Obtener productos por cocina",
+        description = "Retorna la lista de productos pertenecientes a una cocina mediante su ID."
+    )
+    @GetMapping("/cocina/{cocinaId}")
+    public ResponseEntity<List<ProductResponse>> getProductsByCocina(
+            @Parameter(description = "ID de la cocina", required = true, example = "cocina-sur")
+            @PathVariable String cocinaId) {
+        log.info("REST request to get products by cocina ID: {}", cocinaId);
+        return ResponseEntity.ok(catalogoService.getProductsByCocina(cocinaId));
+    }
+
+    @Operation(
         summary = "Actualizar un producto existente",
         description = "Actualiza un producto existente por su ID.",
         responses = {

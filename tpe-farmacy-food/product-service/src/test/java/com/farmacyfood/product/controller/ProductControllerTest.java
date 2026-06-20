@@ -19,6 +19,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -72,6 +73,39 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.name").value("Ensalada Test"))
                 .andExpect(jsonPath("$.dietaryCategory").value("VEGANO"))
                 .andExpect(jsonPath("$.cocinaId").value("cocina-sur"));
+    }
+
+    @Test
+    void getProductsByCocina_whenKitchenExists_returnsProductList() throws Exception {
+        ProductResponse response = new ProductResponse(
+                1L,
+                "Ensalada Test",
+                "Descripción test",
+                "VEGANO",
+                new BigDecimal("8500.00"),
+                "/images/test.jpg",
+                "Calorías: 350kcal",
+                new BigDecimal("4.00"),
+                "cocina-sur",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        when(catalogoService.getProductsByCocina("cocina-sur")).thenReturn(List.of(response));
+
+        mockMvc.perform(get("/api/v1/productos/cocina/cocina-sur"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Ensalada Test"))
+                .andExpect(jsonPath("$[0].cocinaId").value("cocina-sur"));
+    }
+
+    @Test
+    void getProductsByCocina_whenNoProducts_returnsEmptyList() throws Exception {
+        when(catalogoService.getProductsByCocina("cocina-vacia")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/productos/cocina/cocina-vacia"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
