@@ -33,8 +33,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<User> findAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<User> findById(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public User update(Long id, User updated) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+        if (updated.getName() != null) user.setName(updated.getName());
+        if (updated.getEmail() != null) user.setEmail(updated.getEmail());
+        if (updated.getPasswordHash() != null) user.setPasswordHash(updated.getPasswordHash());
+        if (updated.getDietaryPreferences() != null) user.setDietaryPreferences(updated.getDietaryPreferences());
+        return repository.save(user);
     }
 
     @Override
@@ -44,6 +62,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
         user.setDietaryPreferences(dietaryPreferences);
         return repository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new UserNotFoundException("Usuario no encontrado con id: " + id);
+        }
+        repository.deleteById(id);
     }
 
     @Override

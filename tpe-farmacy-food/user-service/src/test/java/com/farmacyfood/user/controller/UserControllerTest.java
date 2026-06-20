@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -63,6 +64,21 @@ class UserControllerTest {
     }
 
     @Test
+    void getAll_retorna200() throws Exception {
+        User user1 = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        user1.setId(1L);
+        User user2 = new User("Juan", "juan@test.com", "hash456", List.of("sin gluten"));
+        user2.setId(2L);
+        when(service.findAll()).thenReturn(List.of(user1, user2));
+
+        mockMvc.perform(get("/api/v1/usuarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].name").value("Juan"));
+    }
+
+    @Test
     void getById_retorna200() throws Exception {
         User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
         user.setId(1L);
@@ -79,6 +95,34 @@ class UserControllerTest {
 
         mockMvc.perform(get("/api/v1/usuarios/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void update_retorna200() throws Exception {
+        User user = new User("Mati Updated", "mati@test.com", "hash123", List.of("vegano"));
+        user.setId(1L);
+        when(service.update(eq(1L), any())).thenReturn(user);
+
+        mockMvc.perform(put("/api/v1/usuarios/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "name": "Mati Updated",
+                                    "email": "mati@test.com",
+                                    "passwordHash": "hash123",
+                                    "dietaryPreferences": ["vegano"]
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Mati Updated"));
+    }
+
+    @Test
+    void delete_retorna204() throws Exception {
+        doNothing().when(service).delete(1L);
+
+        mockMvc.perform(delete("/api/v1/usuarios/1"))
+                .andExpect(status().isNoContent());
     }
 
     @Test

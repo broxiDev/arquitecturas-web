@@ -57,6 +57,63 @@ class UserServiceImplTest {
     }
 
     @Test
+    void findAll_retornaTodos() {
+        User user1 = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        user1.setId(1L);
+        User user2 = new User("Juan", "juan@test.com", "hash456", List.of("sin gluten"));
+        user2.setId(2L);
+        when(repository.findAll()).thenReturn(List.of(user1, user2));
+
+        List<User> result = service.findAll();
+
+        assertEquals(2, result.size());
+        assertEquals("Mati", result.get(0).getName());
+        assertEquals("Juan", result.get(1).getName());
+        verify(repository).findAll();
+    }
+
+    @Test
+    void update_cuandoExiste_actualizaCampos() {
+        User existing = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        existing.setId(1L);
+        User updated = new User("Mati Nuevo", "mati@test.com", "hash123", List.of("vegano", "gluten-free"));
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+        when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        User result = service.update(1L, updated);
+
+        assertEquals("Mati Nuevo", result.getName());
+        assertEquals(2, result.getDietaryPreferences().size());
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void update_cuandoNoExiste_lanzaExcepcion() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,
+                () -> service.update(99L, new User("Nadie", "x@x.com", "x", List.of())));
+    }
+
+    @Test
+    void delete_cuandoExiste_elimina() {
+        when(repository.existsById(1L)).thenReturn(true);
+
+        service.delete(1L);
+
+        verify(repository).deleteById(1L);
+    }
+
+    @Test
+    void delete_cuandoNoExiste_lanzaExcepcion() {
+        when(repository.existsById(99L)).thenReturn(false);
+
+        assertThrows(UserNotFoundException.class, () -> service.delete(99L));
+        verify(repository, never()).deleteById(any());
+    }
+
+    @Test
     void findById_cuandoExiste() {
         User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
         user.setId(1L);

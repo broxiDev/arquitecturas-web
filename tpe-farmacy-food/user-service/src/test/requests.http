@@ -40,11 +40,28 @@ GET http://localhost:8086/api/v1/usuarios/1
 ### Obtener usuario inexistente (debe dar 404)
 GET http://localhost:8086/api/v1/usuarios/999
 
+### Obtener todos los usuarios
+GET http://localhost:8086/api/v1/usuarios
+
+### Actualizar usuario completo
+PUT http://localhost:8086/api/v1/usuarios/1
+Content-Type: application/json
+
+{
+  "name": "María González Actualizada",
+  "email": "maria@test.com",
+  "passwordHash": "hash123",
+  "dietaryPreferences": ["vegano", "vegetariano"]
+}
+
 ### Actualizar preferencias dietarias
 PUT http://localhost:8086/api/v1/usuarios/1/preferencias
 Content-Type: application/json
 
 ["vegetariano", "sin gluten", "vegano"]
+
+### Eliminar usuario
+DELETE http://localhost:8086/api/v1/usuarios/2
 
 ### Obtener historial de compras (requiere order-service corriendo)
 GET http://localhost:8086/api/v1/usuarios/1/historial

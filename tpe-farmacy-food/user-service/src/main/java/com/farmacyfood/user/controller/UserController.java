@@ -32,12 +32,32 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(saved));
     }
 
+    @Operation(summary = "Obtener todos los usuarios")
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAll() {
+        return ResponseEntity.ok(service.findAll().stream().map(UserResponse::from).toList());
+    }
+
     @Operation(summary = "Obtener perfil de usuario por ID")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
         return service.findById(id)
                 .map(user -> ResponseEntity.ok(UserResponse.from(user)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Actualizar usuario")
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody User user) {
+        User updated = service.update(id, user);
+        return ResponseEntity.ok(UserResponse.from(updated));
+    }
+
+    @Operation(summary = "Eliminar usuario")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Actualizar preferencias dietarias del usuario")
