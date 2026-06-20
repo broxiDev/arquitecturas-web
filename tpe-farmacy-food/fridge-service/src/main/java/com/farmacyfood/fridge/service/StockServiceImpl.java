@@ -1,5 +1,9 @@
 package com.farmacyfood.fridge.service;
 
+import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
+import com.farmacyfood.fridge.client.NotificacionClient;
+import com.farmacyfood.fridge.dto.FridgeRemainderDTO;
+import com.farmacyfood.fridge.dto.ProductRemainderDTO;
 import com.farmacyfood.fridge.dto.StockCreateDTO;
 import com.farmacyfood.fridge.dto.StockResponseDTO;
 import com.farmacyfood.fridge.dto.StockUpdateDTO;
@@ -12,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +25,31 @@ public class StockServiceImpl implements StockService {
 
     private final StockRepository stockRepository;
     private final HeladeraRepository heladeraRepository;
+    private final NotificacionClient notificacionClient;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FridgeRemainderDTO> getRemainderByCocinaId(String cocinaId) {
+        List<Heladera> heladeras = heladeraRepository.findByCocinaId(cocinaId);
+        List<FridgeRemainderDTO> result = new ArrayList<>();
+
+        for (Heladera heladera : heladeras) {
+            List<StockHeladera> stockItems = stockRepository.findByHeladeraId(heladera.getId());
+            List<ProductRemainderDTO> products = new ArrayList<>();
+
+            for (StockHeladera stock : stockItems) {
+                products.add(new ProductRemainderDTO(
+                    stock.getProductId(),
+                    stock.getProductName(),
+                    stock.getQuantity()
+                ));
+            }
+
+            result.add(new FridgeRemainderDTO(heladera.getId(), products));
+        }
+
+        return result;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -37,10 +67,17 @@ public class StockServiceImpl implements StockService {
         StockHeladera stock = StockHeladera.builder()
             .heladera(heladera)
             .productId(dto.productId())
+            .productName(dto.productName())
             .quantity(dto.quantity())
             .build();
 
         StockHeladera saved = stockRepository.save(stock);
+
+        if ("ACTIVE".equals(heladera.getStatus())) {
+            notificacionClient.notificarProductoDisponible(
+                new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+        }
+
         return toDTO(saved);
     }
 
@@ -51,8 +88,16 @@ public class StockServiceImpl implements StockService {
             .orElseThrow(() -> new HeladeraNotFoundException(
                 "No existe stock para el producto " + dto.productId() + " en la heladera " + heladeraId));
 
+        int oldQuantity = stock.getQuantity();
         stock.setQuantity(dto.quantity());
+        if (dto.productName() != null) stock.setProductName(dto.productName());
         StockHeladera saved = stockRepository.save(stock);
+
+        if (oldQuantity == 0 && dto.quantity() > 0) {
+            notificacionClient.notificarProductoDisponible(
+                new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+        }
+
         return toDTO(saved);
     }
 
@@ -61,6 +106,7 @@ public class StockServiceImpl implements StockService {
             stock.getId(),
             stock.getHeladera().getId(),
             stock.getProductId(),
+            stock.getProductName(),
             stock.getQuantity(),
             stock.getUpdatedAt()
         );

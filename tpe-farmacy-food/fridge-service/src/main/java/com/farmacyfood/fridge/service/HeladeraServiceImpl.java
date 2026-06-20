@@ -57,6 +57,7 @@ public class HeladeraServiceImpl implements HeladeraService {
             .longitude(dto.longitude())
             .address(dto.address())
             .status(dto.status())
+            .cocinaId(dto.cocinaId())
             .build();
         Heladera saved = heladeraRepository.save(heladera);
         return toDTO(saved);
@@ -75,12 +76,13 @@ public class HeladeraServiceImpl implements HeladeraService {
         if (dto.longitude() != null) heladera.setLongitude(dto.longitude());
         if (dto.address() != null) heladera.setAddress(dto.address());
         if (dto.status() != null) heladera.setStatus(dto.status());
+        if (dto.cocinaId() != null) heladera.setCocinaId(dto.cocinaId());
 
         Heladera saved = heladeraRepository.save(heladera);
 
         if (dto.status() != null && !dto.status().equals(oldStatus)) {
             statusEventRepository.save(EventoEstadoHeladera.builder()
-                .heladera(saved)
+                .heladeraId(saved.getId())
                 .oldStatus(oldStatus)
                 .newStatus(dto.status())
                 .build());
@@ -114,6 +116,7 @@ public class HeladeraServiceImpl implements HeladeraService {
             heladera.getLongitude(),
             heladera.getAddress(),
             heladera.getStatus(),
+            heladera.getCocinaId(),
             heladera.getLastMaintenance(),
             heladera.getCreatedAt(),
             heladera.getUpdatedAt()

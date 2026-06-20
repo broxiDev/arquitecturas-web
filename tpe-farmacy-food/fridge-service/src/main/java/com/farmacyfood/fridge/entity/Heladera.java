@@ -43,6 +43,10 @@ public class Heladera {
     @NotBlank
     private String status;
 
+    @Column(name = "cocina_id", nullable = false, length = 50)
+    @NotBlank
+    private String cocinaId;
+
     @OneToMany(mappedBy = "heladera", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StockHeladera> stockItems = new ArrayList<>();

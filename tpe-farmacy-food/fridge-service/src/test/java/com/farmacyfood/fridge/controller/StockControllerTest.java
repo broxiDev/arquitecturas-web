@@ -30,23 +30,24 @@ class StockControllerTest {
     @Test
     void getStock_returnsList() throws Exception {
         when(stockService.getStockByHeladera(1L)).thenReturn(List.of(
-            new StockResponseDTO(1L, 1L, 101L, 10, LocalDateTime.now())
+            new StockResponseDTO(1L, 1L, 101L, "Brownie de Chocolate", 10, LocalDateTime.now())
         ));
 
         mockMvc.perform(get("/api/v1/heladeras/1/stock"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].productId").value(101))
+            .andExpect(jsonPath("$[0].productName").value("Brownie de Chocolate"))
             .andExpect(jsonPath("$[0].quantity").value(10));
     }
 
     @Test
     void addStock_returns201() throws Exception {
         when(stockService.addStock(eq(1L), any())).thenReturn(
-            new StockResponseDTO(1L, 1L, 101L, 20, LocalDateTime.now()));
+            new StockResponseDTO(1L, 1L, 101L, "Brownie de Chocolate", 20, LocalDateTime.now()));
 
         mockMvc.perform(post("/api/v1/heladeras/1/stock")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"productId\":101,\"quantity\":20}"))
+                .content("{\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":20}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.productId").value(101));
     }
@@ -54,7 +55,7 @@ class StockControllerTest {
     @Test
     void updateStock_returnsOk() throws Exception {
         when(stockService.updateStock(eq(1L), any())).thenReturn(
-            new StockResponseDTO(1L, 1L, 101L, 15, LocalDateTime.now()));
+            new StockResponseDTO(1L, 1L, 101L, "Brownie de Chocolate", 15, LocalDateTime.now()));
 
         mockMvc.perform(put("/api/v1/heladeras/1/stock")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -13,6 +13,8 @@ public interface HeladeraRepository extends JpaRepository<Heladera, Long> {
 
     List<Heladera> findByStatus(String status);
 
+    List<Heladera> findByCocinaId(String cocinaId);
+
     @Query(value = """
         SELECT * FROM heladera
         WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(latitude))

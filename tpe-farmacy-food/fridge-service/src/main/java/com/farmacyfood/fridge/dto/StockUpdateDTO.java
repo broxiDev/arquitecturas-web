@@ -9,6 +9,9 @@ public record StockUpdateDTO(
     @Schema(description = "ID del producto", example = "101")
     @NotNull Long productId,
 
+    @Schema(description = "Nombre del producto", example = "Brownie de Chocolate")
+    String productName,
+
     @Schema(description = "Nueva cantidad (valor absoluto, no delta)", example = "15")
     @NotNull @Min(0) Integer quantity
 ) {}

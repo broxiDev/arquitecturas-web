@@ -19,5 +19,8 @@ public record HeladeraCreateDTO(
     @NotBlank String address,
 
     @Schema(description = "Estado inicial", example = "ACTIVE")
-    @NotBlank String status
+    @NotBlank String status,
+
+    @Schema(description = "ID de la cocina asociada", example = "COCINA-DULCE")
+    @NotBlank String cocinaId
 ) {}

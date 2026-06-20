@@ -25,6 +25,9 @@ public record HeladeraResponseDTO(
     @Schema(description = "Estado operativo", example = "ACTIVE")
     String status,
 
+    @Schema(description = "ID de la cocina asociada", example = "COCINA-DULCE")
+    String cocinaId,
+
     @Schema(description = "Último mantenimiento", example = "2026-06-01")
     LocalDate lastMaintenance,
 

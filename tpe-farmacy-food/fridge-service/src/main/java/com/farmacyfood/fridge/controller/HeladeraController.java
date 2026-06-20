@@ -1,9 +1,11 @@
 package com.farmacyfood.fridge.controller;
 
+import com.farmacyfood.fridge.dto.FridgeRemainderDTO;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
 import com.farmacyfood.fridge.dto.HeladeraUpdateDTO;
 import com.farmacyfood.fridge.service.HeladeraService;
+import com.farmacyfood.fridge.service.StockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +30,7 @@ import java.util.List;
 public class HeladeraController {
 
     private final HeladeraService heladeraService;
+    private final StockService stockService;
 
     @Operation(summary = "Listar heladeras", description = "Lista todas las heladeras con filtros opcionales por cercanía o estado")
     @GetMapping
@@ -74,6 +77,16 @@ public class HeladeraController {
     @PutMapping("/{id}")
     public ResponseEntity<HeladeraResponseDTO> update(@PathVariable Long id, @Valid @RequestBody HeladeraUpdateDTO dto) {
         return ResponseEntity.ok(heladeraService.update(id, dto));
+    }
+
+    @Operation(summary = "Obtener remanente de stock por cocina",
+               description = "Retorna el stock remanente de todas las heladeras asociadas a una cocina")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de remanentes (puede ser vacía)")
+    })
+    @GetMapping("/cocina/{cocinaId}/remanente")
+    public ResponseEntity<List<FridgeRemainderDTO>> getRemainderByCocina(@PathVariable String cocinaId) {
+        return ResponseEntity.ok(stockService.getRemainderByCocinaId(cocinaId));
     }
 
     @Operation(summary = "Eliminar heladera")

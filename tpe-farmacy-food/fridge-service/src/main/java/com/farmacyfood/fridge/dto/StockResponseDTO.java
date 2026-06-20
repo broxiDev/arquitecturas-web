@@ -15,6 +15,9 @@ public record StockResponseDTO(
     @Schema(description = "ID del producto", example = "101")
     Long productId,
 
+    @Schema(description = "Nombre del producto", example = "Brownie de Chocolate")
+    String productName,
+
     @Schema(description = "Cantidad disponible", example = "15")
     Integer quantity,
 

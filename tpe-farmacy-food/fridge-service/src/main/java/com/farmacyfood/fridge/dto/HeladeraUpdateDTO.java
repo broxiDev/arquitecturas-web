@@ -17,5 +17,8 @@ public record HeladeraUpdateDTO(
     String address,
 
     @Schema(description = "Estado", example = "MAINTENANCE")
-    String status
+    String status,
+
+    @Schema(description = "ID de la cocina asociada", example = "COCINA-VEGANA")
+    String cocinaId
 ) {}

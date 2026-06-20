@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface NotificacionClientFeign extends NotificacionClient {
 
     @Override
-    @PostMapping("/api/v1/notificaciones/producto-disponible")
+    @PostMapping("/api/v1/notificaciones/notificar-disponibilidad")
     void notificarProductoDisponible(@RequestBody DisponibilidadNotificacionDTO notificacion);
 }

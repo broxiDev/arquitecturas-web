@@ -31,6 +31,13 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(CocinaNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCocinaNotFound(CocinaNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(
+            "Not Found", ex.getMessage(), LocalDateTime.now().toString()
+        ));
+    }
+
     @ExceptionHandler(StockInsuficienteException.class)
     public ResponseEntity<ErrorResponse> handleStockInsuficiente(StockInsuficienteException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(

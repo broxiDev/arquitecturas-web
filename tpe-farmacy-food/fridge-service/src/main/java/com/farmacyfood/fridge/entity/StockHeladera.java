@@ -31,6 +31,10 @@ public class StockHeladera {
     @NotNull
     private Long productId;
 
+    @Column(name = "product_name", nullable = false, length = 200)
+    @NotNull
+    private String productName;
+
     @Column(nullable = false)
     @NotNull
     @Min(0)

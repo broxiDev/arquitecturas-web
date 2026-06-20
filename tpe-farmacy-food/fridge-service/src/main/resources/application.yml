@@ -21,6 +21,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
+  data:
+    mongodb:
+      uri: mongodb://localhost:27018/fridge_db
+
 eureka:
   client:
     service-url:

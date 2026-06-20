@@ -43,7 +43,7 @@ class HeladeraServiceImplTest {
     @Test
     void findById_returnsHeladera() {
         Heladera heladera = Heladera.builder().id(1L).name("Heladera Test").latitude(-34.6).longitude(-58.4)
-            .address("Av. Siempre Viva 123").status("ACTIVE").createdAt(LocalDateTime.now()).build();
+            .address("Av. Siempre Viva 123").status("ACTIVE").cocinaId("COCINA-DULCE").createdAt(LocalDateTime.now()).build();
 
         when(heladeraRepository.findById(1L)).thenReturn(Optional.of(heladera));
 
@@ -64,8 +64,8 @@ class HeladeraServiceImplTest {
     @Test
     void findAll_returnsAll() {
         when(heladeraRepository.findAll()).thenReturn(List.of(
-            Heladera.builder().id(1L).name("H1").latitude(-34.6).longitude(-58.4).address("Dir 1").status("ACTIVE").build(),
-            Heladera.builder().id(2L).name("H2").latitude(-34.7).longitude(-58.5).address("Dir 2").status("MAINTENANCE").build()
+            Heladera.builder().id(1L).name("H1").latitude(-34.6).longitude(-58.4).address("Dir 1").status("ACTIVE").cocinaId("COCINA-DULCE").build(),
+            Heladera.builder().id(2L).name("H2").latitude(-34.7).longitude(-58.5).address("Dir 2").status("MAINTENANCE").cocinaId("COCINA-CELIACA").build()
         ));
 
         List<HeladeraResponseDTO> result = heladeraService.findAll(null, null, null, null);
@@ -76,7 +76,7 @@ class HeladeraServiceImplTest {
     @Test
     void findAll_filtersByStatus() {
         when(heladeraRepository.findByStatus("MAINTENANCE")).thenReturn(List.of(
-            Heladera.builder().id(2L).name("H2").latitude(-34.7).longitude(-58.5).address("Dir 2").status("MAINTENANCE").build()
+            Heladera.builder().id(2L).name("H2").latitude(-34.7).longitude(-58.5).address("Dir 2").status("MAINTENANCE").cocinaId("COCINA-CELIACA").build()
         ));
 
         List<HeladeraResponseDTO> result = heladeraService.findAll("MAINTENANCE", null, null, null);
@@ -87,7 +87,7 @@ class HeladeraServiceImplTest {
 
     @Test
     void create_savesAndReturns() {
-        HeladeraCreateDTO dto = new HeladeraCreateDTO("Nueva Heladera", -34.6, -58.4, "Dir 123", "ACTIVE");
+        HeladeraCreateDTO dto = new HeladeraCreateDTO("Nueva Heladera", -34.6, -58.4, "Dir 123", "ACTIVE", "COCINA-DULCE");
 
         when(heladeraRepository.save(any(Heladera.class))).thenAnswer(inv -> {
             Heladera h = inv.getArgument(0);
@@ -101,18 +101,19 @@ class HeladeraServiceImplTest {
 
         assertEquals("Nueva Heladera", result.name());
         assertEquals(-34.6, result.latitude());
+        assertEquals("COCINA-DULCE", result.cocinaId());
         verify(heladeraRepository).save(any(Heladera.class));
     }
 
     @Test
     void update_changesNameAndStatus() {
         Heladera existing = Heladera.builder().id(1L).name("Old Name").latitude(-34.6).longitude(-58.4)
-            .address("Same Dir").status("OUT_OF_SERVICE").createdAt(LocalDateTime.now()).build();
+            .address("Same Dir").status("OUT_OF_SERVICE").cocinaId("COCINA-DULCE").createdAt(LocalDateTime.now()).build();
 
         when(heladeraRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(heladeraRepository.save(any(Heladera.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        HeladeraUpdateDTO dto = new HeladeraUpdateDTO("New Name", null, null, null, "ACTIVE");
+        HeladeraUpdateDTO dto = new HeladeraUpdateDTO("New Name", null, null, null, "ACTIVE", null);
         HeladeraResponseDTO result = heladeraService.update(1L, dto);
 
         assertEquals("New Name", result.name());
@@ -126,7 +127,7 @@ class HeladeraServiceImplTest {
         when(heladeraRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(HeladeraNotFoundException.class,
-            () -> heladeraService.update(99L, new HeladeraUpdateDTO(null, null, null, null, null)));
+            () -> heladeraService.update(99L, new HeladeraUpdateDTO(null, null, null, null, null, null)));
     }
 
     @Test
