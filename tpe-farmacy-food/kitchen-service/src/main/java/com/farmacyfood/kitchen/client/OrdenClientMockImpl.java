@@ -28,29 +28,21 @@ public class OrdenClientMockImpl implements OrdenClient {
         );
     }
 
-    // Retorna ventas hardcodeadas para una cocina fantasma específica
     @Override
     public List<ProductoVentaDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to) {
         List<ProductoVentaDTO> result = new ArrayList<>();
 
-        // Los totales de ventas deben ser mayores que los remanentes en heladeras
-        // para que el plan diario tenga cantidades sugeridas positivas
-        // Promedio diario = totalVendido / 7 (redondeado hacia arriba)
-        // sugerido = promedio - remanente (solo si > 0)
         switch (cocinaId) {
-            // COCINA-DULCE: avg=10/7/8, remainder=5/3/5, suggested=5/4/3
             case "COCINA-DULCE" -> {
                 result.add(new ProductoVentaDTO(101L, "Brownie de Chocolate", 70, new BigDecimal("525000.00")));
                 result.add(new ProductoVentaDTO(102L, "Cheesecake", 49, new BigDecimal("465500.00")));
                 result.add(new ProductoVentaDTO(103L, "Tiramisú", 56, new BigDecimal("492800.00")));
             }
-            // COCINA-CELIACA: avg=12/8/10, remainder=4/4/5, suggested=8/4/5
             case "COCINA-CELIACA" -> {
                 result.add(new ProductoVentaDTO(201L, "Tostada de Palta Sin Gluten", 84, new BigDecimal("604800.00")));
                 result.add(new ProductoVentaDTO(202L, "Bowl de Quinoa Sin Gluten", 56, new BigDecimal("548800.00")));
                 result.add(new ProductoVentaDTO(203L, "Rolls de Primavera de Arroz", 70, new BigDecimal("455000.00")));
             }
-            // COCINA-VEGANA: avg=12/7/9, remainder=5/3/5, suggested=7/4/4
             case "COCINA-VEGANA" -> {
                 result.add(new ProductoVentaDTO(301L, "Buddha Bowl Vegano", 84, new BigDecimal("714000.00")));
                 result.add(new ProductoVentaDTO(302L, "Salteado de Tofu", 49, new BigDecimal("382200.00")));
@@ -63,5 +55,51 @@ public class OrdenClientMockImpl implements OrdenClient {
         }
 
         return result;
+    }
+
+    @Override
+    public List<VentaHistoricaResponseDTO> findHistorialVentas(Long productId, Long fridgeId, LocalDate from, LocalDate to) {
+        List<VentaHistoricaResponseDTO> all = new ArrayList<>();
+
+        all.add(new VentaHistoricaResponseDTO(101L, "Brownie de Chocolate", 1L, 10, new BigDecimal("75000.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(101L, "Brownie de Chocolate", 2L, 8, new BigDecimal("60000.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(102L, "Cheesecake", 1L, 7, new BigDecimal("66500.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(102L, "Cheesecake", 2L, 5, new BigDecimal("47500.00"), LocalDate.of(2026, 6, 17)));
+        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisú", 1L, 12, new BigDecimal("105600.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisú", 2L, 9, new BigDecimal("79200.00"), LocalDate.of(2026, 6, 20)));
+        all.add(new VentaHistoricaResponseDTO(201L, "Tostada de Palta Sin Gluten", 3L, 12, new BigDecimal("86400.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(201L, "Tostada de Palta Sin Gluten", 4L, 9, new BigDecimal("64800.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(202L, "Bowl de Quinoa Sin Gluten", 3L, 8, new BigDecimal("78400.00"), LocalDate.of(2026, 6, 20)));
+        all.add(new VentaHistoricaResponseDTO(202L, "Bowl de Quinoa Sin Gluten", 4L, 6, new BigDecimal("58800.00"), LocalDate.of(2026, 6, 17)));
+        all.add(new VentaHistoricaResponseDTO(203L, "Rolls de Primavera de Arroz", 3L, 10, new BigDecimal("65000.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(203L, "Rolls de Primavera de Arroz", 4L, 7, new BigDecimal("45500.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(301L, "Buddha Bowl Vegano", 5L, 12, new BigDecimal("102000.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(301L, "Buddha Bowl Vegano", 6L, 8, new BigDecimal("68000.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(302L, "Salteado de Tofu", 5L, 7, new BigDecimal("54600.00"), LocalDate.of(2026, 6, 20)));
+        all.add(new VentaHistoricaResponseDTO(302L, "Salteado de Tofu", 6L, 5, new BigDecimal("39000.00"), LocalDate.of(2026, 6, 17)));
+        all.add(new VentaHistoricaResponseDTO(303L, "Curry de Garbanzos", 5L, 9, new BigDecimal("82800.00"), LocalDate.of(2026, 6, 19)));
+        all.add(new VentaHistoricaResponseDTO(303L, "Curry de Garbanzos", 6L, 6, new BigDecimal("55200.00"), LocalDate.of(2026, 6, 18)));
+
+        List<VentaHistoricaResponseDTO> filtered = new ArrayList<>();
+        for (VentaHistoricaResponseDTO v : all) {
+            boolean matches = true;
+            if (productId != null && !v.productId().equals(productId)) {
+                matches = false;
+            }
+            if (fridgeId != null && !v.fridgeId().equals(fridgeId)) {
+                matches = false;
+            }
+            if (from != null && v.date().isBefore(from)) {
+                matches = false;
+            }
+            if (to != null && v.date().isAfter(to)) {
+                matches = false;
+            }
+            if (matches) {
+                filtered.add(v);
+            }
+        }
+
+        return filtered;
     }
 }

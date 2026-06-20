@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(description = "Plan diario de producción")
+@Schema(description = "Plan diario de producción de la cocina fantasma")
 public record PlanDiarioResponseDTO(
     @Schema(description = "ID del plan", example = "1")
     Long id,

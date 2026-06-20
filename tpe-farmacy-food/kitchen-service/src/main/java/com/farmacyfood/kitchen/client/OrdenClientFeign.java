@@ -29,4 +29,13 @@ public interface OrdenClientFeign extends OrdenClient {
         @RequestParam("from") LocalDate from,
         @RequestParam("to") LocalDate to
     );
+
+    @Override
+    @GetMapping("/api/v1/ordenes/historial-ventas")
+    List<VentaHistoricaResponseDTO> findHistorialVentas(
+        @RequestParam(value = "productId", required = false) Long productId,
+        @RequestParam(value = "fridgeId", required = false) Long fridgeId,
+        @RequestParam(value = "from", required = false) LocalDate from,
+        @RequestParam(value = "to", required = false) LocalDate to
+    );
 }

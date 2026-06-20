@@ -13,17 +13,5 @@ services:
       - kitchen_postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  kitchen-mongo:
-    image: mongo:7
-    container_name: kitchen-mongo
-    environment:
-      MONGO_INITDB_DATABASE: kitchen_db
-    ports:
-      - "27017:27017"
-    volumes:
-      - kitchen_mongo_data:/data/db
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
-
 volumes:
   kitchen_postgres_data:
-  kitchen_mongo_data:

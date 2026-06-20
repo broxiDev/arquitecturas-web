@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Schema(description = "Registro de venta histórica")
+@Schema(description = "Registro de venta histórica de la cocina fantasma")
 public record VentaHistoricaResponseDTO(
     @Schema(description = "ID del producto", example = "101")
     Long productId,

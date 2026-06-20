@@ -2,7 +2,7 @@ package com.farmacyfood.kitchen.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Item del plan diario")
+@Schema(description = "Item del plan diario de producción de la cocina fantasma")
 public record ItemPlanDTO(
     @Schema(description = "ID del producto", example = "101")
     Long productId,

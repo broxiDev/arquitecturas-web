@@ -22,14 +22,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cocina/historial-ventas")
 @RequiredArgsConstructor
-@Tag(name = "Historial de Ventas", description = "Consulta de ventas históricas con filtros")
+@Tag(name = "Historial de Ventas", description = "Consulta de ventas históricas de la cocina fantasma")
 public class HistorialVentasController {
 
     private final HistorialVentasService historialVentasService;
 
     @Operation(
-        summary = "Obtener historial de ventas",
-        description = "Retorna el historial de ventas con filtros opcionales. Sin filtros devuelve todos los registros."
+        summary = "Obtener historial de ventas de la cocina fantasma",
+        description = "Retorna el historial de ventas con filtros opcionales por producto, heladera y rango de fechas. Sin filtros devuelve todos los registros."
     )
     @ApiResponses(value = {
         @ApiResponse(

@@ -21,10 +21,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/kitchen_db
-
 eureka:
   client:
     service-url:
@@ -32,4 +28,9 @@ eureka:
 
 springdoc:
   api-docs:
-    path: /api/v1/cocina/v3/api-docs
+    path: /api/v1/cocina-fantasma/v3/api-docs
+  swagger-ui:
+    path: /api/v1/cocina-fantasma/swagger-ui.html
+  info:
+    title: Cocina Fantasma API
+    description: API del servicio de cocina fantasma para planificación de producción y gestión de catálogo
