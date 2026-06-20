@@ -98,11 +98,11 @@
 | | |
 |---|---|
 | **Método** | `POST` |
-| **URL** | `/api/v1/notificaciones/enviar` |
+| **URL** | `/api/v1/notificaciones/notificar-disponibilidad` |
 | **Consumidor** | `fridge-service` (`NotificacionClientFeign`) |
 | **Estado** | ✅ Implementado |
 
-> **NOTA:** El Feign client en fridge-service actualmente apunta a `/api/v1/notificaciones/producto-disponible` — debe corregirse a `/api/v1/notificaciones/enviar`.
+> **NOTA:** El Feign client en fridge-service actualmente apunta a `/api/v1/notificaciones/producto-disponible` — debe corregirse a `/api/v1/notificaciones/notificar-disponibilidad`.
 
 **Request Body:**
 
@@ -171,7 +171,7 @@
 ## Diagrama de integración
 
 ```
-┌──────────────┐     POST /enviar (fridgeId, productIds)     ┌──────────────────────┐
+┌──────────────┐     POST /notificar-disponibilidad (fridgeId, productIds)     ┌──────────────────────┐
 │ fridge-service │ ────────────────────────────────────────────▶ notification-service │
 └──────────────┘                                               └──────────────────────┘
                                                                        │

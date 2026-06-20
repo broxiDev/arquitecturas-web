@@ -115,7 +115,7 @@ class NotificationControllerTest {
     void enviarNotificaciones_retorna202() throws Exception {
         doNothing().when(notificationService).enviarNotificaciones(1L, List.of(10L, 20L));
 
-        mockMvc.perform(post("/api/v1/notificaciones/enviar")
+        mockMvc.perform(post("/api/v1/notificaciones/notificar-disponibilidad")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
