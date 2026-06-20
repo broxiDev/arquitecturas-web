@@ -5,7 +5,7 @@ spring:
   application:
     name: kitchen-service
   profiles:
-    active: prod
+    active: dev
 
   datasource:
     url: jdbc:postgresql://localhost:5432/kitchen_db?TimeZone=UTC
@@ -21,10 +21,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/kitchen_db
-
 eureka:
   client:
     service-url:
@@ -32,4 +28,4 @@ eureka:
 
 springdoc:
   api-docs:
-    path: /api/v1/cocina/v3/api-docs
+    path: /api/v1/cocina-fantasma/v3/api-docs

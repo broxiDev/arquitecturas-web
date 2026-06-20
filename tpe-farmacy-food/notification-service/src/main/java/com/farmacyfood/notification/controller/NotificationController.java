@@ -66,7 +66,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "Recibir notificacion de heladera reconectada")
-    @PostMapping("/enviar")
+    @PostMapping("/notificar-disponibilidad")
     public ResponseEntity<Void> enviarNotificaciones(@Valid @RequestBody SendNotificationRequest request) {
         notificationService.enviarNotificaciones(request.fridgeId(), request.productIds());
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();

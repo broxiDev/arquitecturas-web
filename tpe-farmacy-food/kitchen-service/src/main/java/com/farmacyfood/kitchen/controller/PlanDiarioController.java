@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cocina/plan-diario")
 @RequiredArgsConstructor
-@Tag(name = "Plan Diario", description = "Planificación diaria de producción")
+@Tag(name = "Plan Diario", description = "Planificación diaria de producción de la cocina fantasma")
 public class PlanDiarioController {
 
     private final PlanDiarioService planDiarioService;

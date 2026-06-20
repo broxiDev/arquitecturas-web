@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cocina")
-@Tag(name = "Kitchen Service", description = "Planificación de producción")
+@Tag(name = "Kitchen Service", description = "Operaciones de salud del servicio de cocina fantasma")
 public class HealthController {
 
     @Operation(summary = "Health check del servicio")

@@ -1,6 +1,6 @@
 # Contrato: order-service - Historial de Ventas
 
-## Endpoint: Ventas Recientes
+## Endpoint: Ventas Históricas
 
 | | |
 |---|---|
@@ -16,8 +16,10 @@
 
 | Nombre | Tipo | Ubicación | Requerido | Descripción |
 |--------|------|-----------|-----------|-------------|
-| `from` | `LocalDate` | Query param | Sí | Fecha inicio del rango (formato `YYYY-MM-DD`) |
-| `to` | `LocalDate` | Query param | Sí | Fecha fin del rango (formato `YYYY-MM-DD`) |
+| `productId` | `Long` | Query param | No | Filtrar por ID del producto |
+| `fridgeId` | `Long` | Query param | No | Filtrar por ID de la heladera |
+| `from` | `LocalDate` | Query param | No | Fecha desde (formato `YYYY-MM-DD`) |
+| `to` | `LocalDate` | Query param | No | Fecha hasta (formato `YYYY-MM-DD`) |
 
 ## Respuesta
 
@@ -34,11 +36,13 @@
 | `totalAmount` | `BigDecimal` | Monto total de la venta |
 | `date` | `LocalDate` | Fecha de la venta |
 
-## Ejemplo
+## Ejemplos
+
+### Sin filtros (todos los registros)
 
 **Request:**
 ```
-GET /api/v1/ordenes/historial-ventas?from=2026-06-11&to=2026-06-17
+GET /api/v1/ordenes/historial-ventas
 ```
 
 **Response:**
@@ -79,10 +83,91 @@ GET /api/v1/ordenes/historial-ventas?from=2026-06-11&to=2026-06-17
 ]
 ```
 
+### Filtrando por producto
+
+**Request:**
+```
+GET /api/v1/ordenes/historial-ventas?productId=101
+```
+
+**Response:**
+```json
+[
+  {
+    "productId": 101,
+    "productName": "Brownie de Chocolate",
+    "fridgeId": 1,
+    "quantity": 10,
+    "totalAmount": 75000.00,
+    "date": "2026-06-19"
+  },
+  {
+    "productId": 101,
+    "productName": "Brownie de Chocolate",
+    "fridgeId": 2,
+    "quantity": 8,
+    "totalAmount": 60000.00,
+    "date": "2026-06-18"
+  }
+]
+```
+
+### Filtrando por heladera
+
+**Request:**
+```
+GET /api/v1/ordenes/historial-ventas?fridgeId=1
+```
+
+**Response:**
+```json
+[
+  {
+    "productId": 101,
+    "productName": "Brownie de Chocolate",
+    "fridgeId": 1,
+    "quantity": 10,
+    "totalAmount": 75000.00,
+    "date": "2026-06-19"
+  },
+  {
+    "productId": 102,
+    "productName": "Cheesecake",
+    "fridgeId": 1,
+    "quantity": 7,
+    "totalAmount": 66500.00,
+    "date": "2026-06-19"
+  }
+]
+```
+
+### Filtro combinado: producto + heladera + fechas
+
+**Request:**
+```
+GET /api/v1/ordenes/historial-ventas?productId=101&fridgeId=1&from=2026-06-01&to=2026-06-14
+```
+
+**Response:**
+```json
+[
+  {
+    "productId": 101,
+    "productName": "Brownie de Chocolate",
+    "fridgeId": 1,
+    "quantity": 10,
+    "totalAmount": 75000.00,
+    "date": "2026-06-13"
+  }
+]
+```
+
 ## Notas
 
-- kitchen-service usa estos datos para consultar ventas históricas individuales
+- kitchen-service usa estos datos para mostrar el historial de ventas con filtros combinados (producto, heladera, rango de fechas)
+- Todos los parámetros son opcionales. Si no se envía ninguno, se devuelven todas las ventas
 - Si order-service no está disponible, el perfil `dev` usa `OrdenClientMockImpl` con datos que cubren las 3 cocinas
+- Las cocinas disponibles son: `COCINA-DULCE` (postres), `COCINA-CELIACA` (sin gluten), `COCINA-VEGANA` (vegana)
 
 ---
 
