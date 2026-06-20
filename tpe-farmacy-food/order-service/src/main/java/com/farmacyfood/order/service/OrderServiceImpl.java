@@ -1,14 +1,7 @@
 package com.farmacyfood.order.service;
 
-import com.farmacyfood.order.client.FridgeClient;
-import com.farmacyfood.order.client.FridgeStockDTO;
-import com.farmacyfood.order.client.FridgeStockUpdateDTO;
-import com.farmacyfood.order.client.UserClient;
-import com.farmacyfood.order.dto.OrderCancelDTO;
-import com.farmacyfood.order.dto.OrderCreateDTO;
-import com.farmacyfood.order.dto.OrderItemDTO;
-import com.farmacyfood.order.dto.OrderResponseDTO;
-import com.farmacyfood.order.dto.PaymentResponseDTO;
+import com.farmacyfood.order.client.*;
+import com.farmacyfood.order.dto.*;
 import com.farmacyfood.order.entity.Order;
 import com.farmacyfood.order.entity.OrderItem;
 import com.farmacyfood.order.exception.FailedPaymentException;
@@ -21,7 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +28,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserClient userClient;
     private final FridgeClient fridgeClient;
     private final PaymentGateway paymentGateway;
+    private final ProductClient productClient;
 
 
     //  Valida usuario con UserClient.getUser(userId) — si 404, lanza excepción
@@ -198,6 +196,61 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus("CANCELLED");
         orderRepository.save(order);
         return toResponseDTO(order);
+    }
+
+    //Busca órdenes completadas (PAID o PICKED_UP) en un rango de fechas. Por cada orden, desnormaliza sus items
+    //en una lista plana de ventas individuales con producto, heladera, cantidad, monto y fecha.
+    //Acepta filtros opcionales por producto y heladera. Lo consume kitchen-service para mostrar el historial de ventas.
+    @Override
+    @Transactional(readOnly = true)
+    public List<HistoricalSaleDTO> getHistorialVentas(LocalDate from, LocalDate to, Long productId, Long fridgeId) {
+        List<Order> orders = orderRepository.findCompletedOrdersBetween(from, to, fridgeId);
+
+        return orders.stream()
+                .flatMap(order -> order.getItemList().stream().map(item ->
+                        new HistoricalSaleDTO(
+                                item.getProductId(),
+                                item.getProductName(),
+                                order.getFridgeId(),
+                                item.getQuantity(),
+                                BigDecimal.valueOf(item.getQuantity() * item.getUnitPrice()),
+                                order.getCreatedAt().toLocalDate()
+                        )
+                ))
+                .filter(dto -> productId == null || dto.productId().equals(productId))
+                .collect(Collectors.toList());
+    }
+
+    //Consulta a product-service qué productos pertenecen a una cocina, busca órdenes completadas en el rango de fechas,
+    //filtra solo los items de esa cocina, y los agrupa por producto sumando cantidades y montos totales.
+    //Lo consume kitchen-service para calcular el plan diario de producción por cocina.
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductSaleDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to) {
+        String normalizedCocinaId = cocinaId.toLowerCase().replace("_", "-");  // normalizar
+        List<ProductResponseDTO> products = productClient.getProductsByCocina(normalizedCocinaId);
+        Set<Long> productIds = products.stream().map(ProductResponseDTO::id).collect(Collectors.toSet());
+
+        List<Order> orders = orderRepository.findCompletedOrdersBetween(from, to, null);
+
+        return orders.stream()
+                .flatMap(order -> order.getItemList().stream())
+                .filter(item -> productIds.contains(item.getProductId()))
+                .collect(Collectors.groupingBy(
+                        OrderItem::getProductId,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                items -> {
+                                    OrderItem first = items.get(0);
+                                    int totalQty = items.stream().mapToInt(OrderItem::getQuantity).sum();
+                                    BigDecimal totalAmount = items.stream()
+                                            .map(i -> BigDecimal.valueOf(i.getQuantity() * i.getUnitPrice()))
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                    return new ProductSaleDTO(first.getProductId(), first.getProductName(), totalQty, totalAmount);
+                                }
+                        )
+                ))
+                .values().stream().toList();
     }
 
     //métodos para conversión de entidades a dtos y viceversa
