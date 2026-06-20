@@ -5,7 +5,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: notification_db
     ports:
-      - "27018:27017"
+      - "27019:27017"
     volumes:
       - notification_mongo_data:/data/db
 
