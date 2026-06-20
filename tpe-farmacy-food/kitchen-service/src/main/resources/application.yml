@@ -5,7 +5,7 @@ spring:
   application:
     name: kitchen-service
   profiles:
-    active: prod
+    active: dev
 
   datasource:
     url: jdbc:postgresql://localhost:5432/kitchen_db?TimeZone=UTC
@@ -29,8 +29,3 @@ eureka:
 springdoc:
   api-docs:
     path: /api/v1/cocina-fantasma/v3/api-docs
-  swagger-ui:
-    path: /api/v1/cocina-fantasma/swagger-ui.html
-  info:
-    title: Cocina Fantasma API
-    description: API del servicio de cocina fantasma para planificación de producción y gestión de catálogo
