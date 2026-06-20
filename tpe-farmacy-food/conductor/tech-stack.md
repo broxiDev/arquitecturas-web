@@ -30,7 +30,8 @@
 - **Comunicación síncrona** via OpenFeign entre servicios:
     - fridge-service → notification-service (cambio de estado de heladera)
     - order-service → fridge-service, user-service (verificar stock, validar usuario)
-    - kitchen-service → order-service (historial de ventas)
+    - kitchen-service → order-service (historial de ventas por cocina)
+    - kitchen-service → fridge-service (remanente de stock en heladeras)
     - user-service → order-service (historial de compras del usuario)
     - recommendation-service → user-service, order-service, product-service (datos para recomendaciones)
 - **Gateway de pago mockeado** en order-service (PagoGateway interface con MockImpl para MVP)

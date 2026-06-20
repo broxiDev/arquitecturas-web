@@ -1,8 +1,11 @@
 package com.farmacyfood.kitchen.service;
 
+import com.farmacyfood.kitchen.client.FridgeClient;
 import com.farmacyfood.kitchen.client.OrdenClient;
+import com.farmacyfood.kitchen.dto.FridgeRemainderDTO;
 import com.farmacyfood.kitchen.dto.PlanDiarioResponseDTO;
-import com.farmacyfood.kitchen.dto.VentaHistoricaResponseDTO;
+import com.farmacyfood.kitchen.dto.ProductRemainderDTO;
+import com.farmacyfood.kitchen.dto.ProductoVentaDTO;
 import com.farmacyfood.kitchen.entity.postgres.DailyPlan;
 import com.farmacyfood.kitchen.entity.postgres.PlanItem;
 import com.farmacyfood.kitchen.exception.PlanAlreadyExistsException;
@@ -17,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +37,13 @@ class PlanDiarioServiceImplTest {
     @Mock
     private OrdenClient ordenClient;
 
+    @Mock
+    private FridgeClient fridgeClient;
+
     @InjectMocks
     private PlanDiarioServiceImpl planDiarioService;
+
+    private static final String COCINA_ID = "COCINA-DULCE";
 
     @Test
     void getPlanByDate_returnsPlan() {
@@ -42,18 +51,20 @@ class PlanDiarioServiceImplTest {
         DailyPlan plan = DailyPlan.builder()
             .id(1L)
             .date(today)
+            .cocinaId(COCINA_ID)
             .createdAt(LocalDateTime.now())
             .items(List.of(
-                PlanItem.builder().productId(101L).productName("Ensalada").suggestedQuantity(10).build()
+                PlanItem.builder().productId(101L).productName("Brownie de Chocolate").suggestedQuantity(10).build()
             ))
             .build();
 
-        when(planDiarioRepository.findByDate(today)).thenReturn(Optional.of(plan));
+        when(planDiarioRepository.findByDateAndCocinaId(today, COCINA_ID)).thenReturn(Optional.of(plan));
 
-        PlanDiarioResponseDTO result = planDiarioService.getPlanByDate(today);
+        PlanDiarioResponseDTO result = planDiarioService.getPlanByDate(today, COCINA_ID);
 
         assertEquals(1L, result.id());
         assertEquals(today, result.date());
+        assertEquals(COCINA_ID, result.cocinaId());
         assertEquals(1, result.items().size());
         assertEquals(101L, result.items().get(0).productId());
     }
@@ -61,45 +72,50 @@ class PlanDiarioServiceImplTest {
     @Test
     void getPlanByDate_throwsWhenNotFound() {
         LocalDate today = LocalDate.now();
-        when(planDiarioRepository.findByDate(today)).thenReturn(Optional.empty());
+        when(planDiarioRepository.findByDateAndCocinaId(today, COCINA_ID)).thenReturn(Optional.empty());
 
-        assertThrows(PlanNotFoundException.class, () -> planDiarioService.getPlanByDate(today));
+        assertThrows(PlanNotFoundException.class, () -> planDiarioService.getPlanByDate(today, COCINA_ID));
     }
 
     @Test
     void generarPlan_calculatesAverageAndSaves() {
         LocalDate date = LocalDate.now();
-        LocalDate desde = date.minusDays(7);
+        LocalDate from = date.minusDays(7);
 
-        List<VentaHistoricaResponseDTO> ventas = List.of(
-            new VentaHistoricaResponseDTO(101L, "Ensalada", 1L, 10, new BigDecimal("5000"), date.minusDays(1)),
-            new VentaHistoricaResponseDTO(101L, "Ensalada", 1L, 6, new BigDecimal("3000"), date.minusDays(2)),
-            new VentaHistoricaResponseDTO(102L, "Bowl", 1L, 4, new BigDecimal("2800"), date.minusDays(1))
-        );
+        List<ProductoVentaDTO> sales = new ArrayList<>();
+        sales.add(new ProductoVentaDTO(101L, "Brownie de Chocolate", 20, new BigDecimal("15000")));
+        sales.add(new ProductoVentaDTO(102L, "Cheesecake", 12, new BigDecimal("11400")));
 
-        when(ordenClient.getVentasRecientes(desde, date.minusDays(1))).thenReturn(ventas);
-        when(planDiarioRepository.findByDate(date)).thenReturn(Optional.empty());
+        List<FridgeRemainderDTO> fridges = new ArrayList<>();
+        List<ProductRemainderDTO> products = new ArrayList<>();
+        products.add(new ProductRemainderDTO(101L, "Brownie de Chocolate", 3));
+        fridges.add(new FridgeRemainderDTO(1L, products));
+
+        when(ordenClient.getSalesByKitchen(COCINA_ID, from, date.minusDays(1))).thenReturn(sales);
+        when(fridgeClient.getRemainderByKitchen(COCINA_ID)).thenReturn(fridges);
+        when(planDiarioRepository.findByDateAndCocinaId(date, COCINA_ID)).thenReturn(Optional.empty());
         when(planDiarioRepository.save(any(DailyPlan.class))).thenAnswer(inv -> {
             DailyPlan p = inv.getArgument(0);
             p.setId(1L);
             return p;
         });
 
-        PlanDiarioResponseDTO result = planDiarioService.generarPlan(date);
+        PlanDiarioResponseDTO result = planDiarioService.generarPlan(date, COCINA_ID);
 
         assertNotNull(result);
         assertEquals(date, result.date());
+        assertEquals(COCINA_ID, result.cocinaId());
         verify(planDiarioRepository).save(any(DailyPlan.class));
     }
 
     @Test
     void generarPlan_throwsWhenPlanAlreadyExists() {
         LocalDate date = LocalDate.now();
-        DailyPlan existingPlan = DailyPlan.builder().id(1L).date(date).items(List.of()).build();
+        DailyPlan existingPlan = DailyPlan.builder().id(1L).date(date).cocinaId(COCINA_ID).items(List.of()).build();
 
-        when(planDiarioRepository.findByDate(date)).thenReturn(Optional.of(existingPlan));
+        when(planDiarioRepository.findByDateAndCocinaId(date, COCINA_ID)).thenReturn(Optional.of(existingPlan));
 
-        assertThrows(PlanAlreadyExistsException.class, () -> planDiarioService.generarPlan(date));
+        assertThrows(PlanAlreadyExistsException.class, () -> planDiarioService.generarPlan(date, COCINA_ID));
         verify(planDiarioRepository, never()).save(any());
     }
 }

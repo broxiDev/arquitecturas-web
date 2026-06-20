@@ -31,30 +31,35 @@ class PlanDiarioControllerTest {
     @MockBean
     private PlanDiarioService planDiarioService;
 
+    private static final String COCINA_ID = "COCINA-DULCE";
+
     @Test
     void getPlan_returnsOk() throws Exception {
         LocalDate today = LocalDate.now();
-        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(1L, today,
-            List.of(new ItemPlanDTO(101L, "Ensalada", 10)), LocalDateTime.now());
+        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(1L, today, COCINA_ID,
+            List.of(new ItemPlanDTO(101L, "Brownie de Chocolate", 10)), LocalDateTime.now());
 
-        when(planDiarioService.getPlanByDate(today)).thenReturn(dto);
+        when(planDiarioService.getPlanByDate(today, COCINA_ID)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/v1/cocina/plan-diario"))
+        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.date").value(today.toString()))
+            .andExpect(jsonPath("$.cocinaId").value(COCINA_ID))
             .andExpect(jsonPath("$.items[0].productId").value(101));
     }
 
     @Test
     void getPlan_withFechaParam() throws Exception {
         LocalDate fecha = LocalDate.of(2026, 6, 15);
-        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(2L, fecha,
-            List.of(new ItemPlanDTO(102L, "Bowl", 5)), LocalDateTime.now());
+        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(2L, fecha, COCINA_ID,
+            List.of(new ItemPlanDTO(102L, "Cheesecake", 5)), LocalDateTime.now());
 
-        when(planDiarioService.getPlanByDate(fecha)).thenReturn(dto);
+        when(planDiarioService.getPlanByDate(fecha, COCINA_ID)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("fecha", "2026-06-15"))
+        mockMvc.perform(get("/api/v1/cocina/plan-diario")
+                .param("cocinaId", COCINA_ID)
+                .param("fecha", "2026-06-15"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.date").value("2026-06-15"));
     }
@@ -62,9 +67,9 @@ class PlanDiarioControllerTest {
     @Test
     void getPlan_returns404WhenNotFound() throws Exception {
         LocalDate today = LocalDate.now();
-        when(planDiarioService.getPlanByDate(today)).thenThrow(new PlanNotFoundException("No existe plan"));
+        when(planDiarioService.getPlanByDate(today, COCINA_ID)).thenThrow(new PlanNotFoundException("No existe plan"));
 
-        mockMvc.perform(get("/api/v1/cocina/plan-diario"))
+        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.error").value("Not Found"));
     }
@@ -72,12 +77,12 @@ class PlanDiarioControllerTest {
     @Test
     void generarPlan_returnsOk() throws Exception {
         LocalDate today = LocalDate.now();
-        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(1L, today,
-            List.of(new ItemPlanDTO(101L, "Ensalada", 8)), LocalDateTime.now());
+        PlanDiarioResponseDTO dto = new PlanDiarioResponseDTO(1L, today, COCINA_ID,
+            List.of(new ItemPlanDTO(101L, "Brownie de Chocolate", 8)), LocalDateTime.now());
 
-        when(planDiarioService.generarPlan(today)).thenReturn(dto);
+        when(planDiarioService.generarPlan(today, COCINA_ID)).thenReturn(dto);
 
-        mockMvc.perform(post("/api/v1/cocina/plan-diario"))
+        mockMvc.perform(post("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1));
     }

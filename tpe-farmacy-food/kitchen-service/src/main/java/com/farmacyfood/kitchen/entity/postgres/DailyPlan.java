@@ -1,6 +1,7 @@
 package com.farmacyfood.kitchen.entity.postgres;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -8,9 +9,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// Entidad que representa el plan diario de producción de una cocina fantasma
 @Entity
 @Table(name = "daily_plan", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "date")
+    @UniqueConstraint(columnNames = {"date", "cocina_id"})
 })
 @Getter
 @Setter
@@ -23,8 +25,13 @@ public class DailyPlan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private LocalDate date;
+
+    // Identificador de la cocina fantasma a la que pertenece este plan
+    @NotBlank
+    @Column(name = "cocina_id", nullable = false)
+    private String cocinaId;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

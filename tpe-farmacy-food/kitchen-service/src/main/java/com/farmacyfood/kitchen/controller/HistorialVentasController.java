@@ -44,26 +44,26 @@ public class HistorialVentasController {
                     [
                       {
                         "productId": 101,
-                        "productName": "Ensalada César",
+                        "productName": "Brownie de Chocolate",
                         "fridgeId": 1,
-                        "quantity": 12,
-                        "totalAmount": 6000.00,
+                        "quantity": 15,
+                        "totalAmount": 11250.00,
                         "date": "2026-06-13"
                       },
                       {
                         "productId": 101,
-                        "productName": "Ensalada César",
+                        "productName": "Brownie de Chocolate",
                         "fridgeId": 2,
-                        "quantity": 8,
-                        "totalAmount": 4000.00,
+                        "quantity": 10,
+                        "totalAmount": 7500.00,
                         "date": "2026-06-12"
                       },
                       {
                         "productId": 102,
-                        "productName": "Bowl Proteico",
+                        "productName": "Cheesecake",
                         "fridgeId": 1,
-                        "quantity": 5,
-                        "totalAmount": 3500.00,
+                        "quantity": 8,
+                        "totalAmount": 7600.00,
                         "date": "2026-06-13"
                       }
                     ]

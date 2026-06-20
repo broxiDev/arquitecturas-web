@@ -14,13 +14,19 @@ import java.util.concurrent.atomic.AtomicLong;
 @Profile("dev")
 public class ProductoClientMockImpl implements ProductoClient {
 
-    private static final Map<Long, String> PRODUCTOS = Map.of(
-        101L, "Ensalada César",
-        102L, "Bowl Proteico",
-        103L, "Wrap de Pollo"
+    private static final Map<Long, String> PRODUCTOS = Map.ofEntries(
+        Map.entry(101L, "Brownie de Chocolate"),
+        Map.entry(102L, "Cheesecake"),
+        Map.entry(103L, "Tiramisú"),
+        Map.entry(201L, "Tostada de Palta Sin Gluten"),
+        Map.entry(202L, "Bowl de Quinoa Sin Gluten"),
+        Map.entry(203L, "Rolls de Primavera de Arroz"),
+        Map.entry(301L, "Buddha Bowl Vegano"),
+        Map.entry(302L, "Salteado de Tofu"),
+        Map.entry(303L, "Curry de Garbanzos")
     );
 
-    private final AtomicLong idCounter = new AtomicLong(200);
+    private final AtomicLong idCounter = new AtomicLong(300);
 
     @Override
     public String getNombreProducto(Long productId) {

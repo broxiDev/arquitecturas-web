@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PlanDiarioRepository extends JpaRepository<DailyPlan, Long> {
-    Optional<DailyPlan> findByDate(LocalDate date);
+    Optional<DailyPlan> findByDateAndCocinaId(LocalDate date, String cocinaId);
 }

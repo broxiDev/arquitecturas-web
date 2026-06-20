@@ -1,0 +1,8 @@
+{
+  "track_id": "refactor_plan_diario_20260620",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-20T00:00:00Z",
+  "updated_at": "2026-06-20T00:00:00Z",
+  "description": "Feature 4: Planificación de Cocina - Refactor de Plan Diario con integraciones a fridge-service y order-service (US-12)"
+}

@@ -36,7 +36,8 @@ Dar respuesta a las necesidades dietarías de las personas mediante opciones de 
 - Detalle de órdenes para auditoría
 
 ### F4 — Planificación de Cocina
-- Reporte diario de producción sugerida basado en ventas históricas
+- Reporte diario de producción sugerida basado en ventas históricas y stock remanente en heladeras
+- Plan diario scopeado por cocina fantasma (kitchenId)
 - Historial de ventas por producto y heladera
 
 ### F5 — Preferencias y Recomendaciones

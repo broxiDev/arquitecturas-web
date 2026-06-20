@@ -14,6 +14,9 @@ public record PlanDiarioResponseDTO(
     @Schema(description = "Fecha del plan", example = "2026-06-14")
     LocalDate date,
 
+    @Schema(description = "ID de la cocina fantasma", example = "COCINA-DULCE")
+    String cocinaId,
+
     @Schema(description = "Lista de productos sugeridos")
     List<ItemPlanDTO> items,
 

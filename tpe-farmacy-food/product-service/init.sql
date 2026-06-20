@@ -18,13 +18,20 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 INSERT INTO catalogos (cocina_id) VALUES
-('cocina-sur'),
-('cocina-norte');
+('cocina-dulce'),
+('cocina-celiaca'),
+('cocina-vegana');
 
 INSERT INTO products (name, description, dietary_category, price, image_url, nutritional_info, conservacion_temperature, catalogo_id, created_at, updated_at) VALUES
-('Ensalada César', 'Lechuga romana, crutones, parmesano y aderezo césar clásico', 'CLASICA', 7500.00, '/images/ensalada-cesar.jpg', 'Calorías: 350kcal, Proteínas: 25g, Carbohidratos: 15g, Grasas: 20g', 4.00, 1, NOW(), NOW()),
-('Bowl Proteico', 'Bowl con pollo grillé, quinoa, palta y vegetales frescos', 'CLASICA', 9500.00, '/images/bowl-proteico.jpg', 'Calorías: 520kcal, Proteínas: 40g, Carbohidratos: 35g, Grasas: 22g', 4.00, 1, NOW(), NOW()),
-('Wrap de Pollo', 'Wrap integral con pollo, verduras y salsa de yogur', 'CLASICA', 6800.00, '/images/wrap-pollo.jpg', 'Calorías: 420kcal, Proteínas: 30g, Carbohidratos: 40g, Grasas: 15g', 4.00, 1, NOW(), NOW()),
-('Ensalada Vegana Premium', 'Quinoa, vegetales asados, tofu marinado y vinagreta de limón', 'VEGANO', 8500.00, '/images/ensalada-vegana.jpg', 'Calorías: 380kcal, Proteínas: 18g, Carbohidratos: 30g, Grasas: 22g', 4.00, 2, NOW(), NOW()),
-('Bowl Vegano Energético', 'Arroz integral, tofu, brócoli, zanahoria y salsa de sésamo', 'VEGANO', 9200.00, '/images/bowl-vegano.jpg', 'Calorías: 450kcal, Proteínas: 20g, Carbohidratos: 50g, Grasas: 18g', 4.00, 2, NOW(), NOW()),
-('Smoothie Verde', 'Espinaca, banana, manzana verde y jengibre', 'VEGANO', 4500.00, '/images/smoothie-verde.jpg', 'Calorías: 180kcal, Proteínas: 5g, Carbohidratos: 35g, Grasas: 3g', 4.00, 2, NOW(), NOW());
+-- COCINA-DULCE
+('Brownie de Chocolate', 'Brownie intenso con centro de chocolate fundido y nueces caramelizadas', 'DULCE', 7500.00, '/images/brownie-chocolate.jpg', 'Calorías: 450kcal, Proteínas: 8g, Carbohidratos: 55g, Grasas: 22g', 4.00, 1, NOW(), NOW()),
+('Cheesecake', 'Cheesecake clásico con base de galletas y coulis de frutos rojos', 'DULCE', 9500.00, '/images/cheesecake.jpg', 'Calorías: 380kcal, Proteínas: 12g, Carbohidratos: 35g, Grasas: 18g', 4.00, 1, NOW(), NOW()),
+('Tiramisú', 'Tiramisú tradicional con mascarpone, café espresso y cacao', 'DULCE', 8800.00, '/images/tiramisu.jpg', 'Calorías: 420kcal, Proteínas: 10g, Carbohidratos: 45g, Grasas: 20g', 4.00, 1, NOW(), NOW()),
+-- COCINA-CELIACA
+('Tostada de Palta Sin Gluten', 'Tostada de pan sin gluten con palta, huevo pochado y semillas', 'SIN_GLUTEN', 7200.00, '/images/tostada-palta-sin-gluten.jpg', 'Calorías: 320kcal, Proteínas: 15g, Carbohidratos: 28g, Grasas: 16g', 4.00, 2, NOW(), NOW()),
+('Bowl de Quinoa Sin Gluten', 'Bowl de quinoa con pollo, vegetales asados y aliño de limón', 'SIN_GLUTEN', 9800.00, '/images/bowl-quinoa-sin-gluten.jpg', 'Calorías: 520kcal, Proteínas: 35g, Carbohidratos: 42g, Grasas: 18g', 4.00, 2, NOW(), NOW()),
+('Rolls de Primavera de Arroz', 'Rolls de papel de arroz con verduras frescas, zanahoria y salsa de soja', 'SIN_GLUTEN', 6500.00, '/images/rolls-primavera-arroz.jpg', 'Calorías: 280kcal, Proteínas: 8g, Carbohidratos: 35g, Grasas: 10g', 4.00, 2, NOW(), NOW()),
+-- COCINA-VEGANA
+('Buddha Bowl Vegano', 'Bowl de quinoa, garbanzos asados, palta, edamame y tahini', 'VEGANO', 8500.00, '/images/buddha-bowl-vegano.jpg', 'Calorías: 480kcal, Proteínas: 22g, Carbohidratos: 45g, Grasas: 20g', 4.00, 3, NOW(), NOW()),
+('Salteado de Tofu', 'Tofu marinado al wok con brócoli, zanahoria y salsa de sésamo', 'VEGANO', 7800.00, '/images/salteado-tofu.jpg', 'Calorías: 380kcal, Proteínas: 20g, Carbohidratos: 30g, Grasas: 18g', 4.00, 3, NOW(), NOW()),
+('Curry de Garbanzos', 'Curry espeso de garbanzos con coco, espinacas y arroz basmati', 'VEGANO', 9200.00, '/images/curry-garbanzos.jpg', 'Calorías: 450kcal, Proteínas: 18g, Carbohidratos: 48g, Grasas: 16g', 4.00, 3, NOW(), NOW());
