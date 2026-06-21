@@ -13,4 +13,6 @@ public interface NotificationService {
     List<NotificationResponseDTO> obtenerNoLeidas(Long userId);
 
     NotificationResponseDTO marcarComoLeida(String id);
+
+    void eliminar(String id);
 }

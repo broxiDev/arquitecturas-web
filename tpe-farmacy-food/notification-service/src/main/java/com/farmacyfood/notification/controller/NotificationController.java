@@ -92,4 +92,11 @@ public class NotificationController {
         NotificationResponseDTO response = notificationService.marcarComoLeida(id);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "Eliminar notificacion")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable String id) {
+        notificationService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }

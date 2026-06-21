@@ -60,4 +60,11 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setReadAt(LocalDateTime.now());
         return NotificationResponseDTO.from(notificationRepository.save(notification));
     }
+
+    @Override
+    public void eliminar(String id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new NotificationNotFoundException("Notification no encontrada con id: " + id));
+        notificationRepository.delete(notification);
+    }
 }
