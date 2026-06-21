@@ -13,4 +13,6 @@ public interface SubscriptionRepository extends MongoRepository<Subscription, St
     Optional<Subscription> findByUserId(Long userId);
 
     List<Subscription> findByProductPreferencesContaining(Long productId);
+
+    List<Subscription> findByHeladeraIdsContaining(Long heladeraId);
 }

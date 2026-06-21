@@ -14,15 +14,17 @@ public class Subscription {
     private Long userId;
     private String deviceToken;
     private List<Long> productPreferences;
+    private List<Long> heladeraIds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Subscription() {}
 
-    public Subscription(Long userId, String deviceToken, List<Long> productPreferences) {
+    public Subscription(Long userId, String deviceToken, List<Long> productPreferences, List<Long> heladeraIds) {
         this.userId = userId;
         this.deviceToken = deviceToken;
         this.productPreferences = productPreferences;
+        this.heladeraIds = heladeraIds;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -38,6 +40,9 @@ public class Subscription {
 
     public List<Long> getProductPreferences() { return productPreferences; }
     public void setProductPreferences(List<Long> productPreferences) { this.productPreferences = productPreferences; }
+
+    public List<Long> getHeladeraIds() { return heladeraIds; }
+    public void setHeladeraIds(List<Long> heladeraIds) { this.heladeraIds = heladeraIds; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -1,5 +1,6 @@
 package com.farmacyfood.notification.service;
 
+import com.farmacyfood.notification.dto.HeladeraStatusChangeDTO;
 import com.farmacyfood.notification.dto.NotificationResponseDTO;
 import com.farmacyfood.notification.entity.Notification;
 import com.farmacyfood.notification.entity.Subscription;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -35,6 +37,26 @@ public class NotificationServiceImpl implements NotificationService {
                 notificationRepository.save(notification);
                 pushService.enviarPush(subscription.getDeviceToken(), message);
             }
+        }
+    }
+
+    private static final Map<String, String> STATUS_TRANSLATIONS = Map.of(
+            "ACTIVE", "ACTIVA",
+            "OUT_OF_SERVICE", "FUERA DE SERVICIO",
+            "MAINTENANCE", "EN MANTENIMIENTO"
+    );
+
+    @Override
+    public void notificarCambioEstado(HeladeraStatusChangeDTO dto) {
+        String statusLabel = STATUS_TRANSLATIONS.getOrDefault(dto.newStatus(), dto.newStatus());
+        String message = "Heladera '" + dto.heladeraName() + "' cambió a estado: " + statusLabel;
+
+        List<Subscription> admins = subscriptionRepository.findByHeladeraIdsContaining(dto.heladeraId());
+
+        for (Subscription admin : admins) {
+            Notification notification = new Notification(admin.getUserId(), null, dto.heladeraId(), message);
+            notificationRepository.save(notification);
+            pushService.enviarPush(admin.getDeviceToken(), message);
         }
     }
 

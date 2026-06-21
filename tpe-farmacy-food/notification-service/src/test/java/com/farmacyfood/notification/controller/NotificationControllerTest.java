@@ -51,7 +51,7 @@ class NotificationControllerTest {
     @Test
     void suscribir_retorna201() throws Exception {
         SubscriptionResponseDTO response = new SubscriptionResponseDTO(
-                "sub1", 100L, "device-abc", List.of(1L, 5L), LocalDateTime.now());
+                "sub1", 100L, "device-abc", List.of(1L, 5L), null, LocalDateTime.now());
 
         when(subscriptionService.crearOActualizar(any(SubscriptionCreateDTO.class)))
                 .thenReturn(response);
@@ -73,7 +73,7 @@ class NotificationControllerTest {
     @Test
     void actualizarSuscripcion_retorna200() throws Exception {
         SubscriptionResponseDTO response = new SubscriptionResponseDTO(
-                "sub1", 100L, "device-new", List.of(2L), LocalDateTime.now());
+                "sub1", 100L, "device-new", List.of(2L), null, LocalDateTime.now());
 
         when(subscriptionService.actualizar(eq(100L), any(SubscriptionUpdateDTO.class)))
                 .thenReturn(response);
@@ -93,7 +93,7 @@ class NotificationControllerTest {
     @Test
     void obtenerSuscripcion_retorna200() throws Exception {
         SubscriptionResponseDTO response = new SubscriptionResponseDTO(
-                "sub1", 100L, "device-abc", List.of(1L), LocalDateTime.now());
+                "sub1", 100L, "device-abc", List.of(1L), null, LocalDateTime.now());
 
         when(subscriptionService.obtenerPorUserId(100L)).thenReturn(response);
 

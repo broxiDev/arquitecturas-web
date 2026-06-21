@@ -40,6 +40,7 @@
 | `userId` | `Long` | Sí | ID del usuario |
 | `deviceToken` | `String` | Sí | Token del dispositivo para push |
 | `productPreferences` | `List<Long>` | No | IDs de productos a monitorear |
+| `heladeraIds` | `List<Long>` | No | IDs de heladeras a monitorear (US-07) |
 
 **Respuesta:** `201 Created` — `SubscriptionResponseDTO`
 
@@ -68,12 +69,13 @@
 | **Consumidor** | Frontend |
 | **Estado** | ✅ Implementado |
 
-**Request Body** (ambos campos opcionales para PATCH):
+**Request Body** (todos los campos opcionales para PATCH):
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | `deviceToken` | `String` | Nuevo token de dispositivo |
 | `productPreferences` | `List<Long>` | Nueva lista de productos |
+| `heladeraIds` | `List<Long>` | Nueva lista de heladeras a monitorear |
 
 **Respuesta:** `200 OK` — `SubscriptionResponseDTO`
 
@@ -90,6 +92,30 @@
 
 **Respuesta:** `204 No Content`  
 **Error:** `404 Not Found` si el userId no tiene suscripción
+
+---
+
+### Notificar cambio de estado de heladera
+
+| | |
+|---|---|
+| **Método** | `POST` |
+| **URL** | `/api/v1/notificaciones/heladera-status-change` |
+| **Consumidor** | `fridge-service` (cuando una heladera cambia de estado) |
+| **Estado** | ✅ Implementado |
+
+**Request Body:**
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `heladeraId` | `Long` | Sí | ID de la heladera |
+| `heladeraName` | `String` | Sí | Nombre de la heladera |
+| `newStatus` | `String` | Sí | Nuevo estado (ACTIVE, OUT_OF_SERVICE, MAINTENANCE) |
+| `oldStatus` | `String` | Sí | Estado anterior |
+
+**Lógica:** Busca suscripciones que contengan `heladeraId` en su lista `heladeraIds` y envía push a cada admin con mensaje: `"Heladera 'X' cambió a estado: FUERA DE SERVICIO"`
+
+**Respuesta:** `200 OK` (sin body)
 
 ---
 
@@ -173,14 +199,15 @@
 ```
 ┌──────────────┐     POST /notificar-disponibilidad (fridgeId, productIds)     ┌──────────────────────┐
 │ fridge-service │ ────────────────────────────────────────────▶ notification-service │
+│               │     POST /heladera-status-change (heladeraId, newStatus, ...) │                      │
 └──────────────┘                                               └──────────────────────┘
-                                                                       │
-                                                          ┌────────────┴────────────┐
-                                                          │                         │
-                                                          ▼                         ▼
-                                                   MongoDB                      Push (mock)
-                                              (notificaciones)              (NotificationPushMockImpl)
-                                              (suscripciones)
+                                                                        │
+                                                           ┌────────────┴────────────┐
+                                                           │                         │
+                                                           ▼                         ▼
+                                                    MongoDB                      Push (mock)
+                                               (notificaciones)              (NotificationPushMockImpl)
+                                               (suscripciones)
 ```
 
 ## Notas
@@ -188,3 +215,4 @@
 - notification-service **no depende de ningún otro microservicio** — opera solo con MongoDB
 - Las notificaciones push están mockeadas en `NotificationPushMockImpl` (solo logea)
 - Las suscripciones son upsert: `POST /suscribir` crea o actualiza según exista el userId
+- El campo `heladeraIds` en la suscripción permite a los admins recibir alertas de cambio de estado (US-07)

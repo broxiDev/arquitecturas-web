@@ -39,7 +39,7 @@ class NotificationServiceImplTest {
     void enviarNotificaciones_cuandoHaySuscriptores_creaNotificacionesYEnviaPush() {
         Long fridgeId = 1L;
         List<Long> productIds = List.of(10L);
-        Subscription subscription = new Subscription(100L, "device-abc", List.of(10L));
+        Subscription subscription = new Subscription(100L, "device-abc", List.of(10L), null);
         subscription.setId("sub1");
 
         when(subscriptionRepository.findByProductPreferencesContaining(10L))
@@ -66,7 +66,7 @@ class NotificationServiceImplTest {
     @Test
     void enviarNotificaciones_conMultiplesProductos() {
         Long fridgeId = 1L;
-        Subscription sub = new Subscription(100L, "device-abc", List.of(10L, 20L));
+        Subscription sub = new Subscription(100L, "device-abc", List.of(10L, 20L), null);
         sub.setId("sub1");
 
         when(subscriptionRepository.findByProductPreferencesContaining(10L))

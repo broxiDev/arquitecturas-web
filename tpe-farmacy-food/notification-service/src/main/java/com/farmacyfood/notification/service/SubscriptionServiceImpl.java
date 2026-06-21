@@ -26,11 +26,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             Subscription suscripcion = existente.get();
             suscripcion.setDeviceToken(dto.deviceToken());
             suscripcion.setProductPreferences(dto.productPreferences());
+            suscripcion.setHeladeraIds(dto.heladeraIds());
             suscripcion.setUpdatedAt(LocalDateTime.now());
             return SubscriptionResponseDTO.from(repository.save(suscripcion));
         }
 
-        Subscription nueva = new Subscription(dto.userId(), dto.deviceToken(), dto.productPreferences());
+        Subscription nueva = new Subscription(dto.userId(), dto.deviceToken(), dto.productPreferences(), dto.heladeraIds());
         return SubscriptionResponseDTO.from(repository.save(nueva));
     }
 
@@ -45,6 +46,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         }
         if (dto.productPreferences() != null) {
             suscripcion.setProductPreferences(dto.productPreferences());
+        }
+        if (dto.heladeraIds() != null) {
+            suscripcion.setHeladeraIds(dto.heladeraIds());
         }
         suscripcion.setUpdatedAt(LocalDateTime.now());
 

@@ -4,5 +4,6 @@ import java.util.List;
 
 public record SubscriptionUpdateDTO(
         String deviceToken,
-        List<Long> productPreferences
+        List<Long> productPreferences,
+        List<Long> heladeraIds
 ) {}

@@ -29,7 +29,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     void crearOActualizar_cuandoNoExiste_creaNueva() {
-        SubscriptionCreateDTO dto = new SubscriptionCreateDTO(100L, "device-abc", List.of(1L, 5L));
+        SubscriptionCreateDTO dto = new SubscriptionCreateDTO(100L, "device-abc", List.of(1L, 5L), null);
 
         when(repository.findByUserId(100L)).thenReturn(Optional.empty());
         when(repository.save(any(Subscription.class))).thenAnswer(invocation -> {
@@ -49,8 +49,8 @@ class SubscriptionServiceImplTest {
 
     @Test
     void crearOActualizar_cuandoExiste_actualiza() {
-        SubscriptionCreateDTO dto = new SubscriptionCreateDTO(100L, "device-new", List.of(2L));
-        Subscription existing = new Subscription(100L, "device-old", List.of(1L));
+        SubscriptionCreateDTO dto = new SubscriptionCreateDTO(100L, "device-new", List.of(2L), null);
+        Subscription existing = new Subscription(100L, "device-old", List.of(1L), null);
         existing.setId("sub1");
 
         when(repository.findByUserId(100L)).thenReturn(Optional.of(existing));
@@ -65,9 +65,9 @@ class SubscriptionServiceImplTest {
 
     @Test
     void actualizar_cuandoExiste() {
-        Subscription existing = new Subscription(100L, "device-old", List.of(1L));
+        Subscription existing = new Subscription(100L, "device-old", List.of(1L), null);
         existing.setId("sub1");
-        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", List.of(2L, 3L));
+        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", List.of(2L, 3L), null);
 
         when(repository.findByUserId(100L)).thenReturn(Optional.of(existing));
         when(repository.save(existing)).thenReturn(existing);
@@ -81,7 +81,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     void actualizar_cuandoNoExiste_lanzaExcepcion() {
-        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", List.of(2L));
+        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", List.of(2L), null);
 
         when(repository.findByUserId(99L)).thenReturn(Optional.empty());
 
@@ -91,9 +91,9 @@ class SubscriptionServiceImplTest {
 
     @Test
     void actualizar_soloDeviceToken() {
-        Subscription existing = new Subscription(100L, "device-old", List.of(1L));
+        Subscription existing = new Subscription(100L, "device-old", List.of(1L), null);
         existing.setId("sub1");
-        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", null);
+        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO("device-new", null, null);
 
         when(repository.findByUserId(100L)).thenReturn(Optional.of(existing));
         when(repository.save(existing)).thenReturn(existing);
@@ -106,9 +106,9 @@ class SubscriptionServiceImplTest {
 
     @Test
     void actualizar_soloProductPreferences() {
-        Subscription existing = new Subscription(100L, "device-old", List.of(1L));
+        Subscription existing = new Subscription(100L, "device-old", List.of(1L), null);
         existing.setId("sub1");
-        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO(null, List.of(2L, 3L));
+        SubscriptionUpdateDTO dto = new SubscriptionUpdateDTO(null, List.of(2L, 3L), null);
 
         when(repository.findByUserId(100L)).thenReturn(Optional.of(existing));
         when(repository.save(existing)).thenReturn(existing);
@@ -121,7 +121,7 @@ class SubscriptionServiceImplTest {
 
     @Test
     void obtenerPorUserId_cuandoExiste() {
-        Subscription subscription = new Subscription(100L, "device-abc", List.of(1L));
+        Subscription subscription = new Subscription(100L, "device-abc", List.of(1L), null);
         subscription.setId("sub1");
 
         when(repository.findByUserId(100L)).thenReturn(Optional.of(subscription));

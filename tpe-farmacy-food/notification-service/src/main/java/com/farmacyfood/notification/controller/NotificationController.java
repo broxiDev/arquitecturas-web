@@ -1,5 +1,6 @@
 package com.farmacyfood.notification.controller;
 
+import com.farmacyfood.notification.dto.HeladeraStatusChangeDTO;
 import com.farmacyfood.notification.dto.NotificationResponseDTO;
 import com.farmacyfood.notification.dto.SendNotificationRequest;
 import com.farmacyfood.notification.dto.SubscriptionCreateDTO;
@@ -70,6 +71,13 @@ public class NotificationController {
     public ResponseEntity<Void> enviarNotificaciones(@Valid @RequestBody SendNotificationRequest request) {
         notificationService.enviarNotificaciones(request.fridgeId(), request.productIds());
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @Operation(summary = "Notificar cambio de estado de heladera a sus admins")
+    @PostMapping("/heladera-status-change")
+    public ResponseEntity<Void> notificarCambioEstado(@Valid @RequestBody HeladeraStatusChangeDTO dto) {
+        notificationService.notificarCambioEstado(dto);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Obtener notificaciones de un usuario")

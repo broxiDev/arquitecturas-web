@@ -10,6 +10,7 @@ public record SubscriptionResponseDTO(
         Long userId,
         String deviceToken,
         List<Long> productPreferences,
+        List<Long> heladeraIds,
         LocalDateTime createdAt
 ) {
     public static SubscriptionResponseDTO from(Subscription suscripcion) {
@@ -18,6 +19,7 @@ public record SubscriptionResponseDTO(
                 suscripcion.getUserId(),
                 suscripcion.getDeviceToken(),
                 suscripcion.getProductPreferences(),
+                suscripcion.getHeladeraIds(),
                 suscripcion.getCreatedAt()
         );
     }

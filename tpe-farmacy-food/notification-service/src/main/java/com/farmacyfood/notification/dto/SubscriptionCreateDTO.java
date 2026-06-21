@@ -8,5 +8,6 @@ import java.util.List;
 public record SubscriptionCreateDTO(
         @NotNull Long userId,
         @NotBlank String deviceToken,
-        List<Long> productPreferences
+        List<Long> productPreferences,
+        List<Long> heladeraIds
 ) {}
