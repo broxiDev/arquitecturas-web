@@ -1,10 +1,8 @@
 package com.farmacyfood.order.service;
 
-import com.farmacyfood.order.dto.OrderCancelDTO;
-import com.farmacyfood.order.dto.OrderCreateDTO;
-import com.farmacyfood.order.dto.OrderResponseDTO;
-import com.farmacyfood.order.dto.PaymentResponseDTO;
+import com.farmacyfood.order.dto.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
@@ -22,5 +20,11 @@ public interface OrderService {
     List<OrderResponseDTO> getByUser(Long userId);
 
     OrderResponseDTO cancelOrder(Long id, OrderCancelDTO dto);
+
+    List<HistoricalSaleDTO> getHistorialVentas(LocalDate from, LocalDate to, Long productId, Long fridgeId);
+
+    List<ProductSaleDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to);
+
+
 
 }
