@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -67,6 +68,16 @@ public class CatalogoServiceImpl implements CatalogoService {
 
         Product savedProduct = productRepository.save(product);
         return mapToResponse(savedProduct);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getProductsByCocina(String cocinaId) {
+        log.info("Obteniendo productos para cocina: {}", cocinaId);
+        return productRepository.findByCocinaId(cocinaId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     private void validateProductRequest(ProductRequest request) {
