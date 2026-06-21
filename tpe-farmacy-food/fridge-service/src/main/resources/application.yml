@@ -5,7 +5,7 @@ spring:
   application:
     name: fridge-service
   profiles:
-    active: dev
+    active: prod
 
   datasource:
     url: jdbc:postgresql://localhost:5433/fridge_db?TimeZone=UTC
