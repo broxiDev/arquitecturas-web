@@ -53,12 +53,12 @@ public class SaleHistoryController {
             @ApiResponse(responseCode = "200", description = "Ventas agregadas por producto")
     })
     public List<ProductSaleDTO> getSalesByKitchen(
-            @Parameter(description = "ID de la cocina", example = "cocina-1")
+            @Parameter(description = "ID de la cocina", example = "COCINA-DULCE")
             @PathVariable String cocinaId,
             @Parameter(description = "Fecha desde (yyyy-MM-dd)", example = "2026-06-01")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @Parameter(description = "Fecha hasta (yyyy-MM-dd)", example = "2026-06-20")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return orderService.getSalesByKitchen(cocinaId, from, to);
     }
 }
