@@ -56,10 +56,10 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
         // Traigo el remanente de heladeras asociadas a esta cocina
         List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen(cocinaId);
 
-        // Delego los cálculos a la clase utilitaria
-        Map<Long, Integer> averages = PlanCalculatorUtils.calculateDailyAverage(sales, HISTORY_DAYS);
+        // Calculo total vendido - stock en heladera = lo que falta producir
+        Map<Long, Integer> totals = PlanCalculatorUtils.calculateTotalSales(sales);
         Map<Long, Integer> remainders = PlanCalculatorUtils.calculateTotalRemainder(fridges);
-        Map<Long, Integer> suggestedQuantities = PlanCalculatorUtils.calculateSuggestedQuantities(averages, remainders);
+        Map<Long, Integer> suggestedQuantities = PlanCalculatorUtils.calculateSuggestedQuantities(totals, remainders);
 
         // Creo el plan y le agrego los items
         DailyPlan plan = DailyPlan.builder().date(date).cocinaId(cocinaId).build();
