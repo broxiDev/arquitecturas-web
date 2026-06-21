@@ -86,6 +86,15 @@ public class HistorialVentasController {
                           {"productId": 101, "productName": "Brownie de Chocolate", "fridgeId": 1, "quantity": 10, "totalAmount": 75000.00, "date": "2026-06-13"}
                         ]
                         """
+                    ),
+                    @ExampleObject(
+                        name = "Combinado 2",
+                        summary = "productId=103 & fridgeId=1 & from=2026-06-01 & to=2026-06-22",
+                        value = """
+                        [
+                          {"productId": 103, "productName": "Tiramis\u00fa", "fridgeId": 1, "quantity": 12, "totalAmount": 105600.00, "date": "2026-06-18"}
+                        ]
+                        """
                     )
                 }
             )
@@ -95,9 +104,9 @@ public class HistorialVentasController {
     public ResponseEntity<List<VentaHistoricaResponseDTO>> getHistorial(
             @Parameter(description = "Fecha desde (YYYY-MM-DD)", example = "2026-06-01")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @Parameter(description = "Fecha hasta (YYYY-MM-DD)", example = "2026-06-14")
+            @Parameter(description = "Fecha hasta (YYYY-MM-DD)", example = "2026-06-22")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @Parameter(description = "ID del producto", example = "101")
+            @Parameter(description = "ID del producto", example = "103")
             @RequestParam(required = false) Long productId,
             @Parameter(description = "ID de la heladera", example = "1")
             @RequestParam(required = false) Long fridgeId) {

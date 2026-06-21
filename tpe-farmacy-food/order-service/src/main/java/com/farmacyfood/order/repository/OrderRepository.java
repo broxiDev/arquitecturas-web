@@ -21,8 +21,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Usa DISTINCT porque el JOIN FETCH puede duplicar órdenes (una por cada item).
     @Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.itemList " +
             "WHERE o.status IN ('PAID', 'PICKED_UP') " +
-            "AND (:from IS NULL OR CAST(o.createdAt AS date) >= :from) " +
-            "AND (:to IS NULL OR CAST(o.createdAt AS date) <= :to) " +
+            "AND (CAST(:from AS date) IS NULL OR CAST(o.createdAt AS date) >= :from) " +
+            "AND (CAST(:to AS date) IS NULL OR CAST(o.createdAt AS date) <= :to) " +
             "AND (:fridgeId IS NULL OR o.fridgeId = :fridgeId)")
     List<Order> findCompletedOrdersBetween(
             @Param("from") LocalDate from,
