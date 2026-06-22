@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import fridgeService from '../../services/fridgeService'
+import fridgeService from '../../services/heladeras/index.js'
 
 const useFridgeStore = create((set) => ({
   fridges: [],

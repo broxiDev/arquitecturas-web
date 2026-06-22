@@ -2,7 +2,7 @@ import { useState } from 'react'
 import useOrderStore from './orderStore'
 import useProductStore from '../catalogo/productStore'
 import useFridgeStore from '../heladeras/fridgeStore'
-import userService from '../../services/userService'
+import userService from '../../services/usuarios/index.js'
 import productsData from '../../mocks/products.json'
 import fridgesData from '../../mocks/fridges.json'
 

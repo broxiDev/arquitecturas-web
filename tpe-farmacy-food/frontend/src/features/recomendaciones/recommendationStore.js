@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import recommendationService from '../../services/recommendationService'
+import recommendationService from '../../services/recomendaciones/index.js'
 
 const useRecommendationStore = create((set) => ({
   recommendations: [],

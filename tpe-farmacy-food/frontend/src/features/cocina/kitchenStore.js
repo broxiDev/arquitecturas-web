@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import kitchenService from '../../services/kitchenService'
+import kitchenService from '../../services/cocina/index.js'
 
 const useKitchenStore = create((set) => ({
   dailyPlan: null,

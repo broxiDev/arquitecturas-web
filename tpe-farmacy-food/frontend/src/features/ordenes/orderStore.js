@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import orderService from '../../services/orderService'
+import orderService from '../../services/ordenes/index.js'
 
 const useOrderStore = create((set) => ({
   orders: [],

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import productService from '../../services/productService'
+import productService from '../../services/productos/index.js'
 
 const useProductStore = create((set) => ({
   products: [],

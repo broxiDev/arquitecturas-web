@@ -12,6 +12,3 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [ ] **Track: Implementar recommendation-service MVP con PostgreSQL, OpenFeign clients y endpoint de recomendaciones básicas**
   *Link: [./tracks/recommendation_service_mvp_20260618/](./tracks/recommendation_service_mvp_20260618/)*
 
-
-
-

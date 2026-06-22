@@ -73,6 +73,12 @@ tpe-farmacy-food/
 
 ## Frontend
 - **React 18** — Biblioteca de UI con hooks y JSX.
-- **Vite 6** — Bundler y dev server rápido con HMR.
+- **Vite 6** — Bundler y dev server rápido con HMR. Proxy configurado para redirigir `/api/v1/*` al API Gateway parseando `VITE_API_BASE_URL`.
 - **Tailwind CSS v3** — Framework de estilos utilitarios, mobile-first.
-- **Zustand 5** — Estado global ligero con API de hooks.
+- **Zustand 5** — Estado global ligero con API de hooks. Stores: `cartStore` (carrito), `uiStore` (filtros/loading), y stores por feature.
+- **react-router-dom** — Enrutamiento declarativo con `<BrowserRouter>`, `<Routes>` y `<NavLink>`.
+- **Axios** — Cliente HTTP con instancia centralizada, interceptors para JWT futuro y manejo de errores 401.
+- **Servicios por dominio** — Cada dominio (`productos/`, `heladeras/`, `ordenes/`, etc.) con arquitectura de doble implementación:
+  - `mock.js` — datos mock JSON con latencia simulada (perfil `dev`)
+  - `http.js` — llamadas reales via Axios al API Gateway (perfil `!dev`)
+  - `index.js` — selecciona mock o HTTP según `VITE_USE_MOCK`

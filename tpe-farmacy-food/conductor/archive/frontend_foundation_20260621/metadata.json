@@ -1,0 +1,8 @@
+{
+  "track_id": "frontend_foundation_20260621",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-21T18:11:00Z",
+  "updated_at": "2026-06-21T18:11:00Z",
+  "description": "Frontend/Foundation — infraestructura base del frontend React (Axios, react-router, servicios por dominio, Zustand)"
+}
