@@ -5,7 +5,7 @@ spring:
   application:
     name: recommendation-service
   profiles:
-    active: dev
+    active: prod
   datasource:
     url: jdbc:postgresql://localhost:5436/recommendation_db
     driver-class-name: org.postgresql.Driver
