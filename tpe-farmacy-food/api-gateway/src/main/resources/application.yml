@@ -55,7 +55,7 @@ springdoc:
       - name: order-service
         url: /api/v1/ordenes/v3/api-docs
       - name: kitchen-service
-        url: /api/v1/cocina/v3/api-docs
+        url: /api/v1/cocina-fantasma/v3/api-docs
       - name: recommendation-service
         url: /api/v1/recomendaciones/v3/api-docs
       - name: user-service
