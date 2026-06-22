@@ -12,4 +12,8 @@ public interface NotificacionClientFeign extends NotificacionClient {
     @Override
     @PostMapping("/api/v1/notificaciones/notificar-disponibilidad")
     void notificarProductoDisponible(@RequestBody DisponibilidadNotificacionDTO notificacion);
+
+    @Override
+    @PostMapping("/api/v1/notificaciones/heladera-status-change")
+    void notificarHeladeraStatusChange(@RequestBody HeladeraStatusChangeDTO alerta);
 }

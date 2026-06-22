@@ -1,6 +1,7 @@
 package com.farmacyfood.fridge.service;
 
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
+import com.farmacyfood.fridge.client.HeladeraStatusChangeDTO;
 import com.farmacyfood.fridge.client.NotificacionClient;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
@@ -93,6 +94,12 @@ public class HeladeraServiceImpl implements HeladeraService {
                     : List.of();
                 notificacionClient.notificarProductoDisponible(
                     new DisponibilidadNotificacionDTO(saved.getId(), productIds));
+            }
+
+            if (("OUT_OF_SERVICE".equals(dto.status()) || "MAINTENANCE".equals(dto.status()))
+                && !dto.status().equals(oldStatus)) {
+                notificacionClient.notificarHeladeraStatusChange(
+                    new HeladeraStatusChangeDTO(saved.getId(), saved.getName(), dto.status(), oldStatus));
             }
         }
 

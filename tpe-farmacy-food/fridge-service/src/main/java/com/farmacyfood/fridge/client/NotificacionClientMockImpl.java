@@ -14,4 +14,10 @@ public class NotificacionClientMockImpl implements NotificacionClient {
         log.info("[MOCK] Notificando productos disponibles - Heladera: {}, Productos: {}",
             notificacion.fridgeId(), notificacion.productIds());
     }
+
+    @Override
+    public void notificarHeladeraStatusChange(HeladeraStatusChangeDTO alerta) {
+        log.info("[MOCK] Alerta de cambio de estado - Heladera {} ({}): {} -> {}",
+            alerta.heladeraId(), alerta.heladeraName(), alerta.oldStatus(), alerta.newStatus());
+    }
 }

@@ -1,6 +1,7 @@
 package com.farmacyfood.fridge.service;
 
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
+import com.farmacyfood.fridge.client.HeladeraStatusChangeDTO;
 import com.farmacyfood.fridge.client.NotificacionClient;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
@@ -144,5 +145,44 @@ class HeladeraServiceImplTest {
         when(heladeraRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(HeladeraNotFoundException.class, () -> heladeraService.delete(99L));
+    }
+
+    @Test
+    void update_cuandoPasaAOutOfService_enviaAlerta() {
+        Heladera existing = Heladera.builder().id(1L).name("Heladera 1").latitude(-34.6).longitude(-58.4)
+            .address("Dir").status("ACTIVE").cocinaId("COCINA-DULCE").createdAt(LocalDateTime.now()).build();
+
+        when(heladeraRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(heladeraRepository.save(any(Heladera.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        heladeraService.update(1L, new HeladeraUpdateDTO(null, null, null, null, "OUT_OF_SERVICE", null));
+
+        verify(notificacionClient).notificarHeladeraStatusChange(any(HeladeraStatusChangeDTO.class));
+    }
+
+    @Test
+    void update_cuandoPasaAMaintenance_enviaAlerta() {
+        Heladera existing = Heladera.builder().id(1L).name("Heladera 1").latitude(-34.6).longitude(-58.4)
+            .address("Dir").status("ACTIVE").cocinaId("COCINA-DULCE").createdAt(LocalDateTime.now()).build();
+
+        when(heladeraRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(heladeraRepository.save(any(Heladera.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        heladeraService.update(1L, new HeladeraUpdateDTO(null, null, null, null, "MAINTENANCE", null));
+
+        verify(notificacionClient).notificarHeladeraStatusChange(any(HeladeraStatusChangeDTO.class));
+    }
+
+    @Test
+    void update_cuandoMismoStatus_noEnviaAlerta() {
+        Heladera existing = Heladera.builder().id(1L).name("Heladera 1").latitude(-34.6).longitude(-58.4)
+            .address("Dir").status("ACTIVE").cocinaId("COCINA-DULCE").createdAt(LocalDateTime.now()).build();
+
+        when(heladeraRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(heladeraRepository.save(any(Heladera.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        heladeraService.update(1L, new HeladeraUpdateDTO(null, null, null, null, "ACTIVE", null));
+
+        verify(notificacionClient, never()).notificarHeladeraStatusChange(any());
     }
 }
