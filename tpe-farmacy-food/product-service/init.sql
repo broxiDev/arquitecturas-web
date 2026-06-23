@@ -18,9 +18,9 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 INSERT INTO catalogos (cocina_id) VALUES
-('cocina-dulce'),
-('cocina-celiaca'),
-('cocina-vegana');
+('COCINA-DULCE'),
+('COCINA-CELIACA'),
+('COCINA-VEGANA');
 
 INSERT INTO products (id, name, description, dietary_category, price, image_url, nutritional_info, conservacion_temperature, catalogo_id, created_at, updated_at) VALUES
 -- COCINA-DULCE (IDs 101-103)

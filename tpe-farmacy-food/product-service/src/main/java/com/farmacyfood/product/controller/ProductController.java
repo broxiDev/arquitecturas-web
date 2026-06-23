@@ -84,7 +84,7 @@ public class ProductController {
     )
     @PostMapping("/cocina/{cocinaId}")
     public ResponseEntity<ProductResponse> createOrUpdateProductInCatalog(
-            @Parameter(description = "ID de la cocina fantasma", required = true, example = "cocina-sur")
+            @Parameter(description = "ID de la cocina fantasma", required = true, example = "COCINA-DULCE")
             @PathVariable String cocinaId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos del producto a registrar", required = true,
                 content = @Content(schema = @Schema(implementation = ProductRequest.class)))
@@ -100,7 +100,7 @@ public class ProductController {
     )
     @GetMapping("/cocina/{cocinaId}")
     public ResponseEntity<List<ProductResponse>> getProductsByCocina(
-            @Parameter(description = "ID de la cocina", required = true, example = "cocina-sur")
+            @Parameter(description = "ID de la cocina", required = true, example = "COCINA-DULCE")
             @PathVariable String cocinaId) {
         log.info("REST request to get products by cocina ID: {}", cocinaId);
         return ResponseEntity.ok(catalogoService.getProductsByCocina(cocinaId));

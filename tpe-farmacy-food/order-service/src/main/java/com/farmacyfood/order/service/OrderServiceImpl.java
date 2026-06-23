@@ -227,8 +227,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductSaleDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to) {
-        String normalizedCocinaId = cocinaId.toLowerCase().replace("_", "-");  // normalizar
-        List<ProductResponseDTO> products = productClient.getProductsByCocina(normalizedCocinaId);
+      //  String normalizedCocinaId = cocinaId.toLowerCase().replace("_", "-");  // normalizar
+        List<ProductResponseDTO> products = productClient.getProductsByCocina(cocinaId);
         Set<Long> productIds = products.stream().map(ProductResponseDTO::id).collect(Collectors.toSet());
 
         List<Order> orders = orderRepository.findCompletedOrdersBetween(from, to, null);

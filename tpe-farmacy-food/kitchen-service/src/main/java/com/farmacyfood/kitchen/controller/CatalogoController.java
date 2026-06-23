@@ -34,7 +34,7 @@ public class CatalogoController {
     )
     @PostMapping("/{cocinaId}")
     public ResponseEntity<ProductoResponse> registrarProducto(
-            @Parameter(description = "ID de la cocina fantasma", required = true, example = "cocina-sur")
+            @Parameter(description = "ID de la cocina fantasma", required = true, example = "COCINA-DULCE")
             @PathVariable String cocinaId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Datos del producto a registrar", required = true,
                 content = @Content(schema = @Schema(implementation = ProductoRequest.class)))

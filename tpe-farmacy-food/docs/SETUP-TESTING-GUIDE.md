@@ -11,9 +11,6 @@ Guía paso a paso para poner en marcha el sistema FarmacyFood y verificar las 16
 3. [Datos semilla (seed data)](#3-datos-semilla-seed-data)
 4. [Tabla de endpoints por User Story](#4-tabla-de-endpoints-por-user-story)
 5. [Flujos de prueba](#5-flujos-de-prueba)
-6. [User Stories incompletas / pendientes](#6-user-stories-incompletas--pendientes)
-7. [Troubleshooting](#7-troubleshooting)
-8. [Referencias](#8-referencias)
 
 ---
 
@@ -47,7 +44,7 @@ cd tpe-farmacy-food
 docker compose up -d
 ```
 
-Esto inicia 8 contenedores con sus respectivos seed data automáticos:
+Esto inicia 7 contenedores con sus respectivos seed data automáticos:
 
 | Contenedor | Puerto | Motor | Base de datos |
 |---|---|---|---|
@@ -57,7 +54,6 @@ Esto inicia 8 contenedores con sus respectivos seed data automáticos:
 | `order-postgres` | 5434 | PostgreSQL 16 | `order_db` |
 | `kitchen-postgres` | 5432 | PostgreSQL 16 | `kitchen_db` |
 | `user-postgres` | 5435 | PostgreSQL 16 | `user_db` |
-| `recommendation-postgres` | 5436 | PostgreSQL 16 | `recommendation_db` |
 | `notification-mongo` | 27019 | MongoDB 7 | `notification_db` |
 
 Verificar que todos los contenedores estén activos:
@@ -149,6 +145,18 @@ Detener todo:
 ```
 
 > Los scripts requieren entorno Unix (Git Bash en Windows). Dejan logs en `/tmp/*.log` y archivos PID en `/tmp/farmacyfood-pids/`.
+
+### 2.8 Iniciar Frontend Mock
+
+Existe un frontend de prueba en `frontend/` que se conecta al Gateway en `localhost:8080`.
+Actualmente es un **mock visual** que no implementa los servicios reales: las operaciones
+(listar productos, crear órdenes, etc.) se simulan localmente con datos ficticios.
+
+```bash
+cd frontend && npm run dev
+```
+
+Abrir en [http://localhost:5173](http://localhost:5173)
 
 ---
 
@@ -264,25 +272,30 @@ IDs de órdenes: 1 al 16.
 
 ## 4. Tabla de endpoints por User Story
 
-| US | Descripción | Método | Endpoint | Servicio (puerto) |
-|---|---|---|---|---|
-| US-01 | Listar productos | GET | `/api/v1/productos` | product (8081) |
-| US-02 | Filtrar por categoría | GET | `/api/v1/productos?category={cat}` | product (8081) |
-| US-03 | Registrar producto en catálogo | POST | `/api/v1/productos/cocina/{cocinaId}` | product (8081) |
-| US-04 | Heladeras cercanas | GET | `/api/v1/heladeras?lat={lat}&lng={lng}&radius={km}` | fridge (8082) |
-| US-05 | Stock de una heladera | GET | `/api/v1/heladeras/{id}/stock` | fridge (8082) |
-| US-06 | Actualizar stock | PUT | `/api/v1/heladeras/{heladeraId}/stock` | fridge (8082) |
-| US-07 | Alerta de cambio de estado | — | Automático al cambiar status de heladera | fridge (8082) |
-| US-08 | Crear orden | POST | `/api/v1/ordenes` | order (8083) |
-| US-09 | Pagar orden | POST | `/api/v1/ordenes/{id}/pagar` | order (8083) |
-| US-10 | Confirmar retiro | POST | `/api/v1/ordenes/{id}/confirmar-retiro` | order (8083) |
-| US-11 | Ver detalle de órdenes | GET | `/api/v1/ordenes` / `/api/v1/ordenes/{id}` | order (8083) |
-| US-12 | Generar/consultar plan diario | POST/GET | `/api/v1/cocina/plan-diario?cocinaId={id}&fecha={date}` | kitchen (8084) |
-| US-13 | Historial de ventas | GET | `/api/v1/cocina/historial-ventas` | kitchen (8084) |
-| US-14 | Registrar usuario | POST | `/api/v1/usuarios/registrar` | user (8086) |
-| US-15 | Recomendaciones | GET | `/api/v1/recomendaciones/{userId}` | recommendation (8085) |
-| US-16 | Suscribir a notificaciones | POST | `/api/v1/notificaciones/suscribir` | notification (8087) |
-| US-16 | Notificar disponibilidad | POST | `/api/v1/notificaciones/notificar-disponibilidad` | notification (8087) |
+| US | Descripción | Método | Endpoint | Ejemplo | Servicio (puerto) |
+|---|---|---|---|---|---|
+| US-01 | Listar productos | GET | `/api/v1/productos` | — | product (8081) |
+| US-02 | Filtrar por categoría | GET | `/api/v1/productos?category={cat}` | `category=VEGANO` | product (8081) |
+| US-03 | Registrar producto en catálogo | POST | `/api/v1/productos/cocina/{cocinaId}` | `cocina/COCINA-DULCE` | product (8081) |
+| US-04 | Heladeras cercanas | GET | `/api/v1/heladeras?lat={lat}&lng={lng}&radius={km}` | `lat=-34.5883&lng=-58.4223&radius=5` | fridge (8082) |
+| US-05 | Stock de una heladera | GET | `/api/v1/heladeras/{id}/stock` | `heladeras/1/stock` | fridge (8082) |
+| US-06 | Actualizar stock | PUT | `/api/v1/heladeras/{heladeraId}/stock` | `heladeras/1/stock` | fridge (8082) |
+| US-07 | Alerta de cambio de estado | — | Automático al cambiar status de heladera | — | fridge (8082) |
+| US-08 | Crear orden | POST | `/api/v1/ordenes` | — | order (8083) |
+| US-09 | Pagar orden | POST | `/api/v1/ordenes/{id}/pagar` | `ordenes/17/pagar` | order (8083) |
+| US-10 | Confirmar retiro | POST | `/api/v1/ordenes/{id}/confirmar-retiro` | `ordenes/17/confirmar-retiro` | order (8083) |
+| US-11 | Ver detalle de órdenes | GET | `/api/v1/ordenes` / `/api/v1/ordenes/{id}` | `ordenes/17` | order (8083) |
+| US-12 | Generar/consultar plan diario | POST/GET | `/api/v1/cocina/plan-diario?cocinaId={id}&fecha={date}` | `cocinaId=COCINA-DULCE&fecha=2026-06-23` | kitchen (8084) |
+| US-13 | Historial de ventas | GET | `/api/v1/cocina/historial-ventas` | — | kitchen (8084) |
+| US-13 | Ventas agregadas por cocina | GET | `/api/v1/ordenes/historial-ventas/cocina/{cocinaId}` | `cocina/COCINA-DULCE` | order (8083) |
+| US-14 | Registrar usuario | POST | `/api/v1/usuarios/registrar` | — | user (8086) |
+| US-15 | Recomendaciones | GET | `/api/v1/recomendaciones/{userId}` | `recomendaciones/1` | recommendation (8085) |
+| US-16 | Suscribir a notificaciones | POST | `/api/v1/notificaciones/suscribir` | — | notification (8087) |
+| US-16 | Notificar disponibilidad | POST | `/api/v1/notificaciones/notificar-disponibilidad` | — | notification (8087) |
+| US-16 | Ver suscripción de usuario | GET | `/api/v1/notificaciones/suscribir/{userId}` | `suscribir/1` | notification (8087) |
+| US-16 | Ver notificaciones de usuario | GET | `/api/v1/notificaciones/usuario/{userId}` | `usuario/1` | notification (8087) |
+| US-16 | Ver notificaciones no leídas | GET | `/api/v1/notificaciones/usuario/{userId}/no-leidas` | `usuario/1/no-leidas` | notification (8087) |
+| US-16 | Marcar notificación como leída | PUT | `/api/v1/notificaciones/{id}/leer` | `notificaciones/1/leer` | notification (8087) |
 
 ---
 
@@ -406,6 +419,8 @@ curl -s -X PUT 'http://localhost:8080/api/v1/heladeras/1' \
 ### Flujo C: Órdenes y Pagos (US-08, US-09, US-10, US-11)
 
 > Este flujo requiere que **product-service**, **fridge-service** y **order-service** estén corriendo.
+>
+> **Nota:** `pagar` y `confirmar-retiro` usan `POST` (acciones sobre el recurso), mientras que `cancelar` usa `PUT` (actualización del recurso).
 
 #### C.1 Crear una orden (US-08)
 
@@ -482,6 +497,19 @@ curl -s -X POST 'http://localhost:8080/api/v1/ordenes' \
     ]
   }' | jq
 ```
+
+#### C.5 Cancelar una orden
+
+Se puede cancelar una orden si está en estado `PENDING` o `PAID`.
+Si estaba `PAID`, se libera el stock automáticamente.
+
+```bash
+curl -s -X PUT 'http://localhost:8080/api/v1/ordenes/17/cancelar' \
+  -H 'Content-Type: application/json' \
+  -d '{"motivo": "Cambié de opinión"}' | jq
+```
+
+> El campo `motivo` es opcional. Si la orden está `PENDING`, no se necesita body.
 
 ---
 
@@ -631,9 +659,7 @@ curl -s 'http://localhost:8080/api/v1/ordenes/historial-ventas/cocina/COCINA-DUL
 
 #### Cancelar orden
 
-```bash
-curl -s -X PUT 'http://localhost:8080/api/v1/ordenes/17/cancelar' | jq
-```
+Ver [C.5 Cancelar una orden](#c5-cancelar-una-orden) en el Flujo C.
 
 #### Actualizar preferencias de usuario
 

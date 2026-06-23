@@ -2,6 +2,16 @@
 
 Sistema backend de microservicios que conecta una cocina fantasma con heladeras inteligentes distribuidas en comercios.
 
+## Getting Started
+
+Ver la [Guía de Levantamiento y Pruebas](./docs/SETUP-TESTING-GUIDE.md) (docs/SETUP-TESTING-GUIDE) para instrucciones detalladas sobre:
+
+- Levantamiento de bases de datos con Docker Compose
+- Inicio de Eureka, API Gateway y los 7 microservicios
+- Datos semilla precargados (productos, heladeras, usuarios, órdenes)
+- Flujos de prueba para las 16 user stories con ejemplos curl
+- Troubleshooting
+
 ## Swagger
 
 ### Centralizado (Gateway)
