@@ -39,6 +39,10 @@ spring:
           uri: lb://notification-service
           predicates:
             - Path=/api/v1/notificaciones/**
+        - id: audit-service
+          uri: lb://audit-service
+          predicates:
+            - Path=/api/v1/auditoria/**
 
 eureka:
   client:
@@ -62,3 +66,5 @@ springdoc:
         url: /api/v1/usuarios/v3/api-docs
       - name: notification-service
         url: /api/v1/notificaciones/v3/api-docs
+      - name: audit-service
+        url: /api/v1/auditoria/v3/api-docs
