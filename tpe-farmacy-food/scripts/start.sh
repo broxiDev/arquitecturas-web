@@ -9,10 +9,10 @@ mkdir -p "$PID_DIR"
 
 echo "=== FarmacyFood - Iniciando servicios ==="
 
-echo "[1/9] Iniciando bases de datos..."
+echo "[1/10] Iniciando bases de datos..."
 docker compose up -d 2>/dev/null || echo "  Docker no disponible, omitiendo BD"
 
-echo "[2/9] Iniciando Eureka (discovery-service :8761)..."
+echo "[2/10] Iniciando Eureka (discovery-service :8761)..."
 mvn spring-boot:run -pl discovery-service -q &>/tmp/discovery.log &
 DISCOVERY_PID=$!
 echo "$DISCOVERY_PID" > "$PID_DIR/discovery-service.pid"
@@ -35,6 +35,7 @@ SERVICES=(
   "recommendation-service:8085"
   "user-service:8086"
   "notification-service:8087"
+  "audit-service:8088"
 )
 
 PIDS=()

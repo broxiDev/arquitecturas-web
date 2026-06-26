@@ -5,3 +5,4 @@ include:
   - path: ./order-service/docker-compose.yml
   - path: ./notification-service/docker-compose.yml
   - path: ./user-service/docker-compose.yml
+  - path: ./audit-service/docker-compose.yml
