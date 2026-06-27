@@ -5,7 +5,7 @@
     "description": "Mix de verdes frescas con tomate cherry, aceitunas y queso feta, aderezado con vinagreta de limon.",
     "dietaryCategory": "vegetariano",
     "price": 2850.00,
-    "imageUrl": "/images/ensalada-mediterranea.jpg",
+    "imageUrl": "/public/images/ensaladaCesar.jpg",
     "createdAt": "2026-05-01T10:00:00Z"
   },
   {
