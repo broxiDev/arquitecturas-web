@@ -17,32 +17,17 @@ public class AuditEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_name", nullable = false, length = 50)
+    @Column(name = "service_name", nullable = false, length = 100)
     private String serviceName;
 
-    @Column(name = "entity_type", nullable = false, length = 50)
-    private String entityType;
-
-    @Column(name = "entity_id", nullable = false, length = 100)
-    private String entityId;
-
-    @Column(nullable = false, length = 50)
-    private String action;
-
-    @Column(name = "performed_by", length = 100)
-    private String performedBy;
+    @Column(columnDefinition = "TEXT")
+    private String request;
 
     @Column(columnDefinition = "TEXT")
-    private String details;
+    private String response;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
-
-    @Column(name = "ip_address", length = 45)
-    private String ipAddress;
-
-    @Column(name = "correlation_id", length = 100)
-    private String correlationId;
 
     public AuditEvent() {}
 
@@ -53,19 +38,11 @@ public class AuditEvent {
         }
     }
 
-    // --- Constructor con campos esenciales ---
-    public AuditEvent(String serviceName, String entityType, String entityId,
-                      String action, String performedBy, String details,
-                      LocalDateTime timestamp, String ipAddress, String correlationId) {
+    public AuditEvent(String serviceName, String request, String response, LocalDateTime timestamp) {
         this.serviceName = serviceName;
-        this.entityType = entityType;
-        this.entityId = entityId;
-        this.action = action;
-        this.performedBy = performedBy;
-        this.details = details;
+        this.request = request;
+        this.response = response;
         this.timestamp = timestamp != null ? timestamp : LocalDateTime.now();
-        this.ipAddress = ipAddress;
-        this.correlationId = correlationId;
     }
 
     // --- Getters y Setters ---
@@ -75,27 +52,12 @@ public class AuditEvent {
     public String getServiceName() { return serviceName; }
     public void setServiceName(String serviceName) { this.serviceName = serviceName; }
 
-    public String getEntityType() { return entityType; }
-    public void setEntityType(String entityType) { this.entityType = entityType; }
+    public String getRequest() { return request; }
+    public void setRequest(String request) { this.request = request; }
 
-    public String getEntityId() { return entityId; }
-    public void setEntityId(String entityId) { this.entityId = entityId; }
-
-    public String getAction() { return action; }
-    public void setAction(String action) { this.action = action; }
-
-    public String getPerformedBy() { return performedBy; }
-    public void setPerformedBy(String performedBy) { this.performedBy = performedBy; }
-
-    public String getDetails() { return details; }
-    public void setDetails(String details) { this.details = details; }
+    public String getResponse() { return response; }
+    public void setResponse(String response) { this.response = response; }
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
-
-    public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
-
-    public String getCorrelationId() { return correlationId; }
-    public void setCorrelationId(String correlationId) { this.correlationId = correlationId; }
 }
