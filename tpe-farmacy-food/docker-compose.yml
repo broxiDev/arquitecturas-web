@@ -1,5 +1,4 @@
 include:
-  - path: ./product-service/docker-compose.yml
   - path: ./kitchen-service/docker-compose.yml
   - path: ./fridge-service/docker-compose.yml
   - path: ./order-service/docker-compose.yml
