@@ -1,0 +1,8 @@
+{
+  "track_id": "auth_service_jwt_20260627",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-27T12:00:00Z",
+  "updated_at": "2026-06-27T12:00:00Z",
+  "description": "Implementar auth-service con autenticacion JWT (registro, login, roles, seed data) mas guia de integracion para los demas servicios"
+}

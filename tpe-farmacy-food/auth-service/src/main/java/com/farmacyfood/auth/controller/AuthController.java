@@ -2,7 +2,7 @@ package com.farmacyfood.auth.controller;
 
 import com.farmacyfood.auth.dto.AuthResponse;
 import com.farmacyfood.auth.dto.LoginRequest;
-import com.farmacyfood.auth.entity.AuthUser;
+import com.farmacyfood.auth.dto.RegisterRequest;
 import com.farmacyfood.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/registrar")
-    public ResponseEntity<AuthUser> register(@Valid @RequestBody LoginRequest request) {
-        AuthUser user = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
