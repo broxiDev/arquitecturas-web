@@ -1,142 +1,217 @@
-# Contrato: fridge-service - Remanente de Productos por Cocina
+# Spec para fridge-service (Ale)
 
-## Endpoint
+## Contexto
 
-| | |
-|---|---|
-| **Método** | `GET` |
-| **URL** | `/api/v1/heladeras/cocina/{cocinaId}/remanente` |
-| **Servicio** | `fridge-service` (puerto default `8082`) |
-| **Feign Client** | `FridgeClientFeign` |
+Se hizo un refactor completo en kitchen-service que afecta la comunicacion con fridge-service. Los cambios principales:
 
-> **Estado: PENDIENTE DE IMPLEMENTAR** en fridge-service.
-> kitchen-service ya tiene el Feign client listo, pero fridge-service aún no expone este endpoint.
+1. **Se cambio el tipo de `cocinaId`** de `String` a `Long` — ahora es el ID auto-increment de la entidad `Cocina` en kitchen-service.
+2. **Nueva entidad `Cocina`** en kitchen-service con `id` (Long), `nombre` (String) y `usuarioId` (Long, unique). El `id` de la cocina **es** el `cocinaId`.
+3. **Se agrego `price` (BigDecimal)** al stock de heladeras. El precio **no** esta en el catalogo de kitchen — se asigna al momento de cargar productos en la heladera.
+4. **Nueva operacion de carga de stock** — kitchen envia productos a fridge via `POST /api/v1/heladeras/{heladeraId}/stock`.
 
-## Parámetros
+El catalogo local de kitchen solo tiene `productId` y `productName` (sin precio). El `price` lo manda el usuario de kitchen en la request de carga-heladeras, y kitchen lo reenvia a fridge tal cual.
 
-| Nombre | Tipo | Ubicación | Requerido | Descripción |
-|--------|------|-----------|-----------|-------------|
-| `cocinaId` | `String` | Path variable | Sí | ID de la cocina fantasma |
+Kitchen valida su catalogo local antes de enviar. Fridge **no valida** contra kitchen — confia en que kitchen ya valido.
 
-## Respuesta
+---
 
-**Status:** `200 OK`
+## Cambios necesarios
 
-**Body:** `List<FridgeRemainderDTO>`
+### 1. `Heladera.java` — cambiar tipo de `cocinaId` (String → Long)
 
-### FridgeRemainderDTO
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/entity/Heladera.java`
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `fridgeId` | `Long` | ID de la heladera |
-| `products` | `List<ProductRemainderDTO>` | Lista de productos con su remanente |
-
-### ProductRemainderDTO
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `productId` | `Long` | ID del producto |
-| `productName` | `String` | Nombre del producto |
-| `quantity` | `Integer` | Cantidad remanente en esa heladera |
-
-## Ejemplos
-
-### COCINA-DULCE
-
-**Request:**
-```
-GET /api/v1/heladeras/cocina/COCINA-DULCE/remanente
+El campo actual:
+```java
+@Column(name = "cocina_id", nullable = false, length = 50)
+@NotBlank
+private String cocinaId;
 ```
 
-**Response:**
-```json
-[
-  {
-    "fridgeId": 1,
-    "products": [
-      { "productId": 101, "productName": "Brownie de Chocolate", "quantity": 3 },
-      { "productId": 102, "productName": "Cheesecake", "quantity": 2 },
-      { "productId": 103, "productName": "Tiramisú", "quantity": 2 }
-    ]
-  },
-  {
-    "fridgeId": 2,
-    "products": [
-      { "productId": 101, "productName": "Brownie de Chocolate", "quantity": 2 },
-      { "productId": 102, "productName": "Cheesecake", "quantity": 1 },
-      { "productId": 103, "productName": "Tiramisú", "quantity": 3 }
-    ]
-  }
-]
+Debe quedar:
+```java
+@Column(name = "cocina_id", nullable = false)
+@NotNull
+private Long cocinaId;
 ```
 
-**Cálculo de plan diario:** remanentes totales = Brownie 5, Cheesecake 3, Tiramisú 5
+Agregar import: `import jakarta.validation.constraints.NotNull;`
 
-### COCINA-CELIACA
+### 2. `HeladeraRepository.java` — cambiar query
 
-**Request:**
-```
-GET /api/v1/heladeras/cocina/COCINA-CELIACA/remanente
-```
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/repository/HeladeraRepository.java`
 
-**Response:**
-```json
-[
-  {
-    "fridgeId": 3,
-    "products": [
-      { "productId": 201, "productName": "Tostada de Palta Sin Gluten", "quantity": 3 },
-      { "productId": 202, "productName": "Bowl de Quinoa Sin Gluten", "quantity": 2 },
-      { "productId": 203, "productName": "Rolls de Primavera de Arroz", "quantity": 2 }
-    ]
-  },
-  {
-    "fridgeId": 4,
-    "products": [
-      { "productId": 201, "productName": "Tostada de Palta Sin Gluten", "quantity": 1 },
-      { "productId": 202, "productName": "Bowl de Quinoa Sin Gluten", "quantity": 2 },
-      { "productId": 203, "productName": "Rolls de Primavera de Arroz", "quantity": 3 }
-    ]
-  }
-]
+```java
+// antes
+List<Heladera> findByCocinaId(String cocinaId);
+
+// ahora
+List<Heladera> findByCocinaId(Long cocinaId);
 ```
 
-**Cálculo de plan diario:** remanentes totales = Tostada 4, Bowl Quinoa 4, Rolls 5
+### 3. `HeladeraController.java` — cambiar endpoint de remanente
 
-### COCINA-VEGANA
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/controller/HeladeraController.java`
 
-**Request:**
-```
-GET /api/v1/heladeras/cocina/COCINA-VEGANA/remanente
-```
+```java
+// antes
+@GetMapping("/cocina/{cocinaId}/remanente")
+public ResponseEntity<List<FridgeRemainderDTO>> getRemainderByCocina(@PathVariable String cocinaId) {
 
-**Response:**
-```json
-[
-  {
-    "fridgeId": 5,
-    "products": [
-      { "productId": 301, "productName": "Buddha Bowl Vegano", "quantity": 3 },
-      { "productId": 302, "productName": "Salteado de Tofu", "quantity": 2 },
-      { "productId": 303, "productName": "Curry de Garbanzos", "quantity": 3 }
-    ]
-  },
-  {
-    "fridgeId": 6,
-    "products": [
-      { "productId": 301, "productName": "Buddha Bowl Vegano", "quantity": 2 },
-      { "productId": 302, "productName": "Salteado de Tofu", "quantity": 1 },
-      { "productId": 303, "productName": "Curry de Garbanzos", "quantity": 2 }
-    ]
-  }
-]
+// ahora
+@GetMapping("/cocina/{cocinaId}/remanente")
+public ResponseEntity<List<FridgeRemainderDTO>> getRemainderByCocina(@PathVariable Long cocinaId) {
 ```
 
-**Cálculo de plan diario:** remanentes totales = Buddha Bowl 5, Salteado Tofu 3, Curry 5
+### 4. `StockService.java` + `StockServiceImpl.java` — actualizar metodo de remanente
 
-## Notas
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/service/StockService.java`
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/service/StockServiceImpl.java`
 
-- kitchen-service usa estos datos para calcular el remanente total de productos en heladeras y descontarlo de la cantidad sugerida en el plan diario
-- La fórmula del plan diario es: `sugerido = ceil(totalVendido / 7) - remanenteTotal` (solo si > 0)
-- Si fridge-service no está disponible, el perfil `dev` usa `FridgeClientMockImpl` con datos diferenciados por cocina
-- Las cocinas disponibles son: `COCINA-DULCE` (postres), `COCINA-CELIACA` (sin gluten), `COCINA-VEGANA` (vegana)
+```java
+// antes
+List<FridgeRemainderDTO> getRemainderByCocinaId(String cocinaId);
+public List<FridgeRemainderDTO> getRemainderByCocinaId(String cocinaId) {
+    List<Heladera> heladeras = heladeraRepository.findByCocinaId(cocinaId);
+
+// ahora
+List<FridgeRemainderDTO> getRemainderByCocinaId(Long cocinaId);
+public List<FridgeRemainderDTO> getRemainderByCocinaId(Long cocinaId) {
+    List<Heladera> heladeras = heladeraRepository.findByCocinaId(cocinaId);
+```
+
+### 5. `StockHeladera.java` — agregar 2 campos
+
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/entity/StockHeladera.java`
+
+Agregar despues de `quantity`:
+```java
+@Column(name = "cocina_id", nullable = false)
+@NotNull
+private Long cocinaId;
+
+@Column(name = "price", nullable = false, precision = 10, scale = 2)
+@NotNull
+private BigDecimal price;
+```
+
+Agregar import: `import java.math.BigDecimal;`
+
+### 6. `StockCreateDTO.java` — agregar 2 campos
+
+**Archivo:** `src/main/java/com/frarmacyfood/fridge/dto/StockCreateDTO.java`
+
+```java
+public record StockCreateDTO(
+    @NotNull Long productId,
+    @NotBlank String productName,
+    @NotNull @Min(0) Integer quantity,
+
+    @NotNull Long cocinaId,
+    @NotNull BigDecimal price
+) {}
+```
+
+### 7. `StockResponseDTO.java` — agregar 2 campos
+
+Agregar `cocinaId` (Long) y `price` (BigDecimal) al record.
+
+### 8. `StockUpdateDTO.java` — agregar 2 campos
+
+Agregar `cocinaId` (Long, opcional) y `price` (BigDecimal, opcional).
+
+### 9. `StockServiceImpl.addStock()` — setear campos nuevos
+
+```java
+StockHeladera stock = StockHeladera.builder()
+    .heladera(heladera)
+    .productId(dto.productId())
+    .productName(dto.productName())
+    .quantity(dto.quantity())
+    .cocinaId(dto.cocinaId())
+    .price(dto.price())
+    .build();
+```
+
+### 10. `StockServiceImpl.toDTO()` — incluir campos nuevos
+
+```java
+private StockResponseDTO toDTO(StockHeladera stock) {
+    return new StockResponseDTO(
+        stock.getId(),
+        stock.getHeladera().getId(),
+        stock.getProductId(),
+        stock.getProductName(),
+        stock.getQuantity(),
+        stock.getCocinaId(),
+        stock.getPrice(),
+        stock.getUpdatedAt()
+    );
+}
+```
+
+### 11. `StockServiceImpl.updateStock()` — actualizar campos si vienen
+
+Agregar despues del update de `productName`:
+```java
+if (dto.cocinaId() != null) stock.setCocinaId(dto.cocinaId());
+if (dto.price() != null) stock.setPrice(dto.price());
+```
+
+### 12. `HeladeraCreateDTO` / `HeladeraUpdateDTO` / `HeladeraResponseDTO`
+
+Cambiar el tipo de `cocinaId` de `String` a `Long` en los tres DTOs.
+
+---
+
+## Lo que NO se toca
+
+- No se crean endpoints nuevos. El endpoint `POST /api/v1/heladeras/{heladeraId}/stock` ya existe.
+- `StockRepository.java` — sin cambios (ya tiene `findByHeladeraIdAndProductId`).
+- No se agrega validacion contra kitchen-service. Fridge confia en que kitchen ya valido.
+
+---
+
+## Endpoints que kitchen-service llama a fridge-service
+
+| Metodo | Path | Descripcion |
+|---|---|---|
+| `GET` | `/api/v1/heladeras/cocina/{cocinaId}/remanente` | Obtener remanente de stock por cocina |
+| `POST` | `/api/v1/heladeras/{heladeraId}/stock` | Cargar un producto en una heladera (con cocinaId + price) |
+
+Kitchen envia un POST por producto. Si carga 2 productos en heladera 1, hace 2 POSTs secuenciales.
+
+## Ejemplo de request que kitchen envia a fridge
+
+```
+POST /api/v1/heladeras/1/stock
+Content-Type: application/json
+
+{
+  "productId": 101,
+  "productName": "Lechuga y tomate",
+  "quantity": 10,
+  "cocinaId": 1,
+  "price": 10.00
+}
+```
+
+---
+
+## Mientras tanto
+
+Mientras Ale implementa, kitchen-service usa `FridgeClientMockImpl` (profile `dev`) que loguea los items y no hace llamadas reales. No hay bloqueo.
+
+---
+
+## Endpoints de kitchen-service (para info)
+
+| Metodo | Path | Descripcion |
+|---|---|---|
+| `POST` | `/api/v1/cocina` | Crear cocina (valida usuario en user-service, 1 usuario = 1 cocina) |
+| `GET` | `/api/v1/cocina/{cocinaId}` | Buscar cocina por ID |
+| `POST` | `/api/v1/cocina/{cocinaId}/productos` | Agregar producto a una cocina |
+| `GET` | `/api/v1/cocina/{cocinaId}/productos` | Listar productos de una cocina |
+| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera (valida catálogo, envía a fridge) |
+| `GET` | `/api/v1/cocina/plan-diario?cocinaId=1` | Obtener plan diario |
+| `POST` | `/api/v1/cocina/plan-diario?cocinaId=1` | Generar plan diario |

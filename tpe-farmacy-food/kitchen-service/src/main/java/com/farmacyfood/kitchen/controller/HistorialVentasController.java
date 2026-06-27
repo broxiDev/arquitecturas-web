@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cocina/historial-ventas")
 @RequiredArgsConstructor
-@Tag(name = "Historial de Ventas", description = "Consulta de ventas históricas de la cocina fantasma")
+@Tag(name = "Historial de Ventas", description = "Consulta de ventas historicas de la cocina fantasma")
 public class HistorialVentasController {
 
     private final HistorialVentasService historialVentasService;

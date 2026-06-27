@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrdenClient {
     List<VentaHistoricaResponseDTO> getVentasRecientes(LocalDate desde, LocalDate hasta);
 
-    List<ProductoVentaDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to);
+    List<ProductoVentaDTO> getSalesByKitchen(Long cocinaId, LocalDate from, LocalDate to);
 
     List<VentaHistoricaResponseDTO> findHistorialVentas(Long productId, Long fridgeId, LocalDate from, LocalDate to);
 }

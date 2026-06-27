@@ -49,4 +49,22 @@ public class GlobalExceptionHandler {
             LocalDateTime.now().toString()
         ));
     }
+
+    @ExceptionHandler(CargaHeladerasException.class)
+    public ResponseEntity<ErrorResponse> handleCargaHeladerasError(CargaHeladerasException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(
+            "Error en carga de heladeras",
+            ex.getMessage(),
+            LocalDateTime.now().toString()
+        ));
+    }
+
+    @ExceptionHandler(CocinaException.class)
+    public ResponseEntity<ErrorResponse> handleCocinaError(CocinaException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(
+            "Error en cocina",
+            ex.getMessage(),
+            LocalDateTime.now().toString()
+        ));
+    }
 }

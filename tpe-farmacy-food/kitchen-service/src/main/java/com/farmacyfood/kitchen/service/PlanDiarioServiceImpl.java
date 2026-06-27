@@ -33,7 +33,7 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
 
     @Override
     @Transactional(readOnly = true)
-    public PlanDiarioResponseDTO getPlanByDate(LocalDate date, String cocinaId) {
+    public PlanDiarioResponseDTO getPlanByDate(LocalDate date, Long cocinaId) {
         // Busco el plan por fecha y cocina
         DailyPlan plan = planDiarioRepository.findByDateAndCocinaId(date, cocinaId)
             .orElseThrow(() -> new PlanNotFoundException("No existe plan para la fecha: " + date + " y cocina: " + cocinaId));
@@ -42,18 +42,18 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
 
     @Override
     @Transactional
-    public PlanDiarioResponseDTO generarPlan(LocalDate date, String cocinaId) {
+    public PlanDiarioResponseDTO generarPlan(LocalDate date, Long cocinaId) {
         // Si ya existe un plan para esta fecha y cocina, no lo regenero
         if (planDiarioRepository.findByDateAndCocinaId(date, cocinaId).isPresent()) {
             throw new PlanAlreadyExistsException("Ya existe un plan para la fecha: " + date + " y cocina: " + cocinaId);
         }
 
-        // Traigo las ventas de los últimos 7 días desde el servicio de órdenes (filtrado por cocina)
+        // Traigo las ventas de los ultimos 7 dias desde el servicio de ordenes (filtrado por cocina)
         LocalDate from = date.minusDays(HISTORY_DAYS);
         LocalDate to = date.minusDays(1);
         List<ProductoVentaDTO> sales = ordenClient.getSalesByKitchen(cocinaId, from, to);
 
-        // Traigo el remanente de heladeras asociadas a esta cocina
+        // Traigo el remanente de heladeras asociadas a este catalogo
         List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen(cocinaId);
 
         // Calculo total vendido - stock en heladera = lo que falta producir

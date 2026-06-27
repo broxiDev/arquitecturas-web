@@ -26,7 +26,7 @@ public interface OrdenClientFeign extends OrdenClient {
     @Override
     @GetMapping("/api/v1/ordenes/historial-ventas/cocina/{cocinaId}")
     List<ProductoVentaDTO> getSalesByKitchen(
-        @PathVariable("cocinaId") String cocinaId,
+        @PathVariable("cocinaId") Long cocinaId,
         @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
         @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     );

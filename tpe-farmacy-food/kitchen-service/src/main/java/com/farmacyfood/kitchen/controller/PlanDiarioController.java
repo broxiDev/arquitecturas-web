@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -24,14 +24,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cocina/plan-diario")
 @RequiredArgsConstructor
-@Tag(name = "Plan Diario", description = "Planificación diaria de producción de la cocina fantasma")
+@Tag(name = "Plan Diario", description = "Planificacion diaria de produccion de la cocina fantasma")
 public class PlanDiarioController {
 
     private final PlanDiarioService planDiarioService;
 
     @Operation(
         summary = "Obtener plan diario",
-        description = "Retorna el plan de producción para una fecha y cocina específica. Si no se envía fecha, usa el día actual. Devuelve 404 si no existe plan para esa fecha y cocina."
+        description = "Retorna el plan de produccion para una fecha y cocina especifico. Si no se envia fecha, usa el dia actual. Devuelve 404 si no existe plan para esa fecha y cocina."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -46,11 +46,11 @@ public class PlanDiarioController {
                     {
                       "id": 1,
                       "date": "2026-06-14",
-                      "cocinaId": "COCINA-DULCE",
+                      "cocinaId": 1,
                       "items": [
                         {"productId": 101, "productName": "Brownie de Chocolate", "suggestedQuantity": 10},
                         {"productId": 102, "productName": "Cheesecake", "suggestedQuantity": 6},
-                        {"productId": 103, "productName": "Tiramisú", "suggestedQuantity": 8}
+                        {"productId": 103, "productName": "Tiramisu", "suggestedQuantity": 8}
                       ],
                       "createdAt": "2026-06-14T08:00:00"
                     }
@@ -60,7 +60,7 @@ public class PlanDiarioController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "No existe plan para la fecha y cocina solicitada",
+            description = "No existe plan para la fecha y cocina solicitado",
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 examples = @ExampleObject(
@@ -68,7 +68,7 @@ public class PlanDiarioController {
                     value = """
                     {
                       "error": "Not Found",
-                      "message": "No existe plan para la fecha: 2026-06-15 y cocina: COCINA-DULCE",
+                      "message": "No existe plan para la fecha: 2026-06-15 y cocina: 1",
                       "timestamp": "2026-06-14T12:00:00"
                     }
                     """
@@ -78,9 +78,9 @@ public class PlanDiarioController {
     })
     @GetMapping
     public ResponseEntity<PlanDiarioResponseDTO> getPlan(
-            @Parameter(description = "ID de la cocina fantasma", example = "COCINA-DULCE")
-            @RequestParam @NotBlank String cocinaId,
-            @Parameter(description = "Fecha del plan (YYYY-MM-DD). Si no se envía, usa la fecha actual.", example = "2026-06-14")
+            @Parameter(description = "ID de la cocina", example = "1")
+            @RequestParam @NotNull Long cocinaId,
+            @Parameter(description = "Fecha del plan (YYYY-MM-DD). Si no se envia, usa la fecha actual.", example = "2026-06-14")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
         LocalDate targetDate = fecha != null ? fecha : LocalDate.now();
@@ -90,7 +90,7 @@ public class PlanDiarioController {
 
     @Operation(
         summary = "Generar plan diario",
-        description = "Calcula el plan de producción basado en ventas históricas (últimos 7 días) y stock remanente en heladeras, y lo guarda. Si ya existe un plan para esa fecha y cocina, retorna 409."
+        description = "Calcula el plan de produccion basado en ventas historicas (ultimos 7 dias) y stock remanente en heladeras, y lo guarda. Si ya existe un plan para esa fecha y cocina, retorna 409."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -105,7 +105,7 @@ public class PlanDiarioController {
                     {
                       "id": 1,
                       "date": "2026-06-14",
-                      "cocinaId": "COCINA-DULCE",
+                      "cocinaId": 1,
                       "items": [
                         {"productId": 101, "productName": "Brownie de Chocolate", "suggestedQuantity": 7},
                         {"productId": 102, "productName": "Cheesecake", "suggestedQuantity": 4}
@@ -126,7 +126,7 @@ public class PlanDiarioController {
                     value = """
                     {
                       "error": "Conflict",
-                      "message": "Ya existe un plan para la fecha: 2026-06-14 y cocina: COCINA-DULCE",
+                      "message": "Ya existe un plan para la fecha: 2026-06-14 y cocina: 1",
                       "timestamp": "2026-06-14T12:00:00"
                     }
                     """
@@ -136,9 +136,9 @@ public class PlanDiarioController {
     })
     @PostMapping
     public ResponseEntity<PlanDiarioResponseDTO> generarPlan(
-            @Parameter(description = "ID de la cocina fantasma", example = "COCINA-DULCE")
-            @RequestParam @NotBlank String cocinaId,
-            @Parameter(description = "Fecha del plan (YYYY-MM-DD). Si no se envía, usa la fecha actual.", example = "2026-06-14")
+            @Parameter(description = "ID de la cocina", example = "1")
+            @RequestParam @NotNull Long cocinaId,
+            @Parameter(description = "Fecha del plan (YYYY-MM-DD). Si no se envia, usa la fecha actual.", example = "2026-06-14")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
         LocalDate targetDate = fecha != null ? fecha : LocalDate.now();

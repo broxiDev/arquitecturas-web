@@ -31,7 +31,7 @@ class PlanDiarioControllerTest {
     @MockBean
     private PlanDiarioService planDiarioService;
 
-    private static final String COCINA_ID = "COCINA-DULCE";
+    private static final Long COCINA_ID = 1L;
 
     @Test
     void getPlan_returnsOk() throws Exception {
@@ -41,11 +41,11 @@ class PlanDiarioControllerTest {
 
         when(planDiarioService.getPlanByDate(today, COCINA_ID)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
+        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", String.valueOf(COCINA_ID)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.date").value(today.toString()))
-            .andExpect(jsonPath("$.cocinaId").value(COCINA_ID))
+            .andExpect(jsonPath("$.cocinaId").value(COCINA_ID.intValue()))
             .andExpect(jsonPath("$.items[0].productId").value(101));
     }
 
@@ -58,7 +58,7 @@ class PlanDiarioControllerTest {
         when(planDiarioService.getPlanByDate(fecha, COCINA_ID)).thenReturn(dto);
 
         mockMvc.perform(get("/api/v1/cocina/plan-diario")
-                .param("cocinaId", COCINA_ID)
+                .param("cocinaId", String.valueOf(COCINA_ID))
                 .param("fecha", "2026-06-15"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.date").value("2026-06-15"));
@@ -69,7 +69,7 @@ class PlanDiarioControllerTest {
         LocalDate today = LocalDate.now();
         when(planDiarioService.getPlanByDate(today, COCINA_ID)).thenThrow(new PlanNotFoundException("No existe plan"));
 
-        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
+        mockMvc.perform(get("/api/v1/cocina/plan-diario").param("cocinaId", String.valueOf(COCINA_ID)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.error").value("Not Found"));
     }
@@ -82,7 +82,7 @@ class PlanDiarioControllerTest {
 
         when(planDiarioService.generarPlan(today, COCINA_ID)).thenReturn(dto);
 
-        mockMvc.perform(post("/api/v1/cocina/plan-diario").param("cocinaId", COCINA_ID))
+        mockMvc.perform(post("/api/v1/cocina/plan-diario").param("cocinaId", String.valueOf(COCINA_ID)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1));
     }

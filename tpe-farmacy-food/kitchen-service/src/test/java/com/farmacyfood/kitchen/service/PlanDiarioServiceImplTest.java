@@ -43,7 +43,7 @@ class PlanDiarioServiceImplTest {
     @InjectMocks
     private PlanDiarioServiceImpl planDiarioService;
 
-    private static final String COCINA_ID = "COCINA-DULCE";
+    private static final Long COCINA_ID = 1L;
 
     @Test
     void getPlanByDate_returnsPlan() {

@@ -14,6 +14,11 @@ import java.util.List;
 @Profile("dev")
 public class OrdenClientMockImpl implements OrdenClient {
 
+    // Catalogos mock: 1=dulce, 2=celiaca, 3=vegana
+    private static final Long COCINA_DULCE = 1L;
+    private static final Long COCINA_CELIACA = 2L;
+    private static final Long COCINA_VEGANA = 3L;
+
     @Override
     public List<VentaHistoricaResponseDTO> getVentasRecientes(LocalDate desde, LocalDate hasta) {
         return List.of(
@@ -29,29 +34,24 @@ public class OrdenClientMockImpl implements OrdenClient {
     }
 
     @Override
-    public List<ProductoVentaDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to) {
+    public List<ProductoVentaDTO> getSalesByKitchen(Long cocinaId, LocalDate from, LocalDate to) {
         List<ProductoVentaDTO> result = new ArrayList<>();
 
-        switch (cocinaId) {
-            case "COCINA-DULCE" -> {
-                result.add(new ProductoVentaDTO(101L, "Brownie de Chocolate", 70, new BigDecimal("525000.00")));
-                result.add(new ProductoVentaDTO(102L, "Cheesecake", 49, new BigDecimal("465500.00")));
-                result.add(new ProductoVentaDTO(103L, "Tiramisú", 56, new BigDecimal("492800.00")));
-            }
-            case "COCINA-CELIACA" -> {
-                result.add(new ProductoVentaDTO(201L, "Tostada de Palta Sin Gluten", 84, new BigDecimal("604800.00")));
-                result.add(new ProductoVentaDTO(202L, "Bowl de Quinoa Sin Gluten", 56, new BigDecimal("548800.00")));
-                result.add(new ProductoVentaDTO(203L, "Rolls de Primavera de Arroz", 70, new BigDecimal("455000.00")));
-            }
-            case "COCINA-VEGANA" -> {
-                result.add(new ProductoVentaDTO(301L, "Buddha Bowl Vegano", 84, new BigDecimal("714000.00")));
-                result.add(new ProductoVentaDTO(302L, "Salteado de Tofu", 49, new BigDecimal("382200.00")));
-                result.add(new ProductoVentaDTO(303L, "Curry de Garbanzos", 63, new BigDecimal("579600.00")));
-            }
-            default -> {
-                result.add(new ProductoVentaDTO(101L, "Producto Genérico 1", 14, new BigDecimal("105000.00")));
-                result.add(new ProductoVentaDTO(102L, "Producto Genérico 2", 10, new BigDecimal("95000.00")));
-            }
+        if (COCINA_DULCE.equals(cocinaId)) {
+            result.add(new ProductoVentaDTO(101L, "Brownie de Chocolate", 70, new BigDecimal("525000.00")));
+            result.add(new ProductoVentaDTO(102L, "Cheesecake", 49, new BigDecimal("465500.00")));
+            result.add(new ProductoVentaDTO(103L, "Tiramisu", 56, new BigDecimal("492800.00")));
+        } else if (COCINA_CELIACA.equals(cocinaId)) {
+            result.add(new ProductoVentaDTO(201L, "Tostada de Palta Sin Gluten", 84, new BigDecimal("604800.00")));
+            result.add(new ProductoVentaDTO(202L, "Bowl de Quinoa Sin Gluten", 56, new BigDecimal("548800.00")));
+            result.add(new ProductoVentaDTO(203L, "Rolls de Primavera de Arroz", 70, new BigDecimal("455000.00")));
+        } else if (COCINA_VEGANA.equals(cocinaId)) {
+            result.add(new ProductoVentaDTO(301L, "Buddha Bowl Vegano", 84, new BigDecimal("714000.00")));
+            result.add(new ProductoVentaDTO(302L, "Salteado de Tofu", 49, new BigDecimal("382200.00")));
+            result.add(new ProductoVentaDTO(303L, "Curry de Garbanzos", 63, new BigDecimal("579600.00")));
+        } else {
+            result.add(new ProductoVentaDTO(101L, "Producto Generico 1", 14, new BigDecimal("105000.00")));
+            result.add(new ProductoVentaDTO(102L, "Producto Generico 2", 10, new BigDecimal("95000.00")));
         }
 
         return result;
@@ -65,8 +65,8 @@ public class OrdenClientMockImpl implements OrdenClient {
         all.add(new VentaHistoricaResponseDTO(101L, "Brownie de Chocolate", 2L, 8, new BigDecimal("60000.00"), LocalDate.of(2026, 6, 18)));
         all.add(new VentaHistoricaResponseDTO(102L, "Cheesecake", 1L, 7, new BigDecimal("66500.00"), LocalDate.of(2026, 6, 19)));
         all.add(new VentaHistoricaResponseDTO(102L, "Cheesecake", 2L, 5, new BigDecimal("47500.00"), LocalDate.of(2026, 6, 17)));
-        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisú", 1L, 12, new BigDecimal("105600.00"), LocalDate.of(2026, 6, 18)));
-        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisú", 2L, 9, new BigDecimal("79200.00"), LocalDate.of(2026, 6, 20)));
+        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisu", 1L, 12, new BigDecimal("105600.00"), LocalDate.of(2026, 6, 18)));
+        all.add(new VentaHistoricaResponseDTO(103L, "Tiramisu", 2L, 9, new BigDecimal("79200.00"), LocalDate.of(2026, 6, 20)));
         all.add(new VentaHistoricaResponseDTO(201L, "Tostada de Palta Sin Gluten", 3L, 12, new BigDecimal("86400.00"), LocalDate.of(2026, 6, 19)));
         all.add(new VentaHistoricaResponseDTO(201L, "Tostada de Palta Sin Gluten", 4L, 9, new BigDecimal("64800.00"), LocalDate.of(2026, 6, 18)));
         all.add(new VentaHistoricaResponseDTO(202L, "Bowl de Quinoa Sin Gluten", 3L, 8, new BigDecimal("78400.00"), LocalDate.of(2026, 6, 20)));

@@ -1,326 +1,76 @@
-# Contrato: order-service - Historial de Ventas
+# Spec para order-service (Fio)
 
-## Endpoint: Ventas Históricas
+## Contexto
 
-| | |
-|---|---|
-| **Método** | `GET` |
-| **URL** | `/api/v1/ordenes/historial-ventas` |
-| **Servicio** | `order-service` (puerto default `8083`) |
-| **Feign Client** | `OrdenClientFeign` |
+Se hizo un refactor completo en kitchen-service que afecta la comunicacion con order-service. Los cambios principales:
 
-> **Estado: PENDIENTE DE IMPLEMENTAR** en order-service.
-> kitchen-service ya tiene el Feign client listo, pero order-service aún no expone este endpoint.
-
-## Parámetros
-
-| Nombre | Tipo | Ubicación | Requerido | Descripción |
-|--------|------|-----------|-----------|-------------|
-| `productId` | `Long` | Query param | No | Filtrar por ID del producto |
-| `fridgeId` | `Long` | Query param | No | Filtrar por ID de la heladera |
-| `from` | `LocalDate` | Query param | No | Fecha desde (formato `YYYY-MM-DD`) |
-| `to` | `LocalDate` | Query param | No | Fecha hasta (formato `YYYY-MM-DD`) |
-
-## Respuesta
-
-**Status:** `200 OK`
-
-**Body:** `List<VentaHistoricaResponseDTO>`
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `productId` | `Long` | ID del producto |
-| `productName` | `String` | Nombre del producto |
-| `fridgeId` | `Long` | ID de la heladera donde se vendió |
-| `quantity` | `Integer` | Cantidad vendida |
-| `totalAmount` | `BigDecimal` | Monto total de la venta |
-| `date` | `LocalDate` | Fecha de la venta |
-
-## Ejemplos
-
-### Sin filtros (todos los registros)
-
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas
-```
-
-**Response:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 1,
-    "quantity": 10,
-    "totalAmount": 75000.00,
-    "date": "2026-06-19"
-  },
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 2,
-    "quantity": 8,
-    "totalAmount": 60000.00,
-    "date": "2026-06-18"
-  },
-  {
-    "productId": 201,
-    "productName": "Tostada de Palta Sin Gluten",
-    "fridgeId": 3,
-    "quantity": 12,
-    "totalAmount": 86400.00,
-    "date": "2026-06-19"
-  },
-  {
-    "productId": 301,
-    "productName": "Buddha Bowl Vegano",
-    "fridgeId": 5,
-    "quantity": 12,
-    "totalAmount": 102000.00,
-    "date": "2026-06-19"
-  }
-]
-```
-
-### Filtrando por producto
-
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas?productId=101
-```
-
-**Response:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 1,
-    "quantity": 10,
-    "totalAmount": 75000.00,
-    "date": "2026-06-19"
-  },
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 2,
-    "quantity": 8,
-    "totalAmount": 60000.00,
-    "date": "2026-06-18"
-  }
-]
-```
-
-### Filtrando por heladera
-
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas?fridgeId=1
-```
-
-**Response:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 1,
-    "quantity": 10,
-    "totalAmount": 75000.00,
-    "date": "2026-06-19"
-  },
-  {
-    "productId": 102,
-    "productName": "Cheesecake",
-    "fridgeId": 1,
-    "quantity": 7,
-    "totalAmount": 66500.00,
-    "date": "2026-06-19"
-  }
-]
-```
-
-### Filtro combinado: producto + heladera + fechas
-
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas?productId=101&fridgeId=1&from=2026-06-01&to=2026-06-14
-```
-
-**Response:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "fridgeId": 1,
-    "quantity": 10,
-    "totalAmount": 75000.00,
-    "date": "2026-06-13"
-  }
-]
-```
-
-## Notas
-
-- kitchen-service usa estos datos para mostrar el historial de ventas con filtros combinados (producto, heladera, rango de fechas)
-- Todos los parámetros son opcionales. Si no se envía ninguno, se devuelven todas las ventas
-- Si order-service no está disponible, el perfil `dev` usa `OrdenClientMockImpl` con datos que cubren las 3 cocinas
-- Las cocinas disponibles son: `COCINA-DULCE` (postres), `COCINA-CELIACA` (sin gluten), `COCINA-VEGANA` (vegana)
+1. **Se cambio el tipo de `cocinaId`** de `String` a `Long` — ahora es el ID auto-increment de la entidad `Cocina` en kitchen-service.
+2. **Nueva entidad `Cocina`** en kitchen-service con `id` (Long), `nombre` (String) y `usuarioId` (Long, unique). El `id` de la cocina **es** el `cocinaId`.
+3. **Se elimino `product-service`** — kitchen-service ahora maneja su propio catalogo local (solo `productId` y `productName`, sin precio).
+4. **El precio se asigna al cargar a heladera** — no esta en el catalogo. Kitchen lo reenvia a fridge en la carga de stock.
 
 ---
 
-## Endpoint: Ventas por Cocina
+## Cambios necesarios
 
-| | |
-|---|---|
-| **Método** | `GET` |
-| **URL** | `/api/v1/ordenes/historial-ventas/cocina/{cocinaId}` |
-| **Servicio** | `order-service` (puerto default `8083`) |
-| **Feign Client** | `OrdenClientFeign` |
+### 1. Cambiar tipo del path variable en endpoint de ventas por cocina
 
-> **Estado: PENDIENTE DE IMPLEMENTAR** en order-service.
-> kitchen-service ya tiene el Feign client listo para este endpoint. Este endpoint debe retornar las ventas agregadas por producto para una cocina fantasma específica en un rango de fechas.
+El path no cambia, solo el tipo del parametro:
 
-### Parámetros
-
-| Nombre | Tipo | Ubicación | Requerido | Descripción |
-|--------|------|-----------|-----------|-------------|
-| `cocinaId` | `String` | Path variable | Sí | ID de la cocina fantasma |
-| `from` | `LocalDate` | Query param | Sí | Fecha inicio del rango (formato `YYYY-MM-DD`) |
-| `to` | `LocalDate` | Query param | Sí | Fecha fin del rango (formato `YYYY-MM-DD`) |
-
-### Respuesta
-
-**Status:** `200 OK`
-
-**Body:** `List<ProductoVentaDTO>`
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `productId` | `Long` | ID del producto |
-| `productName` | `String` | Nombre del producto |
-| `totalVendido` | `Integer` | Cantidad total vendida en el rango |
-| `totalMonto` | `BigDecimal` | Monto total acumulado |
-
-### Ejemplos
-
-#### COCINA-DULCE
-
-**Request:**
 ```
-GET /api/v1/ordenes/historial-ventas/cocina/COCINA-DULCE?from=2026-06-11&to=2026-06-17
+GET /api/v1/ordenes/historial-ventas/cocina/{cocinaId}
 ```
 
-**Response:**
-```json
-[
-  {
-    "productId": 101,
-    "productName": "Brownie de Chocolate",
-    "totalVendido": 70,
-    "totalMonto": 525000.00
-  },
-  {
-    "productId": 102,
-    "productName": "Cheesecake",
-    "totalVendido": 49,
-    "totalMonto": 465500.00
-  },
-  {
-    "productId": 103,
-    "productName": "Tiramisú",
-    "totalVendido": 56,
-    "totalMonto": 492800.00
-  }
-]
+En el controller de order-service, cambiar:
+```java
+// antes
+@GetMapping("/historial-ventas/cocina/{cocinaId}")
+public ... getSalesByKitchen(@PathVariable String cocinaId, ...) {
+
+// ahora
+@GetMapping("/historial-ventas/cocina/{cocinaId}")
+public ... getSalesByKitchen(@PathVariable Long cocinaId, ...) {
 ```
 
-**Cálculo de plan diario (últimos 7 días):**
-- Brownie: avg = ceil(70/7) = 10, remainder = 5, sugerido = 10 - 5 = **5**
-- Cheesecake: avg = ceil(49/7) = 7, remainder = 3, sugerido = 7 - 3 = **4**
-- Tiramisú: avg = ceil(56/7) = 8, remainder = 5, sugerido = 8 - 5 = **3**
+### 2. Migrar referencias internas
 
-#### COCINA-CELIACA
+Cualquier referencia interna a `cocinaId` (String) en order-service debe cambiar a `cocinaId` (Long). Esto incluye:
+- Entidades/DTOs que tengan `cocinaId` (String)
+- Repositories con queries por `cocinaId`
+- Services que usen `cocinaId`
 
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas/cocina/COCINA-CELIACA?from=2026-06-11&to=2026-06-17
-```
+---
 
-**Response:**
-```json
-[
-  {
-    "productId": 201,
-    "productName": "Tostada de Palta Sin Gluten",
-    "totalVendido": 84,
-    "totalMonto": 604800.00
-  },
-  {
-    "productId": 202,
-    "productName": "Bowl de Quinoa Sin Gluten",
-    "totalVendido": 56,
-    "totalMonto": 548800.00
-  },
-  {
-    "productId": 203,
-    "productName": "Rolls de Primavera de Arroz",
-    "totalVendido": 70,
-    "totalMonto": 455000.00
-  }
-]
-```
+## Lo que NO se toca
 
-**Cálculo de plan diario (últimos 7 días):**
-- Tostada: avg = ceil(84/7) = 12, remainder = 4, sugerido = 12 - 4 = **8**
-- Bowl Quinoa: avg = ceil(56/7) = 8, remainder = 4, sugerido = 8 - 4 = **4**
-- Rolls: avg = ceil(70/7) = 10, remainder = 5, sugerido = 10 - 5 = **5**
+- El endpoint `GET /api/v1/ordenes/historial-ventas` (sin filtro por cocina) no cambia.
+- El endpoint `PUT /api/v1/heladeras/{heladeraId}/stock` que order-service usa para actualizar stock en fridge sigue igual, pero el body ahora incluye `cocinaId` y `price` (opcionales para el update — eso lo implementa Ale en fridge-service).
 
-#### COCINA-VEGANA
+---
 
-**Request:**
-```
-GET /api/v1/ordenes/historial-ventas/cocina/COCINA-VEGANA?from=2026-06-11&to=2026-06-17
-```
+## Endpoints que kitchen-service llama a order-service
 
-**Response:**
-```json
-[
-  {
-    "productId": 301,
-    "productName": "Buddha Bowl Vegano",
-    "totalVendido": 84,
-    "totalMonto": 714000.00
-  },
-  {
-    "productId": 302,
-    "productName": "Salteado de Tofu",
-    "totalVendido": 49,
-    "totalMonto": 382200.00
-  },
-  {
-    "productId": 303,
-    "productName": "Curry de Garbanzos",
-    "totalVendido": 63,
-    "totalMonto": 579600.00
-  }
-]
-```
+| Metodo | Path | Descripcion |
+|---|---|---|
+| `GET` | `/api/v1/ordenes/historial-ventas` | Listar ventas historicas (con filtros opcionales: productId, fridgeId, from, to) |
+| `GET` | `/api/v1/ordenes/historial-ventas/cocina/{cocinaId}` | Ventas por cocina (con filtros: from, to) |
 
-**Cálculo de plan diario (últimos 7 días):**
-- Buddha Bowl: avg = ceil(84/7) = 12, remainder = 5, sugerido = 12 - 5 = **7**
-- Salteado Tofu: avg = ceil(49/7) = 7, remainder = 3, sugerido = 7 - 3 = **4**
-- Curry: avg = ceil(63/7) = 9, remainder = 5, sugerido = 9 - 5 = **4**
+---
 
-### Notas
+## Mientras tanto
 
-- kitchen-service usa estos datos para calcular el promedio diario de ventas por producto y generar el plan diario de producción
-- La fórmula es: `sugerido = ceil(totalVendido / 7) - remainderTotal` (solo si > 0)
-- El rango de fechas que se consulta es siempre los últimos 7 días (`HISTORY_DAYS = 7`)
-- Las ventas deben estar filtradas por `cocinaId` (es decir, solo productos vendidos desde heladeras asociadas a esa cocina fantasma)
-- `totalVendido` es la suma de todas las cantidades vendidas de ese producto en el rango de fechas
-- `totalMonto` es la suma del monto total de las ventas de ese producto en el rango
-- Si order-service no está disponible, el perfil `dev` usa `OrdenClientMockImpl` con datos diferenciados por cocina
-- Las cocinas disponibles son: `COCINA-DULCE` (postres), `COCINA-CELIACA` (sin gluten), `COCINA-VEGANA` (vegana)
+Mientras Fio implementa, kitchen-service usa `OrdenClientMockImpl` (profile `dev`) que retorna datos mockeados diferenciados por cocina. No hay bloqueo.
+
+---
+
+## Endpoints de kitchen-service (para info)
+
+| Metodo | Path | Descripcion |
+|---|---|---|
+| `POST` | `/api/v1/cocina` | Crear cocina (valida usuario en user-service, 1 usuario = 1 cocina) |
+| `GET` | `/api/v1/cocina/{cocinaId}` | Buscar cocina por ID |
+| `POST` | `/api/v1/cocina/{cocinaId}/productos` | Agregar producto a una cocina |
+| `GET` | `/api/v1/cocina/{cocinaId}/productos` | Listar productos de una cocina |
+| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera (valida catálogo, envía a fridge) |
+| `GET` | `/api/v1/cocina/plan-diario?cocinaId=1` | Obtener plan diario |
+| `POST` | `/api/v1/cocina/plan-diario?cocinaId=1` | Generar plan diario |
