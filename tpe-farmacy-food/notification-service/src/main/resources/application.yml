@@ -16,3 +16,17 @@ eureka:
 springdoc:
   api-docs:
     path: /api/v1/notificaciones/v3/api-docs
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      pushService:
+        baseConfig: default
