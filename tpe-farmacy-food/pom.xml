@@ -14,7 +14,6 @@
     <modules>
         <module>api-gateway</module>
         <module>discovery-service</module>
-        <module>product-service</module>
         <module>fridge-service</module>
         <module>order-service</module>
         <module>kitchen-service</module>

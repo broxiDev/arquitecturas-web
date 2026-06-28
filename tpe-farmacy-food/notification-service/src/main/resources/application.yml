@@ -17,6 +17,9 @@ springdoc:
   api-docs:
     path: /api/v1/notificaciones/v3/api-docs
 
+jwt:
+  secret: clave.super.secreta.jwt.123
+
 resilience4j:
   circuitbreaker:
     configs:
