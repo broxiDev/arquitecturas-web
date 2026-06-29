@@ -34,6 +34,9 @@ springdoc:
   api-docs:
     path: /api/v1/heladeras/v3/api-docs
 
+jwt:
+  secret: clave.super.secreta.jwt.123
+
 clients:
   kitchen-service:
     url: http://localhost:8084
