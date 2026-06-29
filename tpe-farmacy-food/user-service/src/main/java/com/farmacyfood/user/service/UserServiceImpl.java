@@ -3,6 +3,7 @@ package com.farmacyfood.user.service;
 import com.farmacyfood.user.client.OrderServiceClient;
 import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
+import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
 import com.farmacyfood.user.exception.DuplicateEmailException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
@@ -28,6 +29,9 @@ public class UserServiceImpl implements UserService {
         if (repository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateEmailException("El email " + user.getEmail() + " ya está registrado");
         }
+        if (repository.findByAuthUsername(user.getAuthUsername()).isPresent()) {
+            throw new DuplicateAuthUsernameException("El usuario " + user.getAuthUsername() + " ya tiene un perfil");
+        }
         return repository.save(user);
     }
 
@@ -50,7 +54,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
         if (updated.getName() != null) user.setName(updated.getName());
         if (updated.getEmail() != null) user.setEmail(updated.getEmail());
-        if (updated.getPasswordHash() != null) user.setPasswordHash(updated.getPasswordHash());
+        if (updated.getAuthUsername() != null) user.setAuthUsername(updated.getAuthUsername());
         if (updated.getDietaryPreferences() != null) user.setDietaryPreferences(updated.getDietaryPreferences());
         return repository.save(user);
     }

@@ -2,6 +2,7 @@ package com.farmacyfood.user.service;
 
 import com.farmacyfood.user.client.OrderServiceClient;
 import com.farmacyfood.user.entity.User;
+import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
 import com.farmacyfood.user.exception.DuplicateEmailException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
@@ -32,7 +33,7 @@ class UserServiceImplTest {
     @Test
     void register_guardaUsuario() {
         when(repository.findByEmail("mati@test.com")).thenReturn(Optional.empty());
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         when(repository.save(user)).thenAnswer(invocation -> {
             User saved = invocation.getArgument(0);
             saved.setId(1L);
@@ -44,23 +45,34 @@ class UserServiceImplTest {
         assertEquals(1L, result.getId());
         assertEquals("Mati", result.getName());
         verify(repository).findByEmail("mati@test.com");
+        verify(repository).findByAuthUsername("mati_user");
         verify(repository).save(user);
     }
 
     @Test
     void register_cuandoEmailYaExiste_lanzaExcepcion() {
         when(repository.findByEmail("mati@test.com")).thenReturn(Optional.of(new User()));
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
 
         assertThrows(DuplicateEmailException.class, () -> service.register(user));
         verify(repository, never()).save(any());
     }
 
     @Test
+    void register_cuandoAuthUsernameYaExiste_lanzaExcepcion() {
+        when(repository.findByEmail("mati@test.com")).thenReturn(Optional.empty());
+        when(repository.findByAuthUsername("mati_user")).thenReturn(Optional.of(new User()));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
+
+        assertThrows(DuplicateAuthUsernameException.class, () -> service.register(user));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
     void findAll_retornaTodos() {
-        User user1 = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user1 = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user1.setId(1L);
-        User user2 = new User("Juan", "juan@test.com", "hash456", List.of("sin gluten"));
+        User user2 = new User("Juan", "juan@test.com", "juan_user", List.of("sin gluten"));
         user2.setId(2L);
         when(repository.findAll()).thenReturn(List.of(user1, user2));
 
@@ -74,9 +86,9 @@ class UserServiceImplTest {
 
     @Test
     void update_cuandoExiste_actualizaCampos() {
-        User existing = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User existing = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         existing.setId(1L);
-        User updated = new User("Mati Nuevo", "mati@test.com", "hash123", List.of("vegano", "gluten-free"));
+        User updated = new User("Mati Nuevo", "mati@test.com", "mati_user", List.of("vegano", "gluten-free"));
 
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
         when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -93,7 +105,7 @@ class UserServiceImplTest {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class,
-                () -> service.update(99L, new User("Nadie", "x@x.com", "x", List.of())));
+                () -> service.update(99L, new User("Nadie", "x@x.com", "nadie_user", List.of())));
     }
 
     @Test
@@ -115,7 +127,7 @@ class UserServiceImplTest {
 
     @Test
     void findById_cuandoExiste() {
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         when(repository.findById(1L)).thenReturn(Optional.of(user));
 
@@ -136,7 +148,7 @@ class UserServiceImplTest {
 
     @Test
     void updatePreferences_cuandoExiste() {
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         List<String> newPrefs = List.of("vegano", "gluten-free");
 

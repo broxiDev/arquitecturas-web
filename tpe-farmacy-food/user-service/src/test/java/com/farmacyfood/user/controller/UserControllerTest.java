@@ -44,7 +44,7 @@ class UserControllerTest {
 
     @Test
     void register_retorna201() throws Exception {
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         when(service.register(any())).thenReturn(user);
 
@@ -54,7 +54,7 @@ class UserControllerTest {
                                 {
                                     "name": "Mati",
                                     "email": "mati@test.com",
-                                    "passwordHash": "hash123",
+                                    "authUsername": "mati_user",
                                     "dietaryPreferences": ["vegano"]
                                 }
                                 """))
@@ -65,9 +65,9 @@ class UserControllerTest {
 
     @Test
     void getAll_retorna200() throws Exception {
-        User user1 = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user1 = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user1.setId(1L);
-        User user2 = new User("Juan", "juan@test.com", "hash456", List.of("sin gluten"));
+        User user2 = new User("Juan", "juan@test.com", "juan_user", List.of("sin gluten"));
         user2.setId(2L);
         when(service.findAll()).thenReturn(List.of(user1, user2));
 
@@ -80,7 +80,7 @@ class UserControllerTest {
 
     @Test
     void getById_retorna200() throws Exception {
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         when(service.findById(1L)).thenReturn(Optional.of(user));
 
@@ -99,7 +99,7 @@ class UserControllerTest {
 
     @Test
     void update_retorna200() throws Exception {
-        User user = new User("Mati Updated", "mati@test.com", "hash123", List.of("vegano"));
+        User user = new User("Mati Updated", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         when(service.update(eq(1L), any())).thenReturn(user);
 
@@ -109,7 +109,7 @@ class UserControllerTest {
                                 {
                                     "name": "Mati Updated",
                                     "email": "mati@test.com",
-                                    "passwordHash": "hash123",
+                                    "authUsername": "mati_user",
                                     "dietaryPreferences": ["vegano"]
                                 }
                                 """))
@@ -127,7 +127,7 @@ class UserControllerTest {
 
     @Test
     void updatePreferences_retorna200() throws Exception {
-        User user = new User("Mati", "mati@test.com", "hash123", List.of("vegano", "gluten-free"));
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano", "gluten-free"));
         user.setId(1L);
         when(service.updatePreferences(eq(1L), any())).thenReturn(user);
 

@@ -25,8 +25,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
-    private String passwordHash;
+    @Column(nullable = false, unique = true)
+    private String authUsername;
 
     @ElementCollection
     @CollectionTable(name = "user_dietary_preferences",
@@ -42,10 +42,10 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    public User(String name, String email, String passwordHash, List<String> dietaryPreferences) {
+    public User(String name, String email, String authUsername, List<String> dietaryPreferences) {
         this.name = name;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.authUsername = authUsername;
         this.dietaryPreferences = dietaryPreferences;
     }
 }

@@ -7,6 +7,6 @@ import java.util.List;
 public record UserRegistrationRequest(
         @NotBlank String name,
         @NotBlank @Email String email,
-        @NotBlank String passwordHash,
+        @NotBlank String authUsername,
         List<String> dietaryPreferences
 ) {}

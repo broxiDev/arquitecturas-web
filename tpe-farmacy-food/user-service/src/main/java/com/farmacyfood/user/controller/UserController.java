@@ -27,7 +27,7 @@ public class UserController {
     @Operation(summary = "Registrar un nuevo usuario")
     @PostMapping("/registrar")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegistrationRequest request) {
-        User user = new User(request.name(), request.email(), request.passwordHash(), request.dietaryPreferences());
+        User user = new User(request.name(), request.email(), request.authUsername(), request.dietaryPreferences());
         User saved = service.register(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(saved));
     }

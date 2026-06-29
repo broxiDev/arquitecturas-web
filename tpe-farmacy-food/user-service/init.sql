@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    auth_username VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
@@ -11,18 +11,18 @@ CREATE TABLE IF NOT EXISTS user_dietary_preferences (
     preference VARCHAR(255)
 );
 
-INSERT INTO users (name, email, password_hash, created_at)
+INSERT INTO users (name, email, auth_username, created_at)
 SELECT * FROM (VALUES
-    ('Quique TDV',        'maria@test.com',     'hash_maria_2026',    NOW()),
-    ('Juan Pérez',        'juan@test.com',      'hash_juan_2026',     NOW()),
-    ('Carolina Ruiz',     'caro@test.com',      'hash_caro_2026',     NOW()),
-    ('Pedro Martínez',    'pedro@test.com',     'hash_pedro_2026',    NOW()),
-    ('Ana López',         'ana@test.com',       'hash_ana_2026',      NOW()),
-    ('Matías Bordonaro',  'matias@test.com',    'hash_matias_2026',   NOW()),
-    ('Fiorella Di Fiore', 'fiorella@test.com',  'hash_fiorella_2026', NOW()),
-    ('Nahuel Di Fiore',   'nahuel@test.com',    'hash_nahuel_2026',   NOW()),
-    ('Gabriel Marrero',   'gabriel@test.com',   'hash_gabriel_2026',  NOW()),
-    ('Ale Machado',       'ale@test.com',       'hash_ale_2026',      NOW())
+    ('Usuario 1', 'usuario1@test.com', 'auth_usuario1', NOW()),
+    ('Juan Pérez',        'juan@test.com',      'auth_juan',      NOW()),
+    ('Carolina Ruiz',     'caro@test.com',      'auth_caro',      NOW()),
+    ('Pedro Martínez',    'pedro@test.com',     'auth_pedro',     NOW()),
+    ('Ana López',         'ana@test.com',       'auth_ana',       NOW()),
+    ('Matías Bordonaro',  'matias@test.com',    'auth_matias',    NOW()),
+    ('Fiorella Di Fiore', 'fiorella@test.com',  'auth_fiorella',  NOW()),
+    ('Nahuel Di Fiore',   'nahuel@test.com',    'auth_nahuel',    NOW()),
+    ('Gabriel Marrero',   'gabriel@test.com',   'auth_gabriel',   NOW()),
+    ('Ale Machado',       'ale@test.com',       'auth_ale',       NOW())
 ) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM users LIMIT 1);
 

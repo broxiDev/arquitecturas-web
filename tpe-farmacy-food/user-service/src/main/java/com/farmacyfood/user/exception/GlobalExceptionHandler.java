@@ -31,6 +31,15 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(DuplicateAuthUsernameException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateAuthUsername(DuplicateAuthUsernameException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "error", "Conflict",
+                "message", ex.getMessage(),
+                "timestamp", LocalDateTime.now().toString()
+        ));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
