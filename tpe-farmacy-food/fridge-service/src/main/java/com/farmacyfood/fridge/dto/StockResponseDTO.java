@@ -2,6 +2,7 @@ package com.farmacyfood.fridge.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Schema(description = "Respuesta con datos de stock de un producto en una heladera")
@@ -12,6 +13,9 @@ public record StockResponseDTO(
     @Schema(description = "ID de la heladera", example = "1")
     Long fridgeId,
 
+    @Schema(description = "ID de la cocina", example = "1")
+    Long cocinaId,
+
     @Schema(description = "ID del producto", example = "101")
     Long productId,
 
@@ -20,6 +24,9 @@ public record StockResponseDTO(
 
     @Schema(description = "Cantidad disponible", example = "15")
     Integer quantity,
+
+    @Schema(description = "Precio del producto", example = "10.00")
+    BigDecimal price,
 
     @Schema(description = "Última actualización", example = "2026-06-14T10:00:00")
     LocalDateTime updatedAt

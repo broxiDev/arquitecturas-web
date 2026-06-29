@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,7 +44,7 @@ class HeladeraControllerTest {
     @Test
     void findAll_returnsList() throws Exception {
         when(heladeraService.findAll(null, null, null, null)).thenReturn(List.of(
-            new HeladeraResponseDTO(1L, "Heladera A", -34.6, -58.4, "Dir A", "ACTIVE", "COCINA-DULCE", null, LocalDateTime.now(), null)
+            new HeladeraResponseDTO(1L, "Heladera A", -34.6, -58.4, "Dir A", "ACTIVE", Set.of(1L), null, LocalDateTime.now(), null)
         ));
 
         mockMvc.perform(get("/api/v1/heladeras"))
@@ -55,7 +56,7 @@ class HeladeraControllerTest {
     @Test
     void findById_returnsHeladera() throws Exception {
         when(heladeraService.findById(1L)).thenReturn(
-            new HeladeraResponseDTO(1L, "Heladera B", -34.6, -58.4, "Dir B", "ACTIVE", "COCINA-DULCE", null, LocalDateTime.now(), null));
+            new HeladeraResponseDTO(1L, "Heladera B", -34.6, -58.4, "Dir B", "ACTIVE", Set.of(1L), null, LocalDateTime.now(), null));
 
         mockMvc.perform(get("/api/v1/heladeras/1"))
             .andExpect(status().isOk())
@@ -73,19 +74,19 @@ class HeladeraControllerTest {
 
     @Test
     void create_returns201() throws Exception {
-        HeladeraResponseDTO created = new HeladeraResponseDTO(1L, "Nueva", -34.6, -58.4, "Dir", "ACTIVE", "COCINA-DULCE", null, LocalDateTime.now(), null);
+        HeladeraResponseDTO created = new HeladeraResponseDTO(1L, "Nueva", -34.6, -58.4, "Dir", "ACTIVE", Set.of(), null, LocalDateTime.now(), null);
         when(heladeraService.create(any(HeladeraCreateDTO.class))).thenReturn(created);
 
         mockMvc.perform(post("/api/v1/heladeras")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"Nueva\",\"latitude\":-34.6,\"longitude\":-58.4,\"address\":\"Dir\",\"status\":\"ACTIVE\",\"cocinaId\":\"COCINA-DULCE\"}"))
+                .content("{\"name\":\"Nueva\",\"latitude\":-34.6,\"longitude\":-58.4,\"address\":\"Dir\",\"status\":\"ACTIVE\"}"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     void update_returnsOk() throws Exception {
-        HeladeraResponseDTO updated = new HeladeraResponseDTO(1L, "Updated", -34.6, -58.4, "Dir", "MAINTENANCE", "COCINA-DULCE", null, LocalDateTime.now(), null);
+        HeladeraResponseDTO updated = new HeladeraResponseDTO(1L, "Updated", -34.6, -58.4, "Dir", "MAINTENANCE", Set.of(1L), null, LocalDateTime.now(), null);
         when(heladeraService.update(eq(1L), any(HeladeraUpdateDTO.class))).thenReturn(updated);
 
         mockMvc.perform(put("/api/v1/heladeras/1")
@@ -111,7 +112,7 @@ class HeladeraControllerTest {
 
     @Test
     void getRemainderByCocina_returnsList() throws Exception {
-        when(stockService.getRemainderByCocinaId("COCINA-DULCE")).thenReturn(List.of(
+        when(stockService.getRemainderByCocinaId(1L)).thenReturn(List.of(
             new FridgeRemainderDTO(1L, List.of(
                 new ProductRemainderDTO(101L, "Brownie de Chocolate", 3),
                 new ProductRemainderDTO(102L, "Cheesecake", 2)
@@ -121,7 +122,7 @@ class HeladeraControllerTest {
             ))
         ));
 
-        mockMvc.perform(get("/api/v1/heladeras/cocina/COCINA-DULCE/remanente"))
+        mockMvc.perform(get("/api/v1/heladeras/cocina/1/remanente"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].fridgeId").value(1))
             .andExpect(jsonPath("$[0].products[0].productName").value("Brownie de Chocolate"))
@@ -130,9 +131,9 @@ class HeladeraControllerTest {
 
     @Test
     void getRemainderByCocina_returnsEmptyList() throws Exception {
-        when(stockService.getRemainderByCocinaId("COCINA-INEXISTENTE")).thenReturn(List.of());
+        when(stockService.getRemainderByCocinaId(99L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/heladeras/cocina/COCINA-INEXISTENTE/remanente"))
+        mockMvc.perform(get("/api/v1/heladeras/cocina/99/remanente"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isEmpty());
     }
