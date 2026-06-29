@@ -43,6 +43,10 @@ spring:
           uri: lb://audit-service
           predicates:
             - Path=/api/v1/auditoria/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
 
 eureka:
   client:
@@ -68,3 +72,6 @@ springdoc:
         url: /api/v1/notificaciones/v3/api-docs
       - name: audit-service
         url: /api/v1/auditoria/v3/api-docs
+
+jwt:
+  secret: clave.super.secreta.jwt.123
