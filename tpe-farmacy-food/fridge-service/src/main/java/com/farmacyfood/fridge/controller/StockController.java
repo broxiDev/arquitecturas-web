@@ -35,8 +35,8 @@ public class StockController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = StockResponseDTO.class),
                 examples = @ExampleObject(value = "[" +
-                    "{\"id\":1,\"fridgeId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":10,\"updatedAt\":\"2026-06-14T10:00:00\"}," +
-                    "{\"id\":2,\"fridgeId\":1,\"productId\":102,\"productName\":\"Cheesecake de Frutilla\",\"quantity\":5,\"updatedAt\":\"2026-06-14T09:30:00\"}" +
+                    "{\"id\":1,\"fridgeId\":1,\"cocinaId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":10,\"price\":10.00,\"updatedAt\":\"2026-06-14T10:00:00\"}," +
+                    "{\"id\":2,\"fridgeId\":1,\"cocinaId\":1,\"productId\":102,\"productName\":\"Cheesecake de Frutilla\",\"quantity\":5,\"price\":12.50,\"updatedAt\":\"2026-06-14T09:30:00\"}" +
                 "]")))
     })
     @GetMapping
@@ -53,7 +53,7 @@ public class StockController {
         @ApiResponse(responseCode = "201", description = "Producto agregado al stock exitosamente",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = StockResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"fridgeId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":20,\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
+                examples = @ExampleObject(value = "{\"id\":1,\"fridgeId\":1,\"cocinaId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":20,\"price\":10.00,\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
         @ApiResponse(responseCode = "400", description = "Datos inválidos",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 examples = @ExampleObject(value = "{\"error\":\"Validation Error\",\"message\":\"productId: no debe ser nulo; quantity: debe ser mayor o igual a 0\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
@@ -74,10 +74,10 @@ public class StockController {
         @ApiResponse(responseCode = "200", description = "Stock actualizado exitosamente",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = StockResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"fridgeId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":15,\"updatedAt\":\"2026-06-14T10:30:00\"}"))),
+                examples = @ExampleObject(value = "{\"id\":1,\"fridgeId\":1,\"cocinaId\":1,\"productId\":101,\"productName\":\"Brownie de Chocolate\",\"quantity\":15,\"price\":10.00,\"updatedAt\":\"2026-06-14T10:30:00\"}"))),
         @ApiResponse(responseCode = "404", description = "Stock no encontrado para ese producto en la heladera",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe stock para el producto 99 en la heladera 1\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
+                examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe stock para el producto 99 (cocina 1) en la heladera 1\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
     })
     @PutMapping
     public ResponseEntity<StockResponseDTO> updateStock(

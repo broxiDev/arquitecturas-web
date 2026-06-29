@@ -7,8 +7,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "heladera")
@@ -43,9 +42,11 @@ public class Heladera {
     @NotBlank
     private String status;
 
-    @Column(name = "cocina_id", nullable = false, length = 50)
-    @NotBlank
-    private String cocinaId;
+    @ElementCollection
+    @CollectionTable(name = "heladera_cocina", joinColumns = @JoinColumn(name = "heladera_id"))
+    @Column(name = "cocina_id")
+    @Builder.Default
+    private Set<Long> cocinaIds = new HashSet<>();
 
     @OneToMany(mappedBy = "heladera", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

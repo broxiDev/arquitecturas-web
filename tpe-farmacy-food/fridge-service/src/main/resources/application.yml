@@ -33,3 +33,7 @@ eureka:
 springdoc:
   api-docs:
     path: /api/v1/heladeras/v3/api-docs
+
+clients:
+  kitchen-service:
+    url: http://localhost:8084

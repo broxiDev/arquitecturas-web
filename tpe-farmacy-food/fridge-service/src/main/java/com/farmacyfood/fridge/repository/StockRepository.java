@@ -12,5 +12,7 @@ public interface StockRepository extends JpaRepository<StockHeladera, Long> {
 
     List<StockHeladera> findByHeladeraId(Long heladeraId);
 
-    Optional<StockHeladera> findByHeladeraIdAndProductId(Long heladeraId, Long productId);
+    List<StockHeladera> findByCocinaId(Long cocinaId);
+
+    Optional<StockHeladera> findByHeladeraIdAndCocinaIdAndProductId(Long heladeraId, Long cocinaId, Long productId);
 }

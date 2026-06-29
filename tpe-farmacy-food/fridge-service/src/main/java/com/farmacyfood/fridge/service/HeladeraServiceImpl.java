@@ -2,12 +2,14 @@ package com.farmacyfood.fridge.service;
 
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
 import com.farmacyfood.fridge.client.HeladeraStatusChangeDTO;
+import com.farmacyfood.fridge.client.KitchenClient;
 import com.farmacyfood.fridge.client.NotificacionClient;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
 import com.farmacyfood.fridge.dto.HeladeraUpdateDTO;
 import com.farmacyfood.fridge.entity.EventoEstadoHeladera;
 import com.farmacyfood.fridge.entity.Heladera;
+import com.farmacyfood.fridge.exception.CocinaNotFoundException;
 import com.farmacyfood.fridge.exception.HeladeraNotFoundException;
 import com.farmacyfood.fridge.repository.HeladeraRepository;
 import com.farmacyfood.fridge.repository.StatusEventRepository;
@@ -24,6 +26,7 @@ public class HeladeraServiceImpl implements HeladeraService {
     private final HeladeraRepository heladeraRepository;
     private final StatusEventRepository statusEventRepository;
     private final NotificacionClient notificacionClient;
+    private final KitchenClient kitchenClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -58,7 +61,6 @@ public class HeladeraServiceImpl implements HeladeraService {
             .longitude(dto.longitude())
             .address(dto.address())
             .status(dto.status())
-            .cocinaId(dto.cocinaId())
             .build();
         Heladera saved = heladeraRepository.save(heladera);
         return toDTO(saved);
@@ -77,7 +79,6 @@ public class HeladeraServiceImpl implements HeladeraService {
         if (dto.longitude() != null) heladera.setLongitude(dto.longitude());
         if (dto.address() != null) heladera.setAddress(dto.address());
         if (dto.status() != null) heladera.setStatus(dto.status());
-        if (dto.cocinaId() != null) heladera.setCocinaId(dto.cocinaId());
 
         Heladera saved = heladeraRepository.save(heladera);
 
@@ -115,6 +116,32 @@ public class HeladeraServiceImpl implements HeladeraService {
         heladeraRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public HeladeraResponseDTO linkCocina(Long heladeraId, Long cocinaId) {
+        Heladera heladera = heladeraRepository.findById(heladeraId)
+            .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
+
+        if (!kitchenClient.cocinaExists(cocinaId)) {
+            throw new CocinaNotFoundException("No existe cocina con id: " + cocinaId);
+        }
+
+        heladera.getCocinaIds().add(cocinaId);
+        Heladera saved = heladeraRepository.save(heladera);
+        return toDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public HeladeraResponseDTO unlinkCocina(Long heladeraId, Long cocinaId) {
+        Heladera heladera = heladeraRepository.findById(heladeraId)
+            .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
+
+        heladera.getCocinaIds().remove(cocinaId);
+        Heladera saved = heladeraRepository.save(heladera);
+        return toDTO(saved);
+    }
+
     private HeladeraResponseDTO toDTO(Heladera heladera) {
         return new HeladeraResponseDTO(
             heladera.getId(),
@@ -123,7 +150,7 @@ public class HeladeraServiceImpl implements HeladeraService {
             heladera.getLongitude(),
             heladera.getAddress(),
             heladera.getStatus(),
-            heladera.getCocinaId(),
+            heladera.getCocinaIds(),
             heladera.getLastMaintenance(),
             heladera.getCreatedAt(),
             heladera.getUpdatedAt()

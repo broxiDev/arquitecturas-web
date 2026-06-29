@@ -1,5 +1,6 @@
 package com.farmacyfood.fridge.controller;
 
+import com.farmacyfood.fridge.dto.CocinaLinkRequestDTO;
 import com.farmacyfood.fridge.dto.FridgeRemainderDTO;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
@@ -26,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/heladeras")
 @RequiredArgsConstructor
-@Tag(name = "Heladeras", description = "Gestión de heladeras: CRUD y búsqueda por cercanía")
+@Tag(name = "Heladeras", description = "Gestión de heladeras: CRUD, búsqueda por cercanía y vinculación con cocinas")
 public class HeladeraController {
 
     private final HeladeraService heladeraService;
@@ -38,8 +39,8 @@ public class HeladeraController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = HeladeraResponseDTO.class),
                 examples = @ExampleObject(value = "[" +
-                    "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaId\":\"COCINA-DULCE\",\"lastMaintenance\":\"2026-06-01\",\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}," +
-                    "{\"id\":2,\"name\":\"Heladera Recoleta\",\"latitude\":-34.5875,\"longitude\":-58.3924,\"address\":\"Av. Quintana 123, Recoleta\",\"status\":\"MAINTENANCE\",\"cocinaId\":\"COCINA-DULCE\",\"lastMaintenance\":\"2026-05-15\",\"createdAt\":\"2026-06-10T09:00:00\",\"updatedAt\":\"2026-06-13T11:00:00\"}" +
+                    "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[1],\"lastMaintenance\":\"2026-06-01\",\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}," +
+                    "{\"id\":2,\"name\":\"Heladera Recoleta\",\"latitude\":-34.5875,\"longitude\":-58.3924,\"address\":\"Av. Quintana 123, Recoleta\",\"status\":\"MAINTENANCE\",\"cocinaIds\":[1],\"lastMaintenance\":\"2026-05-15\",\"createdAt\":\"2026-06-10T09:00:00\",\"updatedAt\":\"2026-06-13T11:00:00\"}" +
                 "]")))
     })
     @GetMapping
@@ -64,7 +65,7 @@ public class HeladeraController {
         @ApiResponse(responseCode = "200", description = "Heladera encontrada",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = HeladeraResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaId\":\"COCINA-DULCE\",\"lastMaintenance\":\"2026-06-01\",\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
+                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[1],\"lastMaintenance\":\"2026-06-01\",\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
         @ApiResponse(responseCode = "404", description = "Heladera no encontrada",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe heladera con id: 99\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
@@ -81,7 +82,7 @@ public class HeladeraController {
         @ApiResponse(responseCode = "201", description = "Heladera creada exitosamente",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = HeladeraResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaId\":\"COCINA-DULCE\",\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T08:00:00\"}"))),
+                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[],\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T08:00:00\"}"))),
         @ApiResponse(responseCode = "400", description = "Datos inválidos",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 examples = @ExampleObject(value = "{\"error\":\"Validation Error\",\"message\":\"name: no debe estar vacío; latitude: no debe ser nulo\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
@@ -100,7 +101,7 @@ public class HeladeraController {
         @ApiResponse(responseCode = "200", description = "Heladera actualizada",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = HeladeraResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaId\":\"COCINA-DULCE\",\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
+                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[1],\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
         @ApiResponse(responseCode = "404", description = "Heladera no encontrada",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                 examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe heladera con id: 99\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
@@ -111,6 +112,44 @@ public class HeladeraController {
             @PathVariable Long id,
             @Valid @RequestBody HeladeraUpdateDTO dto) {
         return ResponseEntity.ok(heladeraService.update(id, dto));
+    }
+
+    @Operation(summary = "Vincular una cocina a la heladera",
+               description = "Asocia una cocina fantasma a la heladera. Valida que la cocina exista consultando a kitchen-service.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cocina vinculada exitosamente",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = HeladeraResponseDTO.class),
+                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[1],\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "Heladera o cocina no encontrada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe cocina con id: 99\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
+    })
+    @PostMapping("/{id}/cocinas")
+    public ResponseEntity<HeladeraResponseDTO> linkCocina(
+            @Parameter(description = "ID de la heladera", example = "1")
+            @PathVariable Long id,
+            @Valid @RequestBody CocinaLinkRequestDTO dto) {
+        return ResponseEntity.ok(heladeraService.linkCocina(id, dto.cocinaId()));
+    }
+
+    @Operation(summary = "Desvincular una cocina de la heladera")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cocina desvinculada exitosamente",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = HeladeraResponseDTO.class),
+                examples = @ExampleObject(value = "{\"id\":1,\"name\":\"Heladera Palermo\",\"latitude\":-34.6037,\"longitude\":-58.3816,\"address\":\"Av. Santa Fe 1234, Palermo\",\"status\":\"ACTIVE\",\"cocinaIds\":[],\"lastMaintenance\":null,\"createdAt\":\"2026-06-14T08:00:00\",\"updatedAt\":\"2026-06-14T10:00:00\"}"))),
+        @ApiResponse(responseCode = "404", description = "Heladera no encontrada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                examples = @ExampleObject(value = "{\"error\":\"Not Found\",\"message\":\"No existe heladera con id: 99\",\"timestamp\":\"2026-06-14T12:00:00\"}")))
+    })
+    @DeleteMapping("/{id}/cocinas/{cocinaId}")
+    public ResponseEntity<HeladeraResponseDTO> unlinkCocina(
+            @Parameter(description = "ID de la heladera", example = "1")
+            @PathVariable Long id,
+            @Parameter(description = "ID de la cocina a desvincular", example = "1")
+            @PathVariable Long cocinaId) {
+        return ResponseEntity.ok(heladeraService.unlinkCocina(id, cocinaId));
     }
 
     @Operation(summary = "Obtener remanente de stock por cocina",
@@ -131,8 +170,8 @@ public class HeladeraController {
     })
     @GetMapping("/cocina/{cocinaId}/remanente")
     public ResponseEntity<List<FridgeRemainderDTO>> getRemainderByCocina(
-            @Parameter(description = "ID de la cocina fantasma", example = "COCINA-DULCE")
-            @PathVariable String cocinaId) {
+            @Parameter(description = "ID de la cocina fantasma", example = "1")
+            @PathVariable Long cocinaId) {
         return ResponseEntity.ok(stockService.getRemainderByCocinaId(cocinaId));
     }
 

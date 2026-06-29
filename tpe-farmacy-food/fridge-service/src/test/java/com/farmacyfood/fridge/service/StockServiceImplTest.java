@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,8 +43,8 @@ class StockServiceImplTest {
     void getStockByHeladera_returnsStockList() {
         Heladera heladera = Heladera.builder().id(1L).build();
         when(stockRepository.findByHeladeraId(1L)).thenReturn(List.of(
-            StockHeladera.builder().id(1L).heladera(heladera).productId(101L).productName("Brownie").quantity(10).build(),
-            StockHeladera.builder().id(2L).heladera(heladera).productId(102L).productName("Cheesecake").quantity(5).build()
+            StockHeladera.builder().id(1L).heladera(heladera).cocinaId(1L).productId(101L).productName("Brownie").quantity(10).price(BigDecimal.TEN).build(),
+            StockHeladera.builder().id(2L).heladera(heladera).cocinaId(1L).productId(102L).productName("Cheesecake").quantity(5).price(BigDecimal.TEN).build()
         ));
 
         List<StockResponseDTO> result = stockService.getStockByHeladera(1L);
@@ -64,13 +65,15 @@ class StockServiceImplTest {
             return s;
         });
 
-        StockCreateDTO dto = new StockCreateDTO(101L, "Brownie", 20);
+        StockCreateDTO dto = new StockCreateDTO(101L, "Brownie", 20, 1L, BigDecimal.TEN);
         StockResponseDTO result = stockService.addStock(1L, dto);
 
         assertEquals(101L, result.productId());
         assertEquals("Brownie", result.productName());
         assertEquals(20, result.quantity());
         assertEquals(1L, result.fridgeId());
+        assertEquals(1L, result.cocinaId());
+        assertEquals(BigDecimal.TEN, result.price());
     }
 
     @Test
@@ -78,18 +81,18 @@ class StockServiceImplTest {
         when(heladeraRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(HeladeraNotFoundException.class,
-            () -> stockService.addStock(99L, new StockCreateDTO(101L, "Brownie", 5)));
+            () -> stockService.addStock(99L, new StockCreateDTO(101L, "Brownie", 5, 1L, BigDecimal.TEN)));
     }
 
     @Test
     void updateStock_updatesQuantity() {
         Heladera heladera = Heladera.builder().id(1L).build();
-        StockHeladera stock = StockHeladera.builder().id(1L).heladera(heladera).productId(101L).productName("Brownie").quantity(10).build();
+        StockHeladera stock = StockHeladera.builder().id(1L).heladera(heladera).cocinaId(1L).productId(101L).productName("Brownie").quantity(10).price(BigDecimal.TEN).build();
 
-        when(stockRepository.findByHeladeraIdAndProductId(1L, 101L)).thenReturn(Optional.of(stock));
+        when(stockRepository.findByHeladeraIdAndCocinaIdAndProductId(1L, 1L, 101L)).thenReturn(Optional.of(stock));
         when(stockRepository.save(any(StockHeladera.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        StockUpdateDTO dto = new StockUpdateDTO(101L, null, 5);
+        StockUpdateDTO dto = new StockUpdateDTO(101L, 1L, null, 5, null);
         StockResponseDTO result = stockService.updateStock(1L, dto);
 
         assertEquals(5, result.quantity());
@@ -98,27 +101,24 @@ class StockServiceImplTest {
 
     @Test
     void updateStock_throwsWhenStockNotFound() {
-        when(stockRepository.findByHeladeraIdAndProductId(1L, 99L)).thenReturn(Optional.empty());
+        when(stockRepository.findByHeladeraIdAndCocinaIdAndProductId(1L, 1L, 99L)).thenReturn(Optional.empty());
 
         assertThrows(HeladeraNotFoundException.class,
-            () -> stockService.updateStock(1L, new StockUpdateDTO(99L, null, 5)));
+            () -> stockService.updateStock(1L, new StockUpdateDTO(99L, 1L, null, 5, null)));
     }
 
     @Test
     void getRemainderByCocinaId_returnsRemainder() {
-        Heladera heladera1 = Heladera.builder().id(1L).cocinaId("COCINA-DULCE").name("Heladera 1").build();
-        Heladera heladera2 = Heladera.builder().id(2L).cocinaId("COCINA-DULCE").name("Heladera 2").build();
+        Heladera heladera1 = Heladera.builder().id(1L).name("Heladera 1").build();
+        Heladera heladera2 = Heladera.builder().id(2L).name("Heladera 2").build();
 
-        when(heladeraRepository.findByCocinaId("COCINA-DULCE")).thenReturn(List.of(heladera1, heladera2));
-        when(stockRepository.findByHeladeraId(1L)).thenReturn(List.of(
-            StockHeladera.builder().id(1L).heladera(heladera1).productId(101L).productName("Brownie").quantity(3).build(),
-            StockHeladera.builder().id(2L).heladera(heladera1).productId(102L).productName("Cheesecake").quantity(2).build()
-        ));
-        when(stockRepository.findByHeladeraId(2L)).thenReturn(List.of(
-            StockHeladera.builder().id(3L).heladera(heladera2).productId(101L).productName("Brownie").quantity(2).build()
+        when(stockRepository.findByCocinaId(1L)).thenReturn(List.of(
+            StockHeladera.builder().id(1L).heladera(heladera1).cocinaId(1L).productId(101L).productName("Brownie").quantity(3).price(BigDecimal.TEN).build(),
+            StockHeladera.builder().id(2L).heladera(heladera1).cocinaId(1L).productId(102L).productName("Cheesecake").quantity(2).price(BigDecimal.TEN).build(),
+            StockHeladera.builder().id(3L).heladera(heladera2).cocinaId(1L).productId(101L).productName("Brownie").quantity(2).price(BigDecimal.TEN).build()
         ));
 
-        List<FridgeRemainderDTO> result = stockService.getRemainderByCocinaId("COCINA-DULCE");
+        List<FridgeRemainderDTO> result = stockService.getRemainderByCocinaId(1L);
 
         assertEquals(2, result.size());
         assertEquals(1L, result.get(0).fridgeId());
@@ -132,9 +132,9 @@ class StockServiceImplTest {
 
     @Test
     void getRemainderByCocinaId_returnsEmptyList() {
-        when(heladeraRepository.findByCocinaId("COCINA-INEXISTENTE")).thenReturn(List.of());
+        when(stockRepository.findByCocinaId(99L)).thenReturn(List.of());
 
-        List<FridgeRemainderDTO> result = stockService.getRemainderByCocinaId("COCINA-INEXISTENTE");
+        List<FridgeRemainderDTO> result = stockService.getRemainderByCocinaId(99L);
 
         assertTrue(result.isEmpty());
     }
@@ -149,7 +149,7 @@ class StockServiceImplTest {
             return s;
         });
 
-        stockService.addStock(1L, new StockCreateDTO(101L, "Brownie", 20));
+        stockService.addStock(1L, new StockCreateDTO(101L, "Brownie", 20, 1L, BigDecimal.TEN));
 
         verify(notificacionClient).notificarProductoDisponible(any());
     }
@@ -164,7 +164,7 @@ class StockServiceImplTest {
             return s;
         });
 
-        stockService.addStock(1L, new StockCreateDTO(101L, "Brownie", 20));
+        stockService.addStock(1L, new StockCreateDTO(101L, "Brownie", 20, 1L, BigDecimal.TEN));
 
         verify(notificacionClient, never()).notificarProductoDisponible(any());
     }
@@ -172,12 +172,12 @@ class StockServiceImplTest {
     @Test
     void updateStock_cuandoStockPasaDeCeroANotifica() {
         Heladera heladera = Heladera.builder().id(1L).build();
-        StockHeladera stock = StockHeladera.builder().id(1L).heladera(heladera).productId(101L).productName("Brownie").quantity(0).build();
+        StockHeladera stock = StockHeladera.builder().id(1L).heladera(heladera).cocinaId(1L).productId(101L).productName("Brownie").quantity(0).price(BigDecimal.TEN).build();
 
-        when(stockRepository.findByHeladeraIdAndProductId(1L, 101L)).thenReturn(Optional.of(stock));
+        when(stockRepository.findByHeladeraIdAndCocinaIdAndProductId(1L, 1L, 101L)).thenReturn(Optional.of(stock));
         when(stockRepository.save(any(StockHeladera.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        stockService.updateStock(1L, new StockUpdateDTO(101L, null, 10));
+        stockService.updateStock(1L, new StockUpdateDTO(101L, 1L, null, 10, null));
 
         verify(notificacionClient).notificarProductoDisponible(any());
     }

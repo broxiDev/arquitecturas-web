@@ -12,4 +12,6 @@ public interface HeladeraService {
     HeladeraResponseDTO create(HeladeraCreateDTO dto);
     HeladeraResponseDTO update(Long id, HeladeraUpdateDTO dto);
     void delete(Long id);
+    HeladeraResponseDTO linkCocina(Long heladeraId, Long cocinaId);
+    HeladeraResponseDTO unlinkCocina(Long heladeraId, Long cocinaId);
 }

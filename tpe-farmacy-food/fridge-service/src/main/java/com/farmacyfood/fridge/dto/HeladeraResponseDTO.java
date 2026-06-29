@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Schema(description = "Respuesta con datos de una heladera")
 public record HeladeraResponseDTO(
@@ -25,8 +26,8 @@ public record HeladeraResponseDTO(
     @Schema(description = "Estado operativo", example = "ACTIVE")
     String status,
 
-    @Schema(description = "ID de la cocina asociada", example = "COCINA-DULCE")
-    String cocinaId,
+    @Schema(description = "IDs de las cocinas asociadas", example = "[1, 2]")
+    Set<Long> cocinaIds,
 
     @Schema(description = "Último mantenimiento", example = "2026-06-01")
     LocalDate lastMaintenance,
