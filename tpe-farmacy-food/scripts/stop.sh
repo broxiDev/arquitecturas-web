@@ -11,13 +11,14 @@ echo "=== FarmacyFood - Deteniendo servicios ==="
 SERVICES=(
   "discovery-service"
   "api-gateway"
-  "product-service"
   "fridge-service"
   "order-service"
   "kitchen-service"
   "recommendation-service"
   "user-service"
   "notification-service"
+  "audit-service"
+  "auth-service"
 )
 
 for svc in "${SERVICES[@]}"; do

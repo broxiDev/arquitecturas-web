@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ public class SaleHistoryController {
     //Kitchen-service lo consume para obtener todas las ventas (órdenes PAID o PICKED_UP) en un rango de fechas,
     //con filtros opcionales por producto y heladera. Usa fechas como LocalDate (no LocalDateTime) porque el historial
     // se consulta por día calendario.
+    @PreAuthorize("hasAuthority('cocina')")
     @GetMapping("/historial-ventas")
     @Operation(summary = "Obtener historial de ventas")
     @ApiResponses({
@@ -47,6 +49,7 @@ public class SaleHistoryController {
     //Busca órdenes completadas entre from y to de tal cocina usando el repository. Por cada orden, itera sus OrderItem
     // y construye un HistoricalSaleDTO por item (desnormalizando producto, heladera, cantidad, total calculado
     // y fecha). Si productId está presente, filtra solo ese producto. Devuelve una lista plana de ventas individuales.
+    @PreAuthorize("hasAuthority('cocina')")
     @GetMapping("/historial-ventas/cocina/{cocinaId}")
     @Operation(summary = "Obtener ventas agregadas por producto para una cocina")
     @ApiResponses({
@@ -54,7 +57,7 @@ public class SaleHistoryController {
     })
     public List<ProductSaleDTO> getSalesByKitchen(
             @Parameter(description = "ID de la cocina", example = "COCINA-DULCE")
-            @PathVariable String cocinaId,
+            @PathVariable Long cocinaId,
             @Parameter(description = "Fecha desde (yyyy-MM-dd)", example = "2026-06-01")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @Parameter(description = "Fecha hasta (yyyy-MM-dd)", example = "2026-06-20")

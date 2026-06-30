@@ -1,4 +1,6 @@
 package com.farmacyfood.order.client;
 
-public record FridgeStockUpdateDTO(Long productId, Integer quantity) {
+import java.math.BigDecimal;
+
+public record FridgeStockUpdateDTO(Long productId, Long cocinaId, String productName, Integer quantity, BigDecimal price) {
 }

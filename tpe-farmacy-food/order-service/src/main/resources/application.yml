@@ -5,7 +5,7 @@ spring:
   application:
     name: order-service
   profiles:
-    active: prod
+    active: dev
 
   datasource:
     url: jdbc:postgresql://localhost:5434/order_db?TimeZone=UTC
@@ -29,3 +29,7 @@ eureka:
 springdoc:
   api-docs:
     path: /api/v1/ordenes/v3/api-docs
+
+jwt:
+  secret: clave.super.secreta.jwt.1234567890
+  expiration-ms: 3600000

@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,6 +66,7 @@ public class OrderController {
         return orderService.confirmPickup(id);
     }
 
+    @PreAuthorize("hasAuthority('cocina')")
     @GetMapping
     @Operation(summary = "Listar todas las órdenes")
     @ApiResponses({
@@ -86,15 +88,13 @@ public class OrderController {
         return orderService.getById(id);
     }
 
-    @GetMapping("/usuario/{userId}")
+    @GetMapping("/usuario")
     @Operation(summary = "Obtener órdenes de un usuario específico")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Órdenes del usuario")
+            @ApiResponse(responseCode = "200", description = "Órdenes del usuario Juan")
     })
-    public List<OrderResponseDTO> getByUser(
-            @Parameter(description = "ID del usuario", example = "1")
-            @PathVariable Long userId) {
-        return orderService.getByUser(userId);
+    public List<OrderResponseDTO> getByUser() {
+        return orderService.getByUser();
     }
 
     @PutMapping("/{id}/cancelar")

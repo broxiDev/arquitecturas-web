@@ -17,13 +17,13 @@ public interface OrderService {
 
     OrderResponseDTO getById(Long id);
 
-    List<OrderResponseDTO> getByUser(Long userId);
+    List<OrderResponseDTO> getByUser();
 
     OrderResponseDTO cancelOrder(Long id, OrderCancelDTO dto);
 
     List<HistoricalSaleDTO> getHistorialVentas(LocalDate from, LocalDate to, Long productId, Long fridgeId);
 
-    List<ProductSaleDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to);
+    List<ProductSaleDTO> getSalesByKitchen(Long cocinaId, LocalDate from, LocalDate to);
 
 
 

@@ -1,5 +1,6 @@
 package com.farmacyfood.order.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.farmacyfood.order.client.*;
 import com.farmacyfood.order.dto.*;
 import com.farmacyfood.order.entity.Order;
@@ -11,15 +12,20 @@ import com.farmacyfood.order.repository.OrderRepository;
 import com.farmacyfood.order.service.payment.PaymentGateway;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -28,45 +34,58 @@ public class OrderServiceImpl implements OrderService {
     private final UserClient userClient;
     private final FridgeClient fridgeClient;
     private final PaymentGateway paymentGateway;
-    private final ProductClient productClient;
+    private final KitchenClient kitchenClient;
+    private final Optional<AuditClient> auditClient;
+    private final ObjectMapper objectMapper;  // para serializar DTOs a JSON strings
 
+    private static final String SERVICE_NAME = "ORDER-SERVICE";
 
     //  Valida usuario con UserClient.getUser(userId) — si 404, lanza excepción
     //  Verifica stock con FridgeClient.getStock(fridgeId, productId) por cada item
     //	 Guarda con orderRepository.save(order) — cascade guarda OrderItems
     //	 Mapea Order → OrderResponseDTO y retorna
+    //   Audita casos exitosos y errores
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO dto) {
+        //Serializar el request a JSON
+        String requestJson = toJson(dto);
         try {
-            userClient.getUser(dto.userId());
-        } catch (FeignException e) {
-            if (e.status() == 404) {
-                throw new OrderNotFoundException("Usuario no encontrado: " + dto.userId());
+            Long userId = getCurrentUserId();
+            UserResponseDTO user = userClient.getUser(userId);
+
+            List<FridgeStockDTO> stock = fridgeClient.getStock(dto.fridgeId());
+
+            for (OrderItemDTO item : dto.items()) {
+                FridgeStockDTO stockItem = stock.stream()
+                        .filter(s -> s.productId().equals(item.productId()))
+                        .findFirst()
+                        .orElseThrow(() -> {
+                            auditoriaError("CREATE_ORDER", requestJson, "Producto " + item.productId() + " no encontrado en la heladera");
+                            return new OutOfStockException(
+                                    "Producto " + item.productId() + " no encontrado en la heladera");
+                        });
+
+                if (stockItem.quantity() < item.quantity()) {
+                    String error = "Stock insuficiente para producto " + item.productId()
+                            + ". Disponible: " + stockItem.quantity()
+                            + ", solicitado: " + item.quantity();
+                    auditoriaError("CREATE_ORDER", requestJson, error);
+                    throw new OutOfStockException(error);
+                }
             }
+
+            Order order = toEntity(dto, userId);
+            order = orderRepository.save(order);
+            OrderResponseDTO response = toResponseDTO(order);
+            auditoria("CREATE_ORDER", requestJson, toJson(response));
+            return response;
+        } catch (OrderNotFoundException | OutOfStockException e) {
+            throw e;
+        } catch (Exception e) {
+            auditoriaError("CREATE_ORDER", requestJson, e.getMessage());
             throw e;
         }
-
-        List<FridgeStockDTO> stock = fridgeClient.getStock(dto.fridgeId());
-
-        for (OrderItemDTO item : dto.items()) {
-            FridgeStockDTO stockItem = stock.stream()
-                    .filter(s -> s.productId().equals(item.productId()))
-                    .findFirst()
-                    .orElseThrow(() -> new OutOfStockException(
-                            "Producto " + item.productId() + " no encontrado en la heladera"));
-
-            if (stockItem.quantity() < item.quantity()) {
-                throw new OutOfStockException(
-                        "Stock insuficiente para producto " + item.productId()
-                                + ". Disponible: " + stockItem.quantity()
-                                + ", solicitado: " + item.quantity());
-            }
-        }
-
-        Order order = toEntity(dto);
-        order = orderRepository.save(order);
-        return toResponseDTO(order);
     }
 
     //  busca si existe la orden en orderRepository.findById(id) o lanza OrderNotFoundException
@@ -75,41 +94,59 @@ public class OrderServiceImpl implements OrderService {
     //	Status → PAID, guarda paymentId
     //	FridgeClient.reserveStock(fridgeId, items) — reserva stock
     //	Guarda orden y retorna PaymentResponseDTO
+    //  Audita casos exitosos y errores
     @Override
     @Transactional
     public PaymentResponseDTO payOrder(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
+        //Serializar el request a JSON
+        String requestJson = toJson(Map.of("orderId", id));
+        try {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> {
+                        auditoriaError("PAY_ORDER", requestJson, "Orden no encontrada: " + id);
+                        return new OrderNotFoundException("Orden no encontrada: " + id);
+                    });
 
-        if (!"PENDING".equals(order.getStatus())) {
-            throw new FailedPaymentException("La orden no está en estado PENDING");
+            if (!"PENDING".equals(order.getStatus())) {
+                String error = "La orden no está en estado PENDING";
+                auditoriaError("PAY_ORDER", requestJson, error);
+                throw new FailedPaymentException(error);
+            }
+
+            PaymentResponseDTO payment = paymentGateway.processPayment(order.getTotal(), "USD");
+
+            if (!"COMPLETED".equals(payment.status())) {
+                String error = "El pago no fue completado";
+                auditoriaError("PAY_ORDER", requestJson, error);
+                throw new FailedPaymentException(error);
+            }
+
+            order.setStatus("PAID");
+            order.setPaymentId(payment.paymentId());
+            orderRepository.save(order);
+
+            List<FridgeStockDTO> stock = fridgeClient.getStock(order.getFridgeId());
+
+            for (OrderItem item : order.getItemList()) {
+                FridgeStockDTO stockItem = stock.stream()
+                        .filter(s -> s.productId().equals(item.getProductId()))
+                        .findFirst()
+                        .orElseThrow(() -> new OutOfStockException(
+                                "Producto no encontrado en stock: " + item.getProductId()));
+
+                int newQty = stockItem.quantity() - item.getQuantity();
+                fridgeClient.updateStock(order.getFridgeId(),
+                        new FridgeStockUpdateDTO(item.getProductId(), stockItem.cocinaId(), stockItem.productName(), newQty, stockItem.price()));
+            }
+
+            auditoria("PAY_ORDER", requestJson, toJson(payment));
+            return payment;
+        } catch (FailedPaymentException | OrderNotFoundException | OutOfStockException e) {
+            throw e;
+        } catch (Exception e) {
+            auditoriaError("PAY_ORDER", requestJson, e.getMessage());
+            throw e;
         }
-
-        PaymentResponseDTO payment = paymentGateway.processPayment(order.getTotal(), "USD");
-
-        if (!"COMPLETED".equals(payment.status())) {
-            throw new FailedPaymentException("El pago no fue completado");
-        }
-
-        order.setStatus("PAID");
-        order.setPaymentId(payment.paymentId());
-        orderRepository.save(order);
-
-        List<FridgeStockDTO> stock = fridgeClient.getStock(order.getFridgeId());
-
-        for (OrderItem item : order.getItemList()) {
-            FridgeStockDTO stockItem = stock.stream()
-                    .filter(s -> s.productId().equals(item.getProductId()))
-                    .findFirst()
-                    .orElseThrow(() -> new OutOfStockException(
-                            "Producto no encontrado en stock: " + item.getProductId()));
-
-            int newQty = stockItem.quantity() - item.getQuantity();
-            fridgeClient.updateStock(order.getFridgeId(),
-                    new FridgeStockUpdateDTO(item.getProductId(), newQty));
-        }
-
-        return payment;
     }
 
     // busca la orden con FindById o lanza OrderNotFoundException
@@ -117,20 +154,37 @@ public class OrderServiceImpl implements OrderService {
     //	cambia el status pending a Status → PICKED_UP
     //	FridgeClient.decrementStock(fridgeId, items) — libera stock definitivo
     //	Guarda y retorna OrderResponseDTO
+    //  Audita casos exitosos y errores
     @Override
     @Transactional
     public OrderResponseDTO confirmPickup(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
+        //Serializar el request a JSON
+        String requestJson = toJson(Map.of("orderId", id));
+        try {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> {
+                        auditoriaError("CONFIRM_PICKUP", requestJson, "Orden no encontrada: " + id);
+                        return new OrderNotFoundException("Orden no encontrada: " + id);
+                    });
 
-        if (!"PAID".equals(order.getStatus())) {
-            throw new IllegalStateException("La orden no está en estado PAID");
+            if (!"PAID".equals(order.getStatus())) {
+                String error = "La orden no está en estado PAID";
+                auditoriaError("CONFIRM_PICKUP", requestJson, error);
+                throw new IllegalStateException(error);
+            }
+
+            order.setStatus("PICKED_UP");
+            orderRepository.save(order);
+
+            OrderResponseDTO response = toResponseDTO(order);
+            auditoria("CONFIRM_PICKUP", requestJson, toJson(response));
+            return response;
+        } catch (OrderNotFoundException | IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            auditoriaError("CONFIRM_PICKUP", requestJson, e.getMessage());
+            throw e;
         }
-
-        order.setStatus("PICKED_UP");
-        orderRepository.save(order);
-
-        return toResponseDTO(order);
     }
 
     //obtiene todas las ordenes
@@ -146,9 +200,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponseDTO getById(Long id) {
-        return orderRepository.findById(id)
-                .map(this::toResponseDTO)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
+
+        String role = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream().findFirst()
+                .map(a -> a.getAuthority()).orElse("");
+
+        if (!"ROLE_cocina".equals(role)) {
+            Long userId = getCurrentUserId();
+            if (!order.getUserId().equals(userId)) {
+                throw new OrderNotFoundException("Orden no encontrada: " + id);
+            }
+        }
+        return toResponseDTO(order);
     }
 
     //obtiene todas las ordenes de determinado usuario
@@ -156,7 +221,8 @@ public class OrderServiceImpl implements OrderService {
     //SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponseDTO> getByUser(Long userId) {
+    public List<OrderResponseDTO> getByUser() {
+        Long userId = getCurrentUserId();
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(this::toResponseDTO)
                 .toList();
@@ -167,35 +233,58 @@ public class OrderServiceImpl implements OrderService {
     //Valida que status sea PENDING o PAID
     //Si estaba PAID: FridgeClient.releaseStock(fridgeId, items) — libera reserva
     //Status → CANCELLED, guarda y retorna
+    // Audita casos exitosos y errores
     @Override
     @Transactional
     public OrderResponseDTO cancelOrder(Long id, OrderCancelDTO dto) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
-
-        if (!"PENDING".equals(order.getStatus()) && !"PAID".equals(order.getStatus())) {
-            throw new IllegalStateException("La orden no está en estado PENDING o PAID");
-        }
-
-        if ("PAID".equals(order.getStatus())) {
-            List<FridgeStockDTO> stock = fridgeClient.getStock(order.getFridgeId());
-
-            for (OrderItem item : order.getItemList()) {
-                FridgeStockDTO stockItem = stock.stream()
-                        .filter(s -> s.productId().equals(item.getProductId()))
-                        .findFirst()
-                        .orElseThrow(() -> new OutOfStockException(
-                                "Producto no encontrado en stock: " + item.getProductId()));
-
-                int newQty = stockItem.quantity() + item.getQuantity();
-                fridgeClient.updateStock(order.getFridgeId(),
-                        new FridgeStockUpdateDTO(item.getProductId(), newQty));
+        //Serializar el request a JSON
+        String requestJson = toJson(Map.of("orderId", id, "motivo", dto != null ? dto.motivo() : ""));
+        try {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> {
+                        auditoriaError("CANCEL_ORDER", requestJson, "Orden no encontrada: " + id);
+                        return new OrderNotFoundException("Orden no encontrada: " + id);
+                    });
+            Long userId = getCurrentUserId();
+            if (!order.getUserId().equals(userId)) {
+                String error = "No puedes cancelar una orden de otro usuario";
+                auditoriaError("CANCEL_ORDER", requestJson, error);
+                throw new IllegalStateException(error);
             }
-        }
 
-        order.setStatus("CANCELLED");
-        orderRepository.save(order);
-        return toResponseDTO(order);
+            if (!"PENDING".equals(order.getStatus()) && !"PAID".equals(order.getStatus())) {
+                String error = "La orden no está en estado PENDING o PAID";
+                auditoriaError("CANCEL_ORDER", requestJson, error);
+                throw new IllegalStateException(error);
+            }
+
+            if ("PAID".equals(order.getStatus())) {
+                List<FridgeStockDTO> stock = fridgeClient.getStock(order.getFridgeId());
+
+                for (OrderItem item : order.getItemList()) {
+                    FridgeStockDTO stockItem = stock.stream()
+                            .filter(s -> s.productId().equals(item.getProductId()))
+                            .findFirst()
+                            .orElseThrow(() -> new OutOfStockException(
+                                    "Producto no encontrado en stock: " + item.getProductId()));
+
+                    int newQty = stockItem.quantity() + item.getQuantity();
+                    fridgeClient.updateStock(order.getFridgeId(),
+                            new FridgeStockUpdateDTO(item.getProductId(), stockItem.cocinaId(), stockItem.productName(), newQty, stockItem.price()));
+                }
+            }
+
+            order.setStatus("CANCELLED");
+            orderRepository.save(order);
+            OrderResponseDTO response = toResponseDTO(order);
+            auditoria("CANCEL_ORDER", requestJson, toJson(Map.of("status", "CANCELLED", "orderId", response.orderId())));
+            return response;
+        } catch (OrderNotFoundException | IllegalStateException | OutOfStockException e) {
+            throw e;
+        } catch (Exception e) {
+            auditoriaError("CANCEL_ORDER", requestJson, e.getMessage());
+            throw e;
+        }
     }
 
     //Busca órdenes completadas (PAID o PICKED_UP) en un rango de fechas. Por cada orden, desnormaliza sus items
@@ -226,10 +315,9 @@ public class OrderServiceImpl implements OrderService {
     //Lo consume kitchen-service para calcular el plan diario de producción por cocina.
     @Override
     @Transactional(readOnly = true)
-    public List<ProductSaleDTO> getSalesByKitchen(String cocinaId, LocalDate from, LocalDate to) {
-      //  String normalizedCocinaId = cocinaId.toLowerCase().replace("_", "-");  // normalizar
-        List<ProductResponseDTO> products = productClient.getProductsByCocina(cocinaId);
-        Set<Long> productIds = products.stream().map(ProductResponseDTO::id).collect(Collectors.toSet());
+    public List<ProductSaleDTO> getSalesByKitchen(Long cocinaId, LocalDate from, LocalDate to) {
+        List<CatalogoLocalResponseDTO> products = kitchenClient.getProductsByCocina(cocinaId);
+        Set<Long> productIds = products.stream().map(CatalogoLocalResponseDTO::id).collect(Collectors.toSet());
 
         List<Order> orders = orderRepository.findCompletedOrdersBetween(from, to, null);
 
@@ -253,9 +341,35 @@ public class OrderServiceImpl implements OrderService {
                 .values().stream().toList();
     }
 
-    //métodos para conversión de entidades a dtos y viceversa
+    // Llama al audit-service si el bean está presente. Si falla (timeout, error), solo loguea warn.
+    private void auditoria(String accion, String request, String response) {
+        auditClient.ifPresent(client -> {
+            try {
+                client.registrarEvento(new AuditEventRequestDTO(
+                        SERVICE_NAME + "-" + accion, request, response));
+            } catch (Exception e) {
+                log.warn("Error al registrar auditoría para {}: {}", accion, e.getMessage());
+            }
+        });
+    }
 
-    //de entidad a dto
+    // Para errores: arma un JSON {"error": "mensaje"} y llama a auditoria()
+    private void auditoriaError(String accion, String request, String error) {
+        auditoria(accion, request, toJson(Map.of("error", error)));
+    }
+
+    // Serializa a JSON con ObjectMapper, fallback seguro a "{}"
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            log.warn("Error serializando para auditoría: {}", e.getMessage());
+            return "{}";
+        }
+    }
+
+
+    //de entidad a DTO
     private OrderResponseDTO toResponseDTO(Order order) {
         List<OrderItemDTO> items = order.getItemList().stream()
                 .map(item -> new OrderItemDTO(
@@ -281,9 +395,9 @@ public class OrderServiceImpl implements OrderService {
     //de dto a entidad y crea la orden asignando los datos
     //	Mapea OrderCreateDTO → Order entity (status = PENDING)
     //	Calcula total = sumatoria de (quantity × unitPrice)
-    private Order toEntity(OrderCreateDTO dto) {
+    private Order toEntity(OrderCreateDTO dto, Long userId) {
         Order order = new Order();
-        order.setUserId(dto.userId());
+        order.setUserId(userId);
         order.setFridgeId(dto.fridgeId());
         order.setStatus("PENDING");
 
@@ -307,6 +421,12 @@ public class OrderServiceImpl implements OrderService {
         order.setTotal(total);
 
         return order;
+    }
+
+    private Long getCurrentUserId() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserResponseDTO user = userClient.getUserByUsername(username);
+        return user.id();
     }
 
 }

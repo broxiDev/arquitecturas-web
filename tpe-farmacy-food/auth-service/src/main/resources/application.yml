@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8089
 
 spring:
   application:
@@ -27,5 +27,5 @@ springdoc:
     path: /api/auth/v3/api-docs
 
 jwt:
-  secret: clave.super.secreta.jwt.123
+  secret: clave.super.secreta.jwt.1234567890
   expiration-ms: 3600000
