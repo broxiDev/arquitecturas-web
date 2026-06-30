@@ -32,4 +32,3 @@ springdoc:
 
 jwt:
   secret: clave.super.secreta.jwt.1234567890
-  expiration-ms: 3600000

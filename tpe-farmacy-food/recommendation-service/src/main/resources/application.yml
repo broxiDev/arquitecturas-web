@@ -23,3 +23,6 @@ clients:
     url: http://localhost:8083
   product-service:
     url: http://localhost:8081
+
+jwt:
+  secret: clave.super.secreta.jwt.1234567890
