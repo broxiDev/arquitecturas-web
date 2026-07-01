@@ -1,6 +1,8 @@
 package com.farmacyfood.user.service;
 
+import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.user.client.OrderServiceClient;
+import com.farmacyfood.user.constants.AuditMessages;
 import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
@@ -8,6 +10,7 @@ import com.farmacyfood.user.exception.DuplicateEmailException;
 import com.farmacyfood.user.exception.InvalidRoleException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -26,16 +30,26 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private OrderServiceClient orderClient;
 
+    @Autowired
+    private AuditLogger auditLogger;
+
     @Override
     @Transactional
     public User register(User user) {
-        if (repository.findByEmail(user.getEmail()).isPresent()) {
-            throw new DuplicateEmailException("El email " + user.getEmail() + " ya está registrado");
+        try {
+            if (repository.findByEmail(user.getEmail()).isPresent()) {
+                throw new DuplicateEmailException("El email " + user.getEmail() + " ya está registrado");
+            }
+            if (repository.findByAuthUsername(user.getAuthUsername()).isPresent()) {
+                throw new DuplicateAuthUsernameException("El usuario " + user.getAuthUsername() + " ya tiene un perfil");
+            }
+            User saved = repository.save(user);
+            auditLogger.success("REGISTER", AuditMessages.PROFILE_CREATED, saved);
+            return saved;
+        } catch (Exception e) {
+            auditLogger.error("REGISTER", "Error al registrar usuario: " + e.getMessage(), user);
+            throw e;
         }
-        if (repository.findByAuthUsername(user.getAuthUsername()).isPresent()) {
-            throw new DuplicateAuthUsernameException("El usuario " + user.getAuthUsername() + " ya tiene un perfil");
-        }
-        return repository.save(user);
     }
 
     @Override
@@ -59,35 +73,64 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User update(Long id, User updated) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
-        validarPreferencias(
-                updated.getDietaryPreferences() != null ? updated.getDietaryPreferences() : user.getDietaryPreferences()
-        );
-        if (updated.getName() != null) user.setName(updated.getName());
-        if (updated.getEmail() != null) user.setEmail(updated.getEmail());
-        if (updated.getAuthUsername() != null) user.setAuthUsername(updated.getAuthUsername());
-        if (updated.getDietaryPreferences() != null) user.setDietaryPreferences(updated.getDietaryPreferences());
-        return repository.save(user);
+        try {
+            User user = repository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+            validarPreferencias(
+                    updated.getDietaryPreferences() != null ? updated.getDietaryPreferences() : user.getDietaryPreferences()
+            );
+            if (updated.getName() != null) user.setName(updated.getName());
+            if (updated.getEmail() != null) user.setEmail(updated.getEmail());
+            if (updated.getAuthUsername() != null) user.setAuthUsername(updated.getAuthUsername());
+            if (updated.getDietaryPreferences() != null) user.setDietaryPreferences(updated.getDietaryPreferences());
+            User saved = repository.save(user);
+            auditLogger.success("UPDATE", AuditMessages.PROFILE_UPDATED, saved);
+            return saved;
+        } catch (UserNotFoundException e) {
+            auditLogger.error("UPDATE", AuditMessages.USER_NOT_FOUND + ": " + id, id);
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("UPDATE", "Error al actualizar usuario: " + e.getMessage(), id);
+            throw e;
+        }
     }
 
     @Override
     @Transactional
     public User updatePreferences(Long id, List<String> dietaryPreferences) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
-        validarPreferencias(dietaryPreferences);
-        user.setDietaryPreferences(dietaryPreferences);
-        return repository.save(user);
+        try {
+            User user = repository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+            validarPreferencias(dietaryPreferences);
+            user.setDietaryPreferences(dietaryPreferences);
+            User saved = repository.save(user);
+            auditLogger.success("UPDATE_PREFERENCES", AuditMessages.PREFERENCES_UPDATED, saved);
+            return saved;
+        } catch (UserNotFoundException e) {
+            auditLogger.error("UPDATE_PREFERENCES", AuditMessages.USER_NOT_FOUND + ": " + id, id);
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("UPDATE_PREFERENCES", "Error al actualizar preferencias: " + e.getMessage(), id);
+            throw e;
+        }
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new UserNotFoundException("Usuario no encontrado con id: " + id);
+        try {
+            if (!repository.existsById(id)) {
+                throw new UserNotFoundException("Usuario no encontrado con id: " + id);
+            }
+            repository.deleteById(id);
+            auditLogger.success("DELETE", AuditMessages.USER_DELETED, id);
+        } catch (UserNotFoundException e) {
+            auditLogger.error("DELETE", AuditMessages.USER_NOT_FOUND + ": " + id, id);
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("DELETE", "Error al eliminar usuario: " + e.getMessage(), id);
+            throw e;
         }
-        repository.deleteById(id);
     }
 
     @Override

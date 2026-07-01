@@ -26,6 +26,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
 
+audit:
+  service-name: KITCHEN-SERVICE
+
 springdoc:
   api-docs:
     path: /api/v1/cocina-fantasma/v3/api-docs

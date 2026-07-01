@@ -1,7 +1,9 @@
 package com.farmacyfood.kitchen.service;
 
+import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.kitchen.client.FridgeClient;
 import com.farmacyfood.kitchen.client.OrdenClient;
+import com.farmacyfood.kitchen.constants.AuditMessages;
 import com.farmacyfood.kitchen.dto.FridgeRemainderDTO;
 import com.farmacyfood.kitchen.dto.ItemPlanDTO;
 import com.farmacyfood.kitchen.dto.PlanDiarioResponseDTO;
@@ -13,6 +15,8 @@ import com.farmacyfood.kitchen.exception.PlanNotFoundException;
 import com.farmacyfood.kitchen.repository.PlanDiarioRepository;
 import com.farmacyfood.kitchen.util.PlanCalculatorUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlanDiarioServiceImpl implements PlanDiarioService {
+
+    @Autowired
+    private AuditLogger auditLogger;
 
     private final PlanDiarioRepository planDiarioRepository;
     private final OrdenClient ordenClient;
@@ -43,41 +51,48 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
     @Override
     @Transactional
     public PlanDiarioResponseDTO generarPlan(LocalDate date, Long cocinaId) {
-        // Si ya existe un plan para esta fecha y cocina, no lo regenero
-        if (planDiarioRepository.findByDateAndCocinaId(date, cocinaId).isPresent()) {
-            throw new PlanAlreadyExistsException("Ya existe un plan para la fecha: " + date + " y cocina: " + cocinaId);
+        try {
+            // Si ya existe un plan para esta fecha y cocina, no lo regenero
+            if (planDiarioRepository.findByDateAndCocinaId(date, cocinaId).isPresent()) {
+                throw new PlanAlreadyExistsException("Ya existe un plan para la fecha: " + date + " y cocina: " + cocinaId);
+            }
+
+            // Traigo las ventas de los ultimos 7 dias desde el servicio de ordenes (filtrado por cocina)
+            LocalDate from = date.minusDays(HISTORY_DAYS);
+            LocalDate to = date.minusDays(1);
+            List<ProductoVentaDTO> sales = ordenClient.getSalesByKitchen(cocinaId, from, to);
+
+            // Traigo el remanente de heladeras asociadas a este catalogo
+            List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen(cocinaId);
+
+            // Calculo total vendido - stock en heladera = lo que falta producir
+            Map<Long, Integer> totals = PlanCalculatorUtils.calculateTotalSales(sales);
+            Map<Long, Integer> remainders = PlanCalculatorUtils.calculateTotalRemainder(fridges);
+            Map<Long, Integer> suggestedQuantities = PlanCalculatorUtils.calculateSuggestedQuantities(totals, remainders);
+
+            // Creo el plan y le agrego los items
+            DailyPlan plan = DailyPlan.builder().date(date).cocinaId(cocinaId).build();
+            for (Map.Entry<Long, Integer> entry : suggestedQuantities.entrySet()) {
+                Long productId = entry.getKey();
+                int suggested = entry.getValue();
+                // Busco el nombre del producto en la lista de ventas
+                String productName = getProductName(sales, productId);
+                PlanItem item = PlanItem.builder()
+                    .productId(productId)
+                    .productName(productName)
+                    .suggestedQuantity(suggested)
+                    .build();
+                plan.addItem(item);
+            }
+
+            DailyPlan saved = planDiarioRepository.save(plan);
+            PlanDiarioResponseDTO response = toDTO(saved);
+            auditLogger.success("GENERATE_PLAN", AuditMessages.DAILY_PLAN_GENERATED, response);
+            return response;
+        } catch (Exception e) {
+            auditLogger.error("GENERATE_PLAN", "Error al generar plan diario: " + e.getMessage(), cocinaId);
+            throw e;
         }
-
-        // Traigo las ventas de los ultimos 7 dias desde el servicio de ordenes (filtrado por cocina)
-        LocalDate from = date.minusDays(HISTORY_DAYS);
-        LocalDate to = date.minusDays(1);
-        List<ProductoVentaDTO> sales = ordenClient.getSalesByKitchen(cocinaId, from, to);
-
-        // Traigo el remanente de heladeras asociadas a este catalogo
-        List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen(cocinaId);
-
-        // Calculo total vendido - stock en heladera = lo que falta producir
-        Map<Long, Integer> totals = PlanCalculatorUtils.calculateTotalSales(sales);
-        Map<Long, Integer> remainders = PlanCalculatorUtils.calculateTotalRemainder(fridges);
-        Map<Long, Integer> suggestedQuantities = PlanCalculatorUtils.calculateSuggestedQuantities(totals, remainders);
-
-        // Creo el plan y le agrego los items
-        DailyPlan plan = DailyPlan.builder().date(date).cocinaId(cocinaId).build();
-        for (Map.Entry<Long, Integer> entry : suggestedQuantities.entrySet()) {
-            Long productId = entry.getKey();
-            int suggested = entry.getValue();
-            // Busco el nombre del producto en la lista de ventas
-            String productName = getProductName(sales, productId);
-            PlanItem item = PlanItem.builder()
-                .productId(productId)
-                .productName(productName)
-                .suggestedQuantity(suggested)
-                .build();
-            plan.addItem(item);
-        }
-
-        DailyPlan saved = planDiarioRepository.save(plan);
-        return toDTO(saved);
     }
 
     // Busca el nombre del producto en la lista de ventas por su productId
