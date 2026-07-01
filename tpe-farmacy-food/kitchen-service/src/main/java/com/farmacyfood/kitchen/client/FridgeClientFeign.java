@@ -18,17 +18,16 @@ import java.util.List;
 public interface FridgeClientFeign extends FridgeClient {
 
     @Override
-    @GetMapping("/api/v1/heladeras/cocina/{cocinaId}/remanente")
-    List<FridgeRemainderDTO> getRemainderByKitchen(@PathVariable("cocinaId") Long cocinaId);
+    @GetMapping("/api/v1/heladeras/remanente")
+    List<FridgeRemainderDTO> getRemainderByKitchen();
 
     @Override
-    default void cargarStockEnHeladera(Long heladeraId, Long cocinaId, List<CargaProductoDTO> productos) {
+    default void cargarStockEnHeladera(Long heladeraId, List<CargaProductoDTO> productos) {
         for (CargaProductoDTO producto : productos) {
             StockCreateRequestDTO request = new StockCreateRequestDTO(
                     producto.productId(),
                     producto.productName(),
                     producto.quantity(),
-                    cocinaId,
                     producto.price()
             );
             postStock(heladeraId, request);

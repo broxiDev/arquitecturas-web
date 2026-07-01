@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -48,6 +49,7 @@ public class CargaHeladerasController {
         )
     })
     @PostMapping
+    @PreAuthorize("hasAuthority('cocina')")
     public ResponseEntity<String> cargar(@Valid @RequestBody CargaHeladeraRequestDTO request) {
         log.info("Controller: carga de {} productos en heladera {}",
                 request.productos().size(), request.heladeraId());

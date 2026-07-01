@@ -11,5 +11,5 @@ public interface StockService {
     List<StockResponseDTO> getStockByHeladera(Long heladeraId);
     StockResponseDTO addStock(Long heladeraId, StockCreateDTO dto);
     StockResponseDTO updateStock(Long heladeraId, StockUpdateDTO dto);
-    List<FridgeRemainderDTO> getRemainderByCocinaId(Long cocinaId);
+    List<FridgeRemainderDTO> getRemainderByUsername(String username);
 }

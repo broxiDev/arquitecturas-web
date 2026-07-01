@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -52,6 +53,7 @@ public class CocinaController {
         )
     })
     @PostMapping
+    @PreAuthorize("hasAuthority('cocina')")
     public ResponseEntity<CocinaResponseDTO> crear(@Valid @RequestBody CocinaCreateDTO request) {
         log.info("Controller: creando cocina '{}'", request.nombre());
         CocinaResponseDTO response = cocinaService.crear(request);
@@ -78,6 +80,7 @@ public class CocinaController {
         )
     })
     @GetMapping("/{cocinaId}")
+    @PreAuthorize("hasAuthority('cocina')")
     public ResponseEntity<CocinaResponseDTO> buscar(
             @Parameter(description = "ID de la cocina (cocinaId)", required = true, example = "1")
             @PathVariable Long cocinaId) {

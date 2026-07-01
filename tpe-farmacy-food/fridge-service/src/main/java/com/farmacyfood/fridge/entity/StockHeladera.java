@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stock_heladera", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"heladera_id", "cocina_id", "product_id"})
+    @UniqueConstraint(columnNames = {"heladera_id", "username", "product_id"})
 })
 @Getter
 @Setter
@@ -28,9 +28,9 @@ public class StockHeladera {
     @NotNull
     private Heladera heladera;
 
-    @Column(name = "cocina_id", nullable = false)
+    @Column(name = "username", nullable = false, length = 150)
     @NotNull
-    private Long cocinaId;
+    private String username;
 
     @Column(name = "product_id", nullable = false)
     @NotNull

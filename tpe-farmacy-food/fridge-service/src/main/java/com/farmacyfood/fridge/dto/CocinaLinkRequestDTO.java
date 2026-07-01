@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "DTO para vincular una cocina a una heladera")
 public record CocinaLinkRequestDTO(
-    @Schema(description = "ID de la cocina a vincular", example = "1")
-    @NotNull Long cocinaId
+    @Schema(description = "Username de la cocina a vincular", example = "cocina_juan")
+    @NotNull String username
 ) {}
