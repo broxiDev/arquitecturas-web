@@ -63,7 +63,7 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
             List<ProductoVentaDTO> sales = ordenClient.getSalesByKitchen(cocinaId, from, to);
 
             // Traigo el remanente de heladeras asociadas a este catalogo
-            List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen(cocinaId);
+            List<FridgeRemainderDTO> fridges = fridgeClient.getRemainderByKitchen();
 
             // Calculo total vendido - stock en heladera = lo que falta producir
             Map<Long, Integer> totals = PlanCalculatorUtils.calculateTotalSales(sales);

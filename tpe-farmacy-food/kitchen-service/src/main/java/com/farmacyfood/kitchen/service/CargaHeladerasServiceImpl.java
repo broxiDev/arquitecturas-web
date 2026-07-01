@@ -53,7 +53,7 @@ public class CargaHeladerasServiceImpl implements CargaHeladerasService {
                 }
             }
 
-            fridgeClient.cargarStockEnHeladera(request.heladeraId(), cocinaId, request.productos());
+            fridgeClient.cargarStockEnHeladera(request.heladeraId(), request.productos());
 
             log.info("Carga exitosa de {} productos en heladera {}", request.productos().size(), request.heladeraId());
             auditLogger.success("LOAD_FRIDGE", AuditMessages.FRIDGE_LOADED, request);

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class CatalogoLocalController {
 
     @Operation(summary = "Agregar producto a la cocina del usuario autenticado")
     @PostMapping("/productos")
+    @PreAuthorize("hasAuthority('cocina')")
     public ResponseEntity<CatalogoLocalResponseDTO> registrarProducto(@Valid @RequestBody CatalogoLocalRequestDTO request) {
         log.info("Controller: registrando producto '{}' en catalogo local", request.productId());
         CatalogoLocalResponseDTO response = catalogoLocalService.registrar(request);
@@ -33,6 +35,7 @@ public class CatalogoLocalController {
 
     @Operation(summary = "Listar productos de la cocina del usuario autenticado")
     @GetMapping("/productos")
+    @PreAuthorize("hasAuthority('cocina')")
     public ResponseEntity<List<CatalogoLocalResponseDTO>> listarDeMiCocina() {
         List<CatalogoLocalResponseDTO> productos = catalogoLocalService.listarDeMiCocina();
         return ResponseEntity.ok(productos);
