@@ -26,8 +26,8 @@ public class CargaHeladerasController {
     private final CargaHeladerasService cargaHeladerasService;
 
     @Operation(
-        summary = "Cargar productos de una cocina en una heladera",
-        description = "Valida que los productos existan en el cocina local de la cocina y los envia a fridge-service para cargarlos en la heladera especificada."
+        summary = "Cargar productos de la cocina del usuario autenticado en una heladera",
+        description = "Resuelve la cocina del usuario autenticado (X-User), valida que los productos existan en su catalogo local y los envia a fridge-service para cargarlos en la heladera especificada."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -49,8 +49,8 @@ public class CargaHeladerasController {
     })
     @PostMapping
     public ResponseEntity<String> cargar(@Valid @RequestBody CargaHeladeraRequestDTO request) {
-        log.info("Controller: carga de {} productos del cocina {} en heladera {}",
-                request.productos().size(), request.cocinaId(), request.heladeraId());
+        log.info("Controller: carga de {} productos en heladera {}",
+                request.productos().size(), request.heladeraId());
         cargaHeladerasService.cargar(request);
         return ResponseEntity.ok(
                 "Carga exitosa de " + request.productos().size()
