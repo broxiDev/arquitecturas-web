@@ -12,4 +12,6 @@ public interface CocinaRepository extends JpaRepository<Cocina, Long> {
     boolean existsByUsuario(String usuario);
 
     Optional<Cocina> findById(Long id);
+
+    Optional<Cocina> findByUsuario(String usuario);
 }

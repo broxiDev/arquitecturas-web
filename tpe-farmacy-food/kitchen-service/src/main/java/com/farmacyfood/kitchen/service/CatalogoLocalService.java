@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CatalogoLocalService {
 
-    CatalogoLocalResponseDTO registrar(Long cocinaId, CatalogoLocalRequestDTO request);
+    CatalogoLocalResponseDTO registrar(CatalogoLocalRequestDTO request);
 
-    List<CatalogoLocalResponseDTO> listarPorCocina(Long cocinaId);
+    List<CatalogoLocalResponseDTO> listarDeMiCocina();
 }
