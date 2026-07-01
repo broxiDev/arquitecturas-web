@@ -12,7 +12,7 @@ public interface UserClient {
     @GetMapping("/{id}")
     UserResponseDTO getUser(@PathVariable("id") Long userId);
 
-    @GetMapping("/username/{username}")
+    @GetMapping("/auth-username/{authUsername}")
     UserResponseDTO getUserByUsername(@PathVariable String username);
 
 }
