@@ -1,6 +1,8 @@
 package com.farmacyfood.auth.service;
 
+import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.auth.config.JwtUtil;
+import com.farmacyfood.auth.constants.AuditMessages;
 import com.farmacyfood.auth.dto.AuthResponse;
 import com.farmacyfood.auth.dto.LoginRequest;
 import com.farmacyfood.auth.dto.RegisterRequest;
@@ -9,11 +11,13 @@ import com.farmacyfood.auth.exception.DuplicateUserException;
 import com.farmacyfood.auth.exception.InvalidCredentialsException;
 import com.farmacyfood.auth.repository.AuthUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -23,36 +27,57 @@ public class AuthServiceImpl implements AuthService {
     private final AuthUserRepository authUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuditLogger auditLogger;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-        if (!ALLOWED_ROLES.contains(request.rol())) {
-            throw new IllegalArgumentException("Rol no permitido: '" + request.rol()
-                    + "'. Roles permitidos: cliente, cocina");
+        try {
+            if (!ALLOWED_ROLES.contains(request.rol())) {
+                auditLogger.error("REGISTER", AuditMessages.INVALID_ROLE, "rol: " + request.rol());
+                throw new IllegalArgumentException("Rol no permitido: '" + request.rol()
+                        + "'. Roles permitidos: cliente, cocina");
+            }
+
+            if (authUserRepository.existsByUsername(request.username())) {
+                auditLogger.error("REGISTER", AuditMessages.USER_ALREADY_EXISTS, "username: " + request.username());
+                throw new DuplicateUserException("El usuario '" + request.username() + "' ya existe");
+            }
+
+            String hashedPassword = passwordEncoder.encode(request.password());
+            AuthUser authUser = new AuthUser(request.username(), hashedPassword, request.rol());
+            authUserRepository.save(authUser);
+
+            String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
+            auditLogger.success("REGISTER", AuditMessages.USER_REGISTERED, "username: " + request.username());
+            return new AuthResponse(token);
+        } catch (Exception e) {
+            log.warn("Error en registro: {}", e.getMessage());
+            throw e;
         }
-
-        if (authUserRepository.existsByUsername(request.username())) {
-            throw new DuplicateUserException("El usuario '" + request.username() + "' ya existe");
-        }
-
-        String hashedPassword = passwordEncoder.encode(request.password());
-        AuthUser authUser = new AuthUser(request.username(), hashedPassword, request.rol());
-        authUserRepository.save(authUser);
-
-        String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
-        return new AuthResponse(token);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        AuthUser authUser = authUserRepository.findByUsername(request.username())
-                .orElseThrow(() -> new InvalidCredentialsException("Usuario o contraseña incorrectos"));
+        try {
+            AuthUser authUser = authUserRepository.findByUsername(request.username())
+                    .orElseThrow(() -> {
+                        auditLogger.error("LOGIN", AuditMessages.LOGIN_FAILED, "username: " + request.username());
+                        return new InvalidCredentialsException("Usuario o contraseña incorrectos");
+                    });
 
-        if (!passwordEncoder.matches(request.password(), authUser.getPassword())) {
-            throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
+            if (!passwordEncoder.matches(request.password(), authUser.getPassword())) {
+                auditLogger.error("LOGIN", AuditMessages.LOGIN_FAILED, "username: " + request.username());
+                throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
+            }
+
+            String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
+            auditLogger.success("LOGIN", AuditMessages.USER_LOGGED_IN, "username: " + request.username());
+            return new AuthResponse(token);
+        } catch (InvalidCredentialsException e) {
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("LOGIN", "Error inesperado en inicio de sesión", e.getMessage());
+            throw e;
         }
-
-        String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
-        return new AuthResponse(token);
     }
 }

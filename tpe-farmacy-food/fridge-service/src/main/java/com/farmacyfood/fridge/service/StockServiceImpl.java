@@ -1,7 +1,9 @@
 package com.farmacyfood.fridge.service;
 
+import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
 import com.farmacyfood.fridge.client.NotificacionClient;
+import com.farmacyfood.fridge.constants.AuditMessages;
 import com.farmacyfood.fridge.dto.FridgeRemainderDTO;
 import com.farmacyfood.fridge.dto.ProductRemainderDTO;
 import com.farmacyfood.fridge.dto.StockCreateDTO;
@@ -13,6 +15,8 @@ import com.farmacyfood.fridge.exception.HeladeraNotFoundException;
 import com.farmacyfood.fridge.repository.HeladeraRepository;
 import com.farmacyfood.fridge.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
+
+    @Autowired
+    private AuditLogger auditLogger;
 
     private final StockRepository stockRepository;
     private final HeladeraRepository heladeraRepository;
@@ -58,47 +66,67 @@ public class StockServiceImpl implements StockService {
     @Override
     @Transactional
     public StockResponseDTO addStock(Long heladeraId, StockCreateDTO dto) {
-        Heladera heladera = heladeraRepository.findById(heladeraId)
-            .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
+        try {
+            Heladera heladera = heladeraRepository.findById(heladeraId)
+                .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
 
-        StockHeladera stock = StockHeladera.builder()
-            .heladera(heladera)
-            .cocinaId(dto.cocinaId())
-            .productId(dto.productId())
-            .productName(dto.productName())
-            .quantity(dto.quantity())
-            .price(dto.price())
-            .build();
+            StockHeladera stock = StockHeladera.builder()
+                .heladera(heladera)
+                .cocinaId(dto.cocinaId())
+                .productId(dto.productId())
+                .productName(dto.productName())
+                .quantity(dto.quantity())
+                .price(dto.price())
+                .build();
 
-        StockHeladera saved = stockRepository.save(stock);
+            StockHeladera saved = stockRepository.save(stock);
 
-        if ("ACTIVE".equals(heladera.getStatus())) {
-            notificacionClient.notificarProductoDisponible(
-                new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+            if ("ACTIVE".equals(heladera.getStatus())) {
+                notificacionClient.notificarProductoDisponible(
+                    new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+            }
+
+            StockResponseDTO response = toDTO(saved);
+            auditLogger.success("ADD_STOCK", AuditMessages.STOCK_ADDED, response);
+            return response;
+        } catch (HeladeraNotFoundException e) {
+            auditLogger.error("ADD_STOCK", AuditMessages.FRIDGE_NOT_FOUND + ": " + heladeraId, heladeraId);
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("ADD_STOCK", "Error al agregar stock: " + e.getMessage(), dto);
+            throw e;
         }
-
-        return toDTO(saved);
     }
 
     @Override
     @Transactional
     public StockResponseDTO updateStock(Long heladeraId, StockUpdateDTO dto) {
-        StockHeladera stock = stockRepository.findByHeladeraIdAndCocinaIdAndProductId(heladeraId, dto.cocinaId(), dto.productId())
-            .orElseThrow(() -> new HeladeraNotFoundException(
-                "No existe stock para el producto " + dto.productId() + " (cocina " + dto.cocinaId() + ") en la heladera " + heladeraId));
+        try {
+            StockHeladera stock = stockRepository.findByHeladeraIdAndCocinaIdAndProductId(heladeraId, dto.cocinaId(), dto.productId())
+                .orElseThrow(() -> new HeladeraNotFoundException(
+                    "No existe stock para el producto " + dto.productId() + " (cocina " + dto.cocinaId() + ") en la heladera " + heladeraId));
 
-        int oldQuantity = stock.getQuantity();
-        stock.setQuantity(dto.quantity());
-        if (dto.productName() != null) stock.setProductName(dto.productName());
-        if (dto.price() != null) stock.setPrice(dto.price());
-        StockHeladera saved = stockRepository.save(stock);
+            int oldQuantity = stock.getQuantity();
+            stock.setQuantity(dto.quantity());
+            if (dto.productName() != null) stock.setProductName(dto.productName());
+            if (dto.price() != null) stock.setPrice(dto.price());
+            StockHeladera saved = stockRepository.save(stock);
 
-        if (oldQuantity == 0 && dto.quantity() > 0) {
-            notificacionClient.notificarProductoDisponible(
-                new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+            if (oldQuantity == 0 && dto.quantity() > 0) {
+                notificacionClient.notificarProductoDisponible(
+                    new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
+            }
+
+            StockResponseDTO response = toDTO(saved);
+            auditLogger.success("UPDATE_STOCK", AuditMessages.STOCK_UPDATED, response);
+            return response;
+        } catch (HeladeraNotFoundException e) {
+            auditLogger.error("UPDATE_STOCK", AuditMessages.STOCK_NOT_FOUND + ": " + dto.productId(), dto);
+            throw e;
+        } catch (Exception e) {
+            auditLogger.error("UPDATE_STOCK", "Error al actualizar stock: " + e.getMessage(), dto);
+            throw e;
         }
-
-        return toDTO(saved);
     }
 
     private StockResponseDTO toDTO(StockHeladera stock) {

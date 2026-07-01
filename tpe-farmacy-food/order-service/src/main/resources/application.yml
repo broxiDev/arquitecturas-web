@@ -26,6 +26,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
 
+audit:
+  service-name: ORDER-SERVICE
+
 springdoc:
   api-docs:
     path: /api/v1/ordenes/v3/api-docs

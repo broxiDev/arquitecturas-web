@@ -1,7 +1,8 @@
 package com.farmacyfood.order.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.order.client.*;
+import com.farmacyfood.order.constants.AuditMessages;
 import com.farmacyfood.order.dto.*;
 import com.farmacyfood.order.entity.Order;
 import com.farmacyfood.order.entity.OrderItem;
@@ -10,7 +11,6 @@ import com.farmacyfood.order.exception.OrderNotFoundException;
 import com.farmacyfood.order.exception.OutOfStockException;
 import com.farmacyfood.order.repository.OrderRepository;
 import com.farmacyfood.order.service.payment.PaymentGateway;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,10 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final FridgeClient fridgeClient;
     private final PaymentGateway paymentGateway;
     private final KitchenClient kitchenClient;
-    private final Optional<AuditClient> auditClient;
-    private final ObjectMapper objectMapper;  // para serializar DTOs a JSON strings
-
-    private static final String SERVICE_NAME = "ORDER-SERVICE";
+    private final AuditLogger auditLogger;
 
     //  Valida usuario con UserClient.getUser(userId) — si 404, lanza excepción
     //  Verifica stock con FridgeClient.getStock(fridgeId, productId) por cada item
@@ -48,8 +44,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderCreateDTO dto) {
-        //Serializar el request a JSON
-        String requestJson = toJson(dto);
         try {
             Long userId = getCurrentUserId();
             UserResponseDTO user = userClient.getUser(userId);
@@ -61,7 +55,8 @@ public class OrderServiceImpl implements OrderService {
                         .filter(s -> s.productId().equals(item.productId()))
                         .findFirst()
                         .orElseThrow(() -> {
-                            auditoriaError("CREATE_ORDER", requestJson, "Producto " + item.productId() + " no encontrado en la heladera");
+                            auditLogger.error("CREATE_ORDER", AuditMessages.PRODUCT_NOT_FOUND,
+                                    "Producto " + item.productId() + " no encontrado en la heladera");
                             return new OutOfStockException(
                                     "Producto " + item.productId() + " no encontrado en la heladera");
                         });
@@ -70,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
                     String error = "Stock insuficiente para producto " + item.productId()
                             + ". Disponible: " + stockItem.quantity()
                             + ", solicitado: " + item.quantity();
-                    auditoriaError("CREATE_ORDER", requestJson, error);
+                    auditLogger.error("CREATE_ORDER", AuditMessages.INSUFFICIENT_STOCK, error);
                     throw new OutOfStockException(error);
                 }
             }
@@ -78,12 +73,12 @@ public class OrderServiceImpl implements OrderService {
             Order order = toEntity(dto, userId);
             order = orderRepository.save(order);
             OrderResponseDTO response = toResponseDTO(order);
-            auditoria("CREATE_ORDER", requestJson, toJson(response));
+            auditLogger.success("CREATE_ORDER", AuditMessages.ORDER_CREATED, response);
             return response;
         } catch (OrderNotFoundException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditoriaError("CREATE_ORDER", requestJson, e.getMessage());
+            auditLogger.error("CREATE_ORDER", "Error inesperado al crear orden", e.getMessage());
             throw e;
         }
     }
@@ -98,27 +93,23 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public PaymentResponseDTO payOrder(Long id) {
-        //Serializar el request a JSON
-        String requestJson = toJson(Map.of("orderId", id));
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> {
-                        auditoriaError("PAY_ORDER", requestJson, "Orden no encontrada: " + id);
+                        auditLogger.error("PAY_ORDER", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
                         return new OrderNotFoundException("Orden no encontrada: " + id);
                     });
 
             if (!"PENDING".equals(order.getStatus())) {
-                String error = "La orden no está en estado PENDING";
-                auditoriaError("PAY_ORDER", requestJson, error);
-                throw new FailedPaymentException(error);
+                auditLogger.error("PAY_ORDER", AuditMessages.ORDER_NOT_PENDING, "orderId: " + id);
+                throw new FailedPaymentException(AuditMessages.ORDER_NOT_PENDING);
             }
 
             PaymentResponseDTO payment = paymentGateway.processPayment(order.getTotal(), "USD");
 
             if (!"COMPLETED".equals(payment.status())) {
-                String error = "El pago no fue completado";
-                auditoriaError("PAY_ORDER", requestJson, error);
-                throw new FailedPaymentException(error);
+                auditLogger.error("PAY_ORDER", AuditMessages.PAYMENT_FAILED, "orderId: " + id);
+                throw new FailedPaymentException(AuditMessages.PAYMENT_FAILED);
             }
 
             order.setStatus("PAID");
@@ -139,12 +130,12 @@ public class OrderServiceImpl implements OrderService {
                         new FridgeStockUpdateDTO(item.getProductId(), stockItem.cocinaId(), stockItem.productName(), newQty, stockItem.price()));
             }
 
-            auditoria("PAY_ORDER", requestJson, toJson(payment));
+            auditLogger.success("PAY_ORDER", AuditMessages.ORDER_PAID, payment);
             return payment;
         } catch (FailedPaymentException | OrderNotFoundException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditoriaError("PAY_ORDER", requestJson, e.getMessage());
+            auditLogger.error("PAY_ORDER", "Error inesperado al pagar orden", e.getMessage());
             throw e;
         }
     }
@@ -158,31 +149,28 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO confirmPickup(Long id) {
-        //Serializar el request a JSON
-        String requestJson = toJson(Map.of("orderId", id));
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> {
-                        auditoriaError("CONFIRM_PICKUP", requestJson, "Orden no encontrada: " + id);
+                        auditLogger.error("CONFIRM_PICKUP", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
                         return new OrderNotFoundException("Orden no encontrada: " + id);
                     });
 
             if (!"PAID".equals(order.getStatus())) {
-                String error = "La orden no está en estado PAID";
-                auditoriaError("CONFIRM_PICKUP", requestJson, error);
-                throw new IllegalStateException(error);
+                auditLogger.error("CONFIRM_PICKUP", AuditMessages.ORDER_NOT_PAID, "orderId: " + id);
+                throw new IllegalStateException(AuditMessages.ORDER_NOT_PAID);
             }
 
             order.setStatus("PICKED_UP");
             orderRepository.save(order);
 
             OrderResponseDTO response = toResponseDTO(order);
-            auditoria("CONFIRM_PICKUP", requestJson, toJson(response));
+            auditLogger.success("CONFIRM_PICKUP", AuditMessages.PICKUP_CONFIRMED, response);
             return response;
         } catch (OrderNotFoundException | IllegalStateException e) {
             throw e;
         } catch (Exception e) {
-            auditoriaError("CONFIRM_PICKUP", requestJson, e.getMessage());
+            auditLogger.error("CONFIRM_PICKUP", "Error inesperado al confirmar retiro", e.getMessage());
             throw e;
         }
     }
@@ -237,25 +225,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponseDTO cancelOrder(Long id, OrderCancelDTO dto) {
-        //Serializar el request a JSON
-        String requestJson = toJson(Map.of("orderId", id, "motivo", dto != null ? dto.motivo() : ""));
         try {
             Order order = orderRepository.findById(id)
                     .orElseThrow(() -> {
-                        auditoriaError("CANCEL_ORDER", requestJson, "Orden no encontrada: " + id);
+                        auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
                         return new OrderNotFoundException("Orden no encontrada: " + id);
                     });
             Long userId = getCurrentUserId();
             if (!order.getUserId().equals(userId)) {
-                String error = "No puedes cancelar una orden de otro usuario";
-                auditoriaError("CANCEL_ORDER", requestJson, error);
-                throw new IllegalStateException(error);
+                auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_NOT_OWNER, "userId: " + userId + ", orderId: " + id);
+                throw new IllegalStateException(AuditMessages.ORDER_NOT_OWNER);
             }
 
             if (!"PENDING".equals(order.getStatus()) && !"PAID".equals(order.getStatus())) {
-                String error = "La orden no está en estado PENDING o PAID";
-                auditoriaError("CANCEL_ORDER", requestJson, error);
-                throw new IllegalStateException(error);
+                auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_INVALID_STATUS_CANCEL, "orderId: " + id + ", status: " + order.getStatus());
+                throw new IllegalStateException(AuditMessages.ORDER_INVALID_STATUS_CANCEL);
             }
 
             if ("PAID".equals(order.getStatus())) {
@@ -277,12 +261,13 @@ public class OrderServiceImpl implements OrderService {
             order.setStatus("CANCELLED");
             orderRepository.save(order);
             OrderResponseDTO response = toResponseDTO(order);
-            auditoria("CANCEL_ORDER", requestJson, toJson(Map.of("status", "CANCELLED", "orderId", response.orderId())));
+            auditLogger.success("CANCEL_ORDER", AuditMessages.ORDER_CANCELLED,
+                    Map.of("orderId", response.orderId(), "status", "CANCELLED"));
             return response;
         } catch (OrderNotFoundException | IllegalStateException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditoriaError("CANCEL_ORDER", requestJson, e.getMessage());
+            auditLogger.error("CANCEL_ORDER", "Error inesperado al cancelar orden", e.getMessage());
             throw e;
         }
     }
@@ -340,34 +325,6 @@ public class OrderServiceImpl implements OrderService {
                 ))
                 .values().stream().toList();
     }
-
-    // Llama al audit-service si el bean está presente. Si falla (timeout, error), solo loguea warn.
-    private void auditoria(String accion, String request, String response) {
-        auditClient.ifPresent(client -> {
-            try {
-                client.registrarEvento(new AuditEventRequestDTO(
-                        SERVICE_NAME + "-" + accion, request, response));
-            } catch (Exception e) {
-                log.warn("Error al registrar auditoría para {}: {}", accion, e.getMessage());
-            }
-        });
-    }
-
-    // Para errores: arma un JSON {"error": "mensaje"} y llama a auditoria()
-    private void auditoriaError(String accion, String request, String error) {
-        auditoria(accion, request, toJson(Map.of("error", error)));
-    }
-
-    // Serializa a JSON con ObjectMapper, fallback seguro a "{}"
-    private String toJson(Object obj) {
-        try {
-            return objectMapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            log.warn("Error serializando para auditoría: {}", e.getMessage());
-            return "{}";
-        }
-    }
-
 
     //de entidad a DTO
     private OrderResponseDTO toResponseDTO(Order order) {
