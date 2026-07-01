@@ -44,9 +44,9 @@ public class Heladera {
 
     @ElementCollection
     @CollectionTable(name = "heladera_cocina", joinColumns = @JoinColumn(name = "heladera_id"))
-    @Column(name = "cocina_id")
+    @Column(name = "username")
     @Builder.Default
-    private Set<Long> cocinaIds = new HashSet<>();
+    private Set<String> usernames = new HashSet<>();
 
     @OneToMany(mappedBy = "heladera", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

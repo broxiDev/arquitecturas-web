@@ -3,7 +3,6 @@ package com.farmacyfood.fridge.service;
 import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
 import com.farmacyfood.fridge.client.HeladeraStatusChangeDTO;
-import com.farmacyfood.fridge.client.KitchenClient;
 import com.farmacyfood.fridge.client.NotificacionClient;
 import com.farmacyfood.fridge.constants.AuditMessages;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
@@ -11,7 +10,6 @@ import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
 import com.farmacyfood.fridge.dto.HeladeraUpdateDTO;
 import com.farmacyfood.fridge.entity.EventoEstadoHeladera;
 import com.farmacyfood.fridge.entity.Heladera;
-import com.farmacyfood.fridge.exception.CocinaNotFoundException;
 import com.farmacyfood.fridge.exception.HeladeraNotFoundException;
 import com.farmacyfood.fridge.repository.HeladeraRepository;
 import com.farmacyfood.fridge.repository.StatusEventRepository;
@@ -36,7 +34,6 @@ public class HeladeraServiceImpl implements HeladeraService {
     private final HeladeraRepository heladeraRepository;
     private final StatusEventRepository statusEventRepository;
     private final NotificacionClient notificacionClient;
-    private final KitchenClient kitchenClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -154,25 +151,18 @@ public class HeladeraServiceImpl implements HeladeraService {
 
     @Override
     @Transactional
-    public HeladeraResponseDTO linkCocina(Long heladeraId, Long cocinaId) {
+    public HeladeraResponseDTO linkCocina(Long heladeraId, String username) {
         try {
             Heladera heladera = heladeraRepository.findById(heladeraId)
                 .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
 
-            if (!kitchenClient.cocinaExists(cocinaId)) {
-                throw new CocinaNotFoundException("No existe cocina con id: " + cocinaId);
-            }
-
-            heladera.getCocinaIds().add(cocinaId);
+            heladera.getUsernames().add(username);
             Heladera saved = heladeraRepository.save(heladera);
             HeladeraResponseDTO response = toDTO(saved);
             auditLogger.success("LINK_KITCHEN", AuditMessages.KITCHEN_LINKED, response);
             return response;
         } catch (HeladeraNotFoundException e) {
             auditLogger.error("LINK_KITCHEN", AuditMessages.FRIDGE_NOT_FOUND + ": " + heladeraId, heladeraId);
-            throw e;
-        } catch (CocinaNotFoundException e) {
-            auditLogger.error("LINK_KITCHEN", "Cocina no encontrada: " + cocinaId, cocinaId);
             throw e;
         } catch (Exception e) {
             auditLogger.error("LINK_KITCHEN", "Error al vincular cocina: " + e.getMessage(), heladeraId);
@@ -182,12 +172,12 @@ public class HeladeraServiceImpl implements HeladeraService {
 
     @Override
     @Transactional
-    public HeladeraResponseDTO unlinkCocina(Long heladeraId, Long cocinaId) {
+    public HeladeraResponseDTO unlinkCocina(Long heladeraId, String username) {
         try {
             Heladera heladera = heladeraRepository.findById(heladeraId)
                 .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
 
-            heladera.getCocinaIds().remove(cocinaId);
+            heladera.getUsernames().remove(username);
             Heladera saved = heladeraRepository.save(heladera);
             HeladeraResponseDTO response = toDTO(saved);
             auditLogger.success("UNLINK_KITCHEN", AuditMessages.KITCHEN_UNLINKED, response);
@@ -202,7 +192,7 @@ public class HeladeraServiceImpl implements HeladeraService {
     }
 
     private HeladeraResponseDTO toDTO(Heladera heladera) {
-        Set<Long> cocinaIds = heladera.getCocinaIds();
+        Set<String> usernames = heladera.getUsernames();
         return new HeladeraResponseDTO(
             heladera.getId(),
             heladera.getName(),
@@ -210,7 +200,7 @@ public class HeladeraServiceImpl implements HeladeraService {
             heladera.getLongitude(),
             heladera.getAddress(),
             heladera.getStatus(),
-            cocinaIds != null ? new HashSet<>(cocinaIds) : new HashSet<>(),
+            usernames != null ? new HashSet<>(usernames) : new HashSet<>(),
             heladera.getLastMaintenance(),
             heladera.getCreatedAt(),
             heladera.getUpdatedAt()

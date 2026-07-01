@@ -13,8 +13,8 @@ public record StockResponseDTO(
     @Schema(description = "ID de la heladera", example = "1")
     Long fridgeId,
 
-    @Schema(description = "ID de la cocina", example = "1")
-    Long cocinaId,
+    @Schema(description = "Username de la cocina", example = "cocina_juan")
+    String username,
 
     @Schema(description = "ID del producto", example = "101")
     Long productId,

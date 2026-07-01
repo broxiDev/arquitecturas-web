@@ -11,9 +11,6 @@ public record StockUpdateDTO(
     @Schema(description = "ID del producto", example = "101")
     @NotNull Long productId,
 
-    @Schema(description = "ID de la cocina", example = "1")
-    @NotNull Long cocinaId,
-
     @Schema(description = "Nombre del producto", example = "Brownie de Chocolate")
     String productName,
 

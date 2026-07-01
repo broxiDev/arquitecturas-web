@@ -19,9 +19,6 @@ public record StockCreateDTO(
     @Schema(description = "Cantidad inicial", example = "20")
     @NotNull @Min(0) Integer quantity,
 
-    @Schema(description = "ID de la cocina a la que pertenece el producto", example = "1")
-    @NotNull Long cocinaId,
-
     @Schema(description = "Precio del producto", example = "10.00")
     @NotNull @DecimalMin("0.00") BigDecimal price
 ) {}

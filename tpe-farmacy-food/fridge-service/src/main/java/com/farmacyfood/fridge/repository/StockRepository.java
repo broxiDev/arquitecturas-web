@@ -12,7 +12,7 @@ public interface StockRepository extends JpaRepository<StockHeladera, Long> {
 
     List<StockHeladera> findByHeladeraId(Long heladeraId);
 
-    List<StockHeladera> findByCocinaId(Long cocinaId);
+    List<StockHeladera> findByUsername(String username);
 
-    Optional<StockHeladera> findByHeladeraIdAndCocinaIdAndProductId(Long heladeraId, Long cocinaId, Long productId);
+    Optional<StockHeladera> findByHeladeraIdAndUsernameAndProductId(Long heladeraId, String username, Long productId);
 }

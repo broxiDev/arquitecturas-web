@@ -17,6 +17,7 @@ import com.farmacyfood.fridge.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +40,8 @@ public class StockServiceImpl implements StockService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FridgeRemainderDTO> getRemainderByCocinaId(Long cocinaId) {
-        List<StockHeladera> stockItems = stockRepository.findByCocinaId(cocinaId);
+    public List<FridgeRemainderDTO> getRemainderByUsername(String username) {
+        List<StockHeladera> stockItems = stockRepository.findByUsername(username);
 
         Map<Long, List<StockHeladera>> grouped = stockItems.stream()
             .collect(Collectors.groupingBy(s -> s.getHeladera().getId()));
@@ -67,12 +68,14 @@ public class StockServiceImpl implements StockService {
     @Transactional
     public StockResponseDTO addStock(Long heladeraId, StockCreateDTO dto) {
         try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
             Heladera heladera = heladeraRepository.findById(heladeraId)
                 .orElseThrow(() -> new HeladeraNotFoundException("No existe heladera con id: " + heladeraId));
 
             StockHeladera stock = StockHeladera.builder()
                 .heladera(heladera)
-                .cocinaId(dto.cocinaId())
+                .username(username)
                 .productId(dto.productId())
                 .productName(dto.productName())
                 .quantity(dto.quantity())
@@ -102,9 +105,11 @@ public class StockServiceImpl implements StockService {
     @Transactional
     public StockResponseDTO updateStock(Long heladeraId, StockUpdateDTO dto) {
         try {
-            StockHeladera stock = stockRepository.findByHeladeraIdAndCocinaIdAndProductId(heladeraId, dto.cocinaId(), dto.productId())
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            StockHeladera stock = stockRepository.findByHeladeraIdAndUsernameAndProductId(heladeraId, username, dto.productId())
                 .orElseThrow(() -> new HeladeraNotFoundException(
-                    "No existe stock para el producto " + dto.productId() + " (cocina " + dto.cocinaId() + ") en la heladera " + heladeraId));
+                    "No existe stock para el producto " + dto.productId() + " en la heladera " + heladeraId));
 
             int oldQuantity = stock.getQuantity();
             stock.setQuantity(dto.quantity());
@@ -133,7 +138,7 @@ public class StockServiceImpl implements StockService {
         return new StockResponseDTO(
             stock.getId(),
             stock.getHeladera().getId(),
-            stock.getCocinaId(),
+            stock.getUsername(),
             stock.getProductId(),
             stock.getProductName(),
             stock.getQuantity(),
