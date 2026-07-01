@@ -8,19 +8,15 @@ import com.farmacyfood.auth.dto.AuthResponse;
 import com.farmacyfood.auth.dto.LoginRequest;
 import com.farmacyfood.auth.dto.RegisterRequest;
 import com.farmacyfood.auth.dto.UserRegistrationRequest;
-import com.farmacyfood.auth.dto.UserRegistrationRequest;
 import com.farmacyfood.auth.entity.AuthUser;
 import com.farmacyfood.auth.exception.DuplicateUserException;
 import com.farmacyfood.auth.exception.InvalidCredentialsException;
 import com.farmacyfood.auth.repository.AuthUserRepository;
 import feign.FeignException;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.List;
 import java.util.Set;
 
@@ -30,12 +26,11 @@ import java.util.Set;
 public class AuthServiceImpl implements AuthService {
 
     private static final Set<String> ALLOWED_ROLES = Set.of("cliente", "cocina");
-    private final UserClient userClient;
-
     private final AuthUserRepository authUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuditLogger auditLogger;
+    private final UserClient userClient;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -55,26 +50,27 @@ public class AuthServiceImpl implements AuthService {
             AuthUser authUser = new AuthUser(request.username(), hashedPassword, request.rol());
             authUserRepository.save(authUser);
 
-        // 3. Llamar a user-service para crear perfil
-        try {
-            userClient.register(new UserRegistrationRequest(
-                    request.name(),
-                    request.email(),
-                    request.username(),  // authUsername = mismo username
-                    List.of()             // dietaryPreferences vacío por defecto
-            ));
-        } catch (FeignException e) {
-            // ¿rollback de auth?
-            authUserRepository.delete(authUser);
-            throw new RuntimeException("Error al crear perfil en user-service", e);
-        }
+            // 3. Llamar a user-service para crear perfil
+            try {
+                userClient.register(new UserRegistrationRequest(
+                        request.name(),
+                        request.email(),
+                        request.username(),  // authUsername = mismo username
+                        List.of()             // dietaryPreferences vacío por defecto
+                ));
+            } catch (FeignException e) {
+                // ¿rollback de auth?
+                authUserRepository.delete(authUser);
+                throw new RuntimeException("Error al crear perfil en user-service", e);
+            }
 
-        String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
+            String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
             auditLogger.success("REGISTER", AuditMessages.USER_REGISTERED, "username: " + request.username());
             return new AuthResponse(token);
         } catch (Exception e) {
             log.warn("Error en registro: {}", e.getMessage());
             throw e;
+        }
     }
 
     @Override
