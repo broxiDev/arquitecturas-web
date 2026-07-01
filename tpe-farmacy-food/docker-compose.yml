@@ -1,7 +1,14 @@
+networks:
+  farmacyfood-net:
+    driver: bridge
+
 include:
+  - path: ./discovery-service/docker-compose.yml
+  - path: ./api-gateway/docker-compose.yml
   - path: ./kitchen-service/docker-compose.yml
   - path: ./fridge-service/docker-compose.yml
   - path: ./order-service/docker-compose.yml
+  - path: ./recommendation-service/docker-compose.yml
   - path: ./notification-service/docker-compose.yml
   - path: ./user-service/docker-compose.yml
   - path: ./audit-service/docker-compose.yml

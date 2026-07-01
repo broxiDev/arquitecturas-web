@@ -12,8 +12,8 @@ public record CocinaResponseDTO(
     @Schema(description = "Nombre de la cocina", example = "La mejor cocina veggy de Rosi")
     String nombre,
 
-    @Schema(description = "ID del usuario propietario", example = "1")
-    Long usuarioId,
+    @Schema(description = "Username (auth) del usuario propietario", example = "auth_juan")
+    String usuario,
 
     @Schema(description = "Fecha de creacion", example = "2026-06-27T14:00:00")
     LocalDateTime createdAt

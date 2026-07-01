@@ -4,12 +4,34 @@ services:
     container_name: audit-postgres
     environment:
       POSTGRES_DB: audit_db
+      POSTGRES_USER: root
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5438:5432"
     volumes:
       - audit_postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - farmacyfood-net
+
+  audit-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: audit-service
+    container_name: audit-service
+    depends_on:
+      - postgres-audit
+    ports:
+      - "7088:8088"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_OPTS: >-
+        -Dspring.datasource.url=jdbc:postgresql://audit-postgres:5432/audit_db
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+    networks:
+      - farmacyfood-net
 
 volumes:
   audit_postgres_data:

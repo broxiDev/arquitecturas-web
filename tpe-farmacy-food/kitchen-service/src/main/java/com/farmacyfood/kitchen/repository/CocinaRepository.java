@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface CocinaRepository extends JpaRepository<Cocina, Long> {
 
-    boolean existsByUsuarioId(Long usuarioId);
+    boolean existsByUsuario(String usuario);
 
     Optional<Cocina> findById(Long id);
 }
