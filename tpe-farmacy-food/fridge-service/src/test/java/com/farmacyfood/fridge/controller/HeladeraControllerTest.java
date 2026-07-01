@@ -5,8 +5,10 @@ import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
 import com.farmacyfood.fridge.dto.HeladeraUpdateDTO;
 import com.farmacyfood.fridge.dto.ProductRemainderDTO;
+import com.farmacyfood.fridge.config.SecurityConfig;
 import com.farmacyfood.fridge.exception.GlobalExceptionHandler;
 import com.farmacyfood.fridge.exception.HeladeraNotFoundException;
+import com.farmacyfood.fridge.filter.HeaderAuthFilter;
 import com.farmacyfood.fridge.service.HeladeraService;
 import com.farmacyfood.fridge.service.StockService;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -29,7 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(HeladeraController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, SecurityConfig.class, HeaderAuthFilter.class})
+@WithMockUser(authorities = "adminDeHeladera")
 class HeladeraControllerTest {
 
     @Autowired

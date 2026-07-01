@@ -17,7 +17,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Autowired
     private JwtUtil jwtUtil;
 
-    private static final String[] PUBLIC_PATHS = { "/api/auth/" };
+    private static final String[] PUBLIC_PATHS = { "/api/v1/auth/" };
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

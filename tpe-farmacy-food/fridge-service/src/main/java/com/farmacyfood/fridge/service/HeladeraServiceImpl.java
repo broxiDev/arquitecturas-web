@@ -17,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -143,6 +145,7 @@ public class HeladeraServiceImpl implements HeladeraService {
     }
 
     private HeladeraResponseDTO toDTO(Heladera heladera) {
+        Set<Long> cocinaIds = heladera.getCocinaIds();
         return new HeladeraResponseDTO(
             heladera.getId(),
             heladera.getName(),
@@ -150,7 +153,7 @@ public class HeladeraServiceImpl implements HeladeraService {
             heladera.getLongitude(),
             heladera.getAddress(),
             heladera.getStatus(),
-            heladera.getCocinaIds(),
+            cocinaIds != null ? new HashSet<>(cocinaIds) : new HashSet<>(),
             heladera.getLastMaintenance(),
             heladera.getCreatedAt(),
             heladera.getUpdatedAt()
