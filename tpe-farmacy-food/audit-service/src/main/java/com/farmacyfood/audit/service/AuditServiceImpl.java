@@ -23,12 +23,16 @@ public class AuditServiceImpl implements AuditService {
     public AuditEventResponse registrarEvento(AuditEventRequest request) {
         AuditEvent event = new AuditEvent(
                 request.serviceName(),
+                request.eventType(),
+                request.action(),
+                request.message(),
                 request.request(),
                 request.response(),
                 request.timestamp()
         );
         event = repository.save(event);
-        log.info("Evento de auditoría registrado: service={} | id={}", event.getServiceName(), event.getId());
+        log.info("Evento de auditoría registrado: service={} | type={} | action={} | id={}",
+                event.getServiceName(), event.getEventType(), event.getAction(), event.getId());
         return AuditEventResponse.from(event);
     }
 }

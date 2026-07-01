@@ -3,232 +3,238 @@
 ## Índice
 
 1. [Introducción](#1-introducción)
-2. [Endpoints disponibles](#2-endpoints-disponibles)
-3. [Setup del cliente en tu servicio](#3-setup-del-cliente-en-tu-servicio)
-4. [Ejemplo práctico: order-service audita una creación de orden](#4-ejemplo-práctico-order-service-audita-una-creación-de-orden)
-5. [Buenas prácticas](#5-buenas-prácticas)
+2. [Arquitectura](#2-arquitectura)
+3. [Setup rápido (3 pasos)](#3-setup-rápido-3-pasos)
+4. [Uso del AuditLogger](#4-uso-del-auditlogger)
+5. [Constantes de mensajes](#5-constantes-de-mensajes)
+6. [Estructura del evento](#6-estructura-del-evento)
+7. [Buenas prácticas](#7-buenas-prácticas)
 
 ---
 
 ## 1. Introducción
 
-El **Audit Service** (`audit-service`, puerto `8088`) permite a cualquier microservicio del ecosistema FarmacyFood registrar eventos de auditoría con un patrón **fire-and-forget**: cada servicio envía el **request** que recibió y el **response** que devolvió, y el audit-service lo persiste sin esperar confirmación adicional.
+El **Audit Service** (`audit-service`, puerto `8088`) permite a cualquier microservicio del ecosistema FarmacyFood registrar eventos de auditoría con un patrón **fire-and-forget**.
 
-Los eventos se almacenan en **PostgreSQL** (`audit_db`, puerto `5438`) y se accede al endpoint via **API Gateway** (`http://localhost:8080/api/v1/auditoria/eventos`).
+Cada servicio utiliza la librería compartida **`audit-client`** que provee:
+- `AuditLogger` — helper con métodos `success()`, `error()`, `info()`, `pending()`
+- `AuditClientFeign` — implementación Feign real (perfiles no-dev)
+- `AuditClientMockImpl` — mock para desarrollo (perfil `dev`)
+
+---
+
+## 2. Arquitectura
 
 ```
-┌──────────────┐   POST /api/v1/auditoria/eventos (fire & forget)   ┌───────────────┐
-│ order-service │ ────────────────────────────────────────────────>  │ audit-service  │
-│  (Feign)      │                                                   │  (PostgreSQL)  │
-└──────────────┘                                                   └───────────────┘
+┌───────────────┐             POST /api/v1/auditoria/eventos (fire & forget)         ┌───────────────┐
+│ order-service │ ─── usa AuditLogger ──► audit-client ──► Feign ──────────────────► │ audit-service  │
+│ user-service  │ ─── usa AuditLogger ──► audit-client ──► Feign ──────────────────► │  (PostgreSQL)  │
+│ auth-service  │ ─── usa AuditLogger ──► audit-client ──► Feign ──────────────────► └───────────────┘
+│ ...           │                                                                     
+└───────────────┘
+       ▲
+       │
+  audit-client (librería compartida)
+  ┌────────────────────────────────────┐
+  │ AuditLogger.java                   │
+  │ AuditClient.java (interface)       │
+  │ AuditClientFeign.java (Feign)      │
+  │ AuditClientMockImpl.java (mock)    │
+  │ AuditEventRequestDTO.java          │
+  │ EventType.java (enum)              │
+  └────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Endpoints disponibles
+## 3. Setup rápido (3 pasos)
 
-### 2.1 Registrar un evento (único endpoint)
+### Paso 1: Agregar dependencias
 
-```
-POST /api/v1/auditoria/eventos
-```
-
-```json
-{
-  "serviceName": "ORDER-SERVICE",
-  "request": "{\"method\":\"POST\",\"path\":\"/api/v1/ordenes\",\"body\":{\"userId\":3,\"items\":[{\"productId\":1,\"quantity\":2}]}}",
-  "response": "{\"status\":201,\"body\":{\"orderId\":1,\"total\":8200.00,\"status\":\"CREATED\"}}"
-}
-```
-
-| Campo | Tipo | Obligatorio | Descripción |
-|---|---|---|---|
-| `serviceName` | string | **sí** | Nombre del servicio que llama (ej: `ORDER-SERVICE`, `FRIDGE-SERVICE`) |
-| `request` | string | no | JSON string del request recibido por el servicio |
-| `response` | string | no | JSON string del response devuelto por el servicio |
-| `timestamp` | string | no | ISO-8601. Si se omite, se usa la hora del servidor |
-
-> **Fire-and-forget**: el servicio llama a este endpoint de forma asíncrona y no bloquea su flujo principal ante una eventual falla del audit-service.
-
----
-
-## 3. Setup del cliente en tu servicio
-
-Crea **3 archivos** dentro de `src/main/java/com/farmacyfood/<tuservicio>/client/`:
-
-### 3.1 Interface del contrato
-
-**`AuditClient.java`**
-
-```java
-package com.farmacyfood.<tuservicio>.client;
-
-public interface AuditClient {
-    void registrarEvento(String serviceName, String request, String response);
-}
-```
-
-### 3.2 DTO del request
-
-**`AuditEventRequest.java`**
-
-```java
-package com.farmacyfood.<tuservicio>.client;
-
-public record AuditEventRequest(
-        String serviceName,
-        String request,
-        String response
-) {}
-```
-
-### 3.3 Implementación real (Feign) — activa con perfil `!dev`
-
-**`AuditClientFeign.java`**
-
-```java
-package com.farmacyfood.<tuservicio>.client;
-
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.Profile;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-@FeignClient(name = "audit-service", url = "${clients.audit-service.url:http://localhost:8088}")
-@Profile("!dev")
-public interface AuditClientFeign extends AuditClient {
-
-    @Override
-    @PostMapping("/api/v1/auditoria/eventos")
-    void registrarEvento(@RequestBody AuditEventRequest request);
-}
-```
-
-### 3.4 Mock para desarrollo — activa con perfil `dev`
-
-**`AuditClientMockImpl.java`**
-
-```java
-package com.farmacyfood.<tuservicio>.client;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-@Slf4j
-@Component
-@Profile("dev")
-public class AuditClientMockImpl implements AuditClient {
-
-    @Override
-    public void registrarEvento(String serviceName, String request, String response) {
-        log.info("[MOCK AUDIT] service={} | request={} | response={}", serviceName, request, response);
-    }
-}
-```
-
----
-
-## 4. Ejemplo práctico: order-service audita una creación de orden
-
-### 4.1 En `OrderServiceImpl.java`, inyectá el `AuditClient`:
-
-```java
-@Service
-@Transactional
-@Slf4j
-public class OrderServiceImpl implements OrderService {
-
-    // ... otros campos ...
-
-    @Autowired(required = false)
-    private AuditClient auditClient;
-
-    @Override
-    public OrderResponseDTO crearOrden(OrderCreateDTO dto) {
-        String requestJson = String.format(
-            "{\"method\":\"POST\",\"path\":\"/api/v1/ordenes\",\"body\":%s}",
-            convertirACadenaJson(dto)
-        );
-
-        // ... lógica de creación de orden ...
-        OrderResponseDTO response = orderRepository.save(order);
-
-        // -- Registrar evento de auditoría (fire-and-forget) --
-        String responseJson = String.format(
-            "{\"status\":201,\"body\":{\"orderId\":%d,\"total\":%.2f,\"status\":\"CREATED\"}}",
-            response.orderId(), response.total()
-        );
-
-        if (auditClient != null) {
-            auditClient.registrarEvento("ORDER-SERVICE", requestJson, responseJson);
-        }
-
-        return response;
-    }
-}
-```
-
-### 4.2 Si querés que Feign esté disponible en tu servicio, agregá en su `pom.xml`:
+En tu `pom.xml`:
 
 ```xml
+<!-- Si no tenés OpenFeign aún -->
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-openfeign</artifactId>
 </dependency>
+
+<!-- Librería compartida de auditoría -->
+<dependency>
+    <groupId>com.farmacyfood</groupId>
+    <artifactId>audit-client</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ```
 
-### 4.3 Configuración de `@EnableFeignClients`
+### Paso 2: Habilitar Feign Clients
 
-Si usás `@EnableFeignClients`, asegurate de que escanee el paquete del cliente:
+En tu clase `@SpringBootApplication`, agregá:
 
 ```java
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.farmacyfood.order.client")
-public class OrderServiceApplication { ... }
+@EnableFeignClients(basePackages = "com.farmacyfood.audit.client")
+public class MyServiceApplication { ... }
 ```
 
-Si el Feign Client de audit-service está en un paquete diferente, Spring no lo encontrará. **Solución simple**: en vez de usar Feign discovery automático, definí la URL explícitamente como en el ejemplo del Feign Client arriba.
+### Paso 3: Configurar el nombre del servicio
+
+En tu `application.yml`:
+
+```yaml
+audit:
+  service-name: MI-SERVICIO   # Reemplazá con el nombre de tu servicio
+```
 
 ---
 
-## 5. Buenas prácticas
+## 4. Uso del AuditLogger
 
-### 5.1 ¿Cuándo auditar?
-
-| Acción | ¿Auditar? | Ejemplo |
-|---|---|---|
-| Creación de entidad | **Sí** | `request` / `response` completos |
-| Actualización de datos sensibles | **Sí** | Enviar ambos payloads |
-| Eliminación | **Sí** | Registrar qué se eliminó |
-| Cambio de estado crítico | **Sí** | Incluir estado anterior y nuevo |
-| Lecturas (GET) | **No** | — |
-| Consultas internas | **No** | — |
-
-### 5.2 Fire-and-forget real
-
-El llamado al audit-service debe ejecutarse de forma asíncrona para no afectar la latencia del servicio principal:
+### 4.1 Inyección
 
 ```java
-// Opción 1: @Async
-@Async
-public void auditar(String serviceName, String request, String response) {
-    auditClient.registrarEvento("ORDER-SERVICE", request, response);
-}
+import com.farmacyfood.audit.client.AuditLogger;
 
-// Opción 2: ExecutorService propio
-executor.submit(() -> auditClient.registrarEvento("ORDER-SERVICE", request, response));
+@Service
+public class MiServiceImpl implements MiService {
+
+    private final AuditLogger auditLogger;
+
+    public MiServiceImpl(AuditLogger auditLogger) {
+        this.auditLogger = auditLogger;
+    }
+    // ...
+}
 ```
 
-### 5.3 `required = false` en la inyección
+Si usás `@Autowired` por campo:
 
-Usá `@Autowired(required = false)` para que el servicio funcione incluso si el `AuditClient` no está configurado (ej: durante tests unitarios).
+```java
+@Autowired
+private AuditLogger auditLogger;
+```
 
-### 5.4 Serialización de `request` y `response`
+### 4.2 Métodos disponibles
 
-Los campos `request` y `response` son strings TEXT. Enviá siempre un **JSON string válido** con los datos relevantes del payload, no los objetos serializados completos si contienen información innecesaria.
+| Método | Tipo de evento | Uso típico |
+|--------|---------------|------------|
+| `auditLogger.success(action, message, detail)` | `SUCCESS` | Operación exitosa |
+| `auditLogger.error(action, message, detail)` | `ERROR` | Operación fallida |
+| `auditLogger.info(action, message, detail)` | `INFO` | Evento informativo |
+| `auditLogger.pending(action, message, detail)` | `PENDING` | Operación en proceso |
 
-### 5.5 No auditar en cascada
+### 4.3 Parámetros
 
-Si un servicio A llama a B y B ya audita su propia acción, **no audites la misma acción desde A**. Cada servicio es responsable de auditar sus propias operaciones.
+| Parámetro | Tipo | Descripción | Ejemplo |
+|-----------|------|-------------|---------|
+| `action` | `String` | Nombre de la acción | `"CREATE_ORDER"` |
+| `message` | `String` | Texto legible del evento | `"Orden creada exitosamente"` |
+| `detail` | `Object` | Detalle adicional (se serializa a JSON). Si es String se usa literal. | DTO, Map, String |
+
+### 4.4 Ejemplo completo
+
+```java
+public OrderResponseDTO crearOrden(OrderCreateDTO dto) {
+    try {
+        // Lógica de negocio...
+        OrderResponseDTO response = orderRepository.save(order);
+        
+        auditLogger.success("CREATE_ORDER", AuditMessages.ORDER_CREATED, response);
+        return response;
+    } catch (OutOfStockException e) {
+        auditLogger.error("CREATE_ORDER", AuditMessages.INSUFFICIENT_STOCK, e.getMessage());
+        throw e;
+    } catch (Exception e) {
+        auditLogger.error("CREATE_ORDER", "Error inesperado", e.getMessage());
+        throw e;
+    }
+}
+```
+
+---
+
+## 5. Constantes de mensajes
+
+Cada servicio define su propia clase `AuditMessages` en `com.farmacyfood.<servicio>.constants.AuditMessages`:
+
+```java
+package com.farmacyfood.miservicio.constants;
+
+public final class AuditMessages {
+    private AuditMessages() {}
+
+    public static final String ENTITY_CREATED = "Entidad creada exitosamente";
+    public static final String ENTITY_UPDATED = "Entidad actualizada exitosamente";
+    public static final String ENTITY_DELETED = "Entidad eliminada exitosamente";
+    public static final String ENTITY_NOT_FOUND = "Entidad no encontrada";
+    // ...
+}
+```
+
+**Convención:** los nombres de las constantes van en `MAYUSCULAS_CON_SNAKE_CASE` y sus valores son frases en español.
+
+---
+
+## 6. Estructura del evento
+
+Cuando se registra un evento, el audit-service lo persiste con esta estructura:
+
+```json
+{
+  "id": 1,
+  "serviceName": "ORDER-SERVICE",
+  "eventType": "SUCCESS",
+  "action": "CREATE_ORDER",
+  "message": "Orden creada exitosamente",
+  "request": "{\"method\":\"POST\",\"path\":\"/api/v1/ordenes\",...}",
+  "response": "{\"orderId\":1,\"total\":8200.00,\"status\":\"CREATED\"}",
+  "timestamp": "2026-07-01T12:00:00"
+}
+```
+
+| Campo | Descripción |
+|-------|-------------|
+| `serviceName` | Nombre del servicio que originó el evento |
+| `eventType` | `SUCCESS`, `ERROR`, `PENDING` o `INFO` |
+| `action` | Acción concreta (ej: `CREATE_ORDER`) |
+| `message` | Texto legible del evento |
+| `request` | JSON original de la solicitud (cuando aplica) |
+| `response` | JSON del detalle enviado vía `AuditLogger` |
+| `timestamp` | Fecha/hora del evento |
+
+---
+
+## 7. Buenas prácticas
+
+### 7.1 ¿Cuándo auditar?
+
+| Acción | ¿Auditar? | Tipo |
+|--------|-----------|------|
+| Creación de entidad | **Sí** | `SUCCESS` / `ERROR` |
+| Actualización de datos sensibles | **Sí** | `SUCCESS` / `ERROR` |
+| Eliminación | **Sí** | `SUCCESS` / `ERROR` |
+| Cambio de estado crítico | **Sí** | `SUCCESS` / `ERROR` |
+| Lecturas (GET) | **No** | — |
+| Consultas internas | **No** | — |
+| Procesos batch/programados | **Sí** | `INFO` / `ERROR` |
+
+### 7.2 Fire-and-forget
+
+El `AuditLogger` ya maneja el patrón fire-and-forget automáticamente: envuelve la llamada Feign en un `try-catch` y solo loguea un warning si falla. **No bloquea el flujo principal.**
+
+### 7.3 No auditar en cascada
+
+Si el servicio A llama al servicio B, y B ya audita su propia acción, **no audites la misma acción desde A**. Cada servicio es responsable de auditar sus propias operaciones.
+
+### 7.4 El detail se serializa a JSON
+
+El parámetro `detail` de `AuditLogger` se serializa automáticamente con Jackson. Si pasás un String, se usa literal. Si pasás un objeto/DTO/Map, se convierte a JSON.
+
+### 7.5 Perfiles
+
+- **Perfil `dev`**: los eventos solo se loguean por consola (`AuditClientMockImpl`)
+- **Perfil `!dev`** (prod, test, etc.): los eventos se envían realmente al audit-service vía Feign

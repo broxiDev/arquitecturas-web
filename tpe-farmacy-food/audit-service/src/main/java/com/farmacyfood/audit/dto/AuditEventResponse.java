@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 public record AuditEventResponse(
         Long id,
         String serviceName,
+        String eventType,
+        String action,
+        String message,
         String request,
         String response,
         LocalDateTime timestamp
@@ -15,6 +18,9 @@ public record AuditEventResponse(
         return new AuditEventResponse(
                 event.getId(),
                 event.getServiceName(),
+                event.getEventType(),
+                event.getAction(),
+                event.getMessage(),
                 event.getRequest(),
                 event.getResponse(),
                 event.getTimestamp()
