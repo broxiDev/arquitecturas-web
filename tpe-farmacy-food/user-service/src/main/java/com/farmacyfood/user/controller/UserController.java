@@ -46,6 +46,14 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Obtener perfil de usuario por authUsername")
+    @GetMapping("/auth-username/{authUsername}")
+    public ResponseEntity<UserResponse> getByAuthUsername(@PathVariable String authUsername) {
+        return service.findByAuthUsername(authUsername)
+                .map(user -> ResponseEntity.ok(UserResponse.from(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Actualizar usuario")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody User user) {

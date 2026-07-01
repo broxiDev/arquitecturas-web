@@ -4,13 +4,18 @@ import com.farmacyfood.user.client.OrderServiceClient;
 import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
 import com.farmacyfood.user.exception.DuplicateEmailException;
+import com.farmacyfood.user.exception.InvalidRoleException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +34,11 @@ class UserServiceImplTest {
 
     @InjectMocks
     private UserServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     void register_guardaUsuario() {
@@ -86,6 +96,10 @@ class UserServiceImplTest {
 
     @Test
     void update_cuandoExiste_actualizaCampos() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("mati", null,
+                        List.of(new SimpleGrantedAuthority("cliente")))
+        );
         User existing = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         existing.setId(1L);
         User updated = new User("Mati Nuevo", "mati@test.com", "mati_user", List.of("vegano", "gluten-free"));
@@ -147,7 +161,32 @@ class UserServiceImplTest {
     }
 
     @Test
+    void findByAuthUsername_cuandoExiste() {
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
+        user.setId(1L);
+        when(repository.findByAuthUsername("mati_user")).thenReturn(Optional.of(user));
+
+        Optional<User> result = service.findByAuthUsername("mati_user");
+
+        assertTrue(result.isPresent());
+        assertEquals("Mati", result.get().getName());
+    }
+
+    @Test
+    void findByAuthUsername_cuandoNoExiste() {
+        when(repository.findByAuthUsername("no_existe")).thenReturn(Optional.empty());
+
+        Optional<User> result = service.findByAuthUsername("no_existe");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     void updatePreferences_cuandoExiste() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("mati", null,
+                        List.of(new SimpleGrantedAuthority("cliente")))
+        );
         User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);
         List<String> newPrefs = List.of("vegano", "gluten-free");
@@ -166,6 +205,38 @@ class UserServiceImplTest {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.updatePreferences(99L, List.of("vegano")));
+    }
+
+    @Test
+    void update_cuandoRolNoClienteConPreferencias_lanzaExcepcion() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("emprendedor", null,
+                        List.of(new SimpleGrantedAuthority("emprendedor")))
+        );
+        User existing = new User("Emprendedor", "emprendedor@test.com", "emprendedor_user", List.of());
+        existing.setId(1L);
+        User updated = new User("Emprendedor", "emprendedor@test.com", "emprendedor_user", List.of("vegano"));
+
+        when(repository.findById(1L)).thenReturn(Optional.of(existing));
+
+        assertThrows(InvalidRoleException.class, () -> service.update(1L, updated));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void updatePreferences_cuandoRolNoClienteConPreferencias_lanzaExcepcion() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("emprendedor", null,
+                        List.of(new SimpleGrantedAuthority("emprendedor")))
+        );
+        User user = new User("Emprendedor", "emprendedor@test.com", "emprendedor_user", List.of());
+        user.setId(1L);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(InvalidRoleException.class,
+                () -> service.updatePreferences(1L, List.of("vegano")));
+        verify(repository, never()).save(any());
     }
 
     @Test

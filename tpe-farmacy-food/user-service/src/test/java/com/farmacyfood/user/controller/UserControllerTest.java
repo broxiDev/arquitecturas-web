@@ -98,6 +98,26 @@ class UserControllerTest {
     }
 
     @Test
+    void getByAuthUsername_retorna200() throws Exception {
+        User user = new User("Mati", "mati@test.com", "mati_user", List.of("vegano"));
+        user.setId(1L);
+        when(service.findByAuthUsername("mati_user")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(get("/api/v1/usuarios/auth-username/mati_user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Mati"));
+    }
+
+    @Test
+    void getByAuthUsername_retorna404() throws Exception {
+        when(service.findByAuthUsername("no_existe")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/v1/usuarios/auth-username/no_existe"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void update_retorna200() throws Exception {
         User user = new User("Mati Updated", "mati@test.com", "mati_user", List.of("vegano"));
         user.setId(1L);

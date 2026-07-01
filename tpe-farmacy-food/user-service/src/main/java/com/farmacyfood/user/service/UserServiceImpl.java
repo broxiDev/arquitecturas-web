@@ -5,9 +5,12 @@ import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
 import com.farmacyfood.user.exception.DuplicateEmailException;
+import com.farmacyfood.user.exception.InvalidRoleException;
 import com.farmacyfood.user.exception.UserNotFoundException;
 import com.farmacyfood.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,10 +51,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByAuthUsername(String authUsername) {
+        return repository.findByAuthUsername(authUsername);
+    }
+
+    @Override
     @Transactional
     public User update(Long id, User updated) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+        validarPreferencias(
+                updated.getDietaryPreferences() != null ? updated.getDietaryPreferences() : user.getDietaryPreferences()
+        );
         if (updated.getName() != null) user.setName(updated.getName());
         if (updated.getEmail() != null) user.setEmail(updated.getEmail());
         if (updated.getAuthUsername() != null) user.setAuthUsername(updated.getAuthUsername());
@@ -64,6 +76,7 @@ public class UserServiceImpl implements UserService {
     public User updatePreferences(Long id, List<String> dietaryPreferences) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+        validarPreferencias(dietaryPreferences);
         user.setDietaryPreferences(dietaryPreferences);
         return repository.save(user);
     }
@@ -81,5 +94,15 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<OrderSummaryDTO> getPurchaseHistory(Long userId) {
         return orderClient.getOrdersByUserId(userId);
+    }
+
+    private void validarPreferencias(List<String> dietaryPreferences) {
+        if (dietaryPreferences == null || dietaryPreferences.isEmpty()) return;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean esCliente = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("cliente"));
+        if (!esCliente) {
+            throw new InvalidRoleException("Solo los usuarios con rol 'cliente' pueden tener preferencias dietarias");
+        }
     }
 }

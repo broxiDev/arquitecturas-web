@@ -14,6 +14,8 @@ public interface UserService {
 
     Optional<User> findById(Long id);
 
+    Optional<User> findByAuthUsername(String authUsername);
+
     User update(Long id, User user);
 
     User updatePreferences(Long id, List<String> dietaryPreferences);
