@@ -10,8 +10,7 @@ import java.util.TimeZone;
 @EnableDiscoveryClient
 public class AuthServiceApplication {
     public static void main(String[] args) {
-
-        SpringApplication.run(AuthServiceApplication.class, args);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        SpringApplication.run(AuthServiceApplication.class, args);
     }
 }

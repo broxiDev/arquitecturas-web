@@ -30,7 +30,7 @@ public class CocinaController {
 
     @Operation(
         summary = "Crear cocina fantasma",
-        description = "Crea una cocina fantasma asociada a un usuario. Valida que el usuario exista en user-service y que no tenga ya una cocina asignada."
+        description = "Crea una cocina fantasma asociada al usuario autenticado (resuelto desde el header X-User). Valida que el usuario exista en user-service y que no tenga ya una cocina asignada."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -39,7 +39,7 @@ public class CocinaController {
             content = @Content(
                 mediaType = MediaType.APPLICATION_JSON_VALUE,
                 schema = @Schema(implementation = CocinaResponseDTO.class),
-                examples = @ExampleObject(value = "{\"id\":1,\"nombre\":\"La mejor cocina veggy de Rosi\",\"usuarioId\":11,\"createdAt\":\"2026-06-27T14:00:00\"}")
+                examples = @ExampleObject(value = "{\"id\":1,\"nombre\":\"La mejor cocina veggy de Rosi\",\"usuario\":\"auth_juan\",\"createdAt\":\"2026-06-27T14:00:00\"}")
             )
         ),
         @ApiResponse(
@@ -53,7 +53,7 @@ public class CocinaController {
     })
     @PostMapping
     public ResponseEntity<CocinaResponseDTO> crear(@Valid @RequestBody CocinaCreateDTO request) {
-        log.info("Controller: creando cocina '{}' para usuario {}", request.nombre(), request.usuarioId());
+        log.info("Controller: creando cocina '{}'", request.nombre());
         CocinaResponseDTO response = cocinaService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

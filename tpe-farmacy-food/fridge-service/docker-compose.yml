@@ -12,6 +12,8 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - fridge_postgres_data:/var/lib/postgresql/data
+    networks:
+      - farmacyfood-net
 
   fridge-mongo:
     image: mongo:7
@@ -23,6 +25,31 @@ services:
     volumes:
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
       - fridge_mongo_data:/data/db
+    networks:
+      - farmacyfood-net
+
+  fridge-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: fridge-service
+    container_name: fridge-service
+    depends_on:
+      - fridge-postgres
+      - fridge-mongo
+    ports:
+      - "7082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_OPTS: >-
+        -Dspring.datasource.url=jdbc:postgresql://fridge-postgres:5432/fridge_db?TimeZone=UTC
+        -Dspring.data.mongodb.uri=mongodb://fridge-mongo:27017/fridge_db
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+        -Dclients.kitchen-service.url=http://kitchen-service:8084
+        -Dclients.notification-service.url=http://notification-service:8087
+    networks:
+      - farmacyfood-net
 
 volumes:
   fridge_postgres_data:

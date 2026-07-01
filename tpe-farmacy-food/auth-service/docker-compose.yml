@@ -11,6 +11,27 @@ services:
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - farmacyfood-net
+
+  auth-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: auth-service
+    container_name: auth-service
+    depends_on:
+      - postgres-auth
+    ports:
+      - "7089:8089"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_OPTS: >-
+        -Dspring.datasource.url=jdbc:postgresql://auth-postgres:5432/auth_db
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+    networks:
+      - farmacyfood-net
 
 volumes:
   auth_postgres_data:

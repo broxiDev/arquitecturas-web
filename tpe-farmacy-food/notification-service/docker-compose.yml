@@ -9,6 +9,27 @@ services:
     volumes:
       - notification_mongo_data:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+    networks:
+      - farmacyfood-net
+
+  notification-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: notification-service
+    container_name: notification-service
+    depends_on:
+      - mongo-notification
+    ports:
+      - "7087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_OPTS: >-
+        -Dspring.data.mongodb.uri=mongodb://notification-mongo:27017/notification_db
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+    networks:
+      - farmacyfood-net
 
 volumes:
   notification_mongo_data:

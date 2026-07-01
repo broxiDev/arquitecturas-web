@@ -210,8 +210,22 @@ Mientras Ale implementa, kitchen-service usa `FridgeClientMockImpl` (profile `de
 |---|---|---|
 | `POST` | `/api/v1/cocina` | Crear cocina (valida usuario en user-service, 1 usuario = 1 cocina) |
 | `GET` | `/api/v1/cocina/{cocinaId}` | Buscar cocina por ID |
-| `POST` | `/api/v1/cocina/{cocinaId}/productos` | Agregar producto a una cocina |
-| `GET` | `/api/v1/cocina/{cocinaId}/productos` | Listar productos de una cocina |
-| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera (valida catálogo, envía a fridge) |
+| `POST` | `/api/v1/cocina/productos` | Agregar producto a la cocina del usuario autenticado (X-User) |
+| `GET` | `/api/v1/cocina/productos` | Listar productos de la cocina del usuario autenticado (X-User) |
+| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera de la cocina del usuario autenticado (X-User) |
 | `GET` | `/api/v1/cocina/plan-diario?cocinaId=1` | Obtener plan diario |
 | `POST` | `/api/v1/cocina/plan-diario?cocinaId=1` | Generar plan diario |
+
+---
+
+## Actualizacion (integracion de seguridad) — que cambio de este lado y que falta del lado de fridge
+
+Kitchen-service ya integro auth (JWT via gateway, headers `X-User`/`X-Role`) en varios endpoints, incluido `/api/v1/cocina/carga-heladeras`:
+
+- **Que cambio en kitchen:** `POST /api/v1/cocina/carga-heladeras` ya **no recibe `cocinaId` en el body**. Antes el cliente lo pasaba explicito; ahora kitchen-service lo resuelve solo, a partir del `X-User` que inyecta el gateway (busca la `Cocina` cuyo campo `usuario` matchea el username del token). El request que le llega a kitchen ahora es solo `{ "heladeraId": 1, "productos": [...] }`.
+- **Que NO cambio hacia fridge-service:** el contrato de `POST /api/v1/heladeras/{heladeraId}/stock` (`StockCreateDTO`) sigue exactamente igual — kitchen le sigue mandando el mismo `cocinaId: Long` de siempre, sin importar de donde lo sacó de este lado. No hay ningun cambio de payload que tengas que absorber por esto.
+- **Lo que le faltaria a fridge-service para cerrar el circulo (a tu criterio, no es parte de este cambio):** hoy, con `HeaderAuthFilter`/`SecurityConfig` ya andando en fridge-service, cualquier usuario autenticado puede mandar stock a **cualquier** `cocinaId`, porque nada valida que el `X-User` del request sea realmente el dueño de esa cocina. Dos formas de resolverlo, cuando quieras encararlo:
+  1. Fridge-service le pega a kitchen-service (`GET /api/v1/cocina/{cocinaId}`, que ya devuelve `usuario` en la response) para comparar contra el `X-User` del request, antes de aceptar el stock.
+  2. Kitchen-service manda el `usuario` (string) ademas del `cocinaId` en el `StockCreateDTO`, y fridge-service lo persiste/valida ahi mismo sin tener que llamar a kitchen.
+
+  No es bloqueante para lo que ya esta andando — es una validacion de ownership que falta, no un cambio de contrato.

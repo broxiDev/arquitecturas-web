@@ -11,6 +11,27 @@ services:
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - farmacyfood-net
+
+  user-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: user-service
+    container_name: user-service
+    depends_on:
+      - postgres-user
+    ports:
+      - "7086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_OPTS: >-
+        -Dspring.datasource.url=jdbc:postgresql://user-postgres:5432/user_db
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+    networks:
+      - farmacyfood-net
 
 volumes:
   user_postgres_data:

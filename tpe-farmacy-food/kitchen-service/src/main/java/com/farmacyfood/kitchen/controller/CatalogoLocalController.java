@@ -4,7 +4,6 @@ import com.farmacyfood.kitchen.dto.CatalogoLocalRequestDTO;
 import com.farmacyfood.kitchen.dto.CatalogoLocalResponseDTO;
 import com.farmacyfood.kitchen.service.CatalogoLocalService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,23 +23,18 @@ public class CatalogoLocalController {
 
     private final CatalogoLocalService catalogoLocalService;
 
-    @Operation(summary = "Agregar producto a una cocina")
-    @PostMapping("/{cocinaId}/productos")
-    public ResponseEntity<CatalogoLocalResponseDTO> registrarProducto(
-            @Parameter(description = "ID de la cocina", required = true, example = "1")
-            @PathVariable Long cocinaId,
-            @Valid @RequestBody CatalogoLocalRequestDTO request) {
-        log.info("Controller: registrando producto '{}' en catalogo local de cocina {}", request.productId(), cocinaId);
-        CatalogoLocalResponseDTO response = catalogoLocalService.registrar(cocinaId, request);
+    @Operation(summary = "Agregar producto a la cocina del usuario autenticado")
+    @PostMapping("/productos")
+    public ResponseEntity<CatalogoLocalResponseDTO> registrarProducto(@Valid @RequestBody CatalogoLocalRequestDTO request) {
+        log.info("Controller: registrando producto '{}' en catalogo local", request.productId());
+        CatalogoLocalResponseDTO response = catalogoLocalService.registrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Listar productos de una cocina")
-    @GetMapping("/{cocinaId}/productos")
-    public ResponseEntity<List<CatalogoLocalResponseDTO>> listarPorCocina(
-            @Parameter(description = "ID de la cocina", required = true, example = "1")
-            @PathVariable Long cocinaId) {
-        List<CatalogoLocalResponseDTO> productos = catalogoLocalService.listarPorCocina(cocinaId);
+    @Operation(summary = "Listar productos de la cocina del usuario autenticado")
+    @GetMapping("/productos")
+    public ResponseEntity<List<CatalogoLocalResponseDTO>> listarDeMiCocina() {
+        List<CatalogoLocalResponseDTO> productos = catalogoLocalService.listarDeMiCocina();
         return ResponseEntity.ok(productos);
     }
 }

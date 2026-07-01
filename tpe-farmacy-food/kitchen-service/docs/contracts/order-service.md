@@ -69,8 +69,8 @@ Mientras Fio implementa, kitchen-service usa `OrdenClientMockImpl` (profile `dev
 |---|---|---|
 | `POST` | `/api/v1/cocina` | Crear cocina (valida usuario en user-service, 1 usuario = 1 cocina) |
 | `GET` | `/api/v1/cocina/{cocinaId}` | Buscar cocina por ID |
-| `POST` | `/api/v1/cocina/{cocinaId}/productos` | Agregar producto a una cocina |
-| `GET` | `/api/v1/cocina/{cocinaId}/productos` | Listar productos de una cocina |
-| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera (valida catálogo, envía a fridge) |
+| `POST` | `/api/v1/cocina/productos` | Agregar producto a la cocina del usuario autenticado (X-User) |
+| `GET` | `/api/v1/cocina/productos` | Listar productos de la cocina del usuario autenticado (X-User) |
+| `POST` | `/api/v1/cocina/carga-heladeras` | Cargar productos en heladera de la cocina del usuario autenticado (X-User) |
 | `GET` | `/api/v1/cocina/plan-diario?cocinaId=1` | Obtener plan diario |
 | `POST` | `/api/v1/cocina/plan-diario?cocinaId=1` | Generar plan diario |

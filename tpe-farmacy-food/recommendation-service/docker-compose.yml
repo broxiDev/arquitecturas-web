@@ -1,0 +1,19 @@
+services:
+  recommendation-service:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        MODULE: recommendation-service
+    container_name: recommendation-service
+    depends_on:
+      - discovery-service
+    ports:
+      - "7085:8085"
+    environment:
+      JAVA_OPTS: >-
+        -Deureka.client.service-url.defaultZone=http://discovery-service:8761/eureka/
+        -Dclients.user-service.url=http://user-service:8086
+        -Dclients.order-service.url=http://order-service:8083
+    networks:
+      - farmacyfood-net
