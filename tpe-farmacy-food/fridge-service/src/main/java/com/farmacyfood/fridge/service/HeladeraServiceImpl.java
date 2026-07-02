@@ -1,10 +1,8 @@
 package com.farmacyfood.fridge.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
 import com.farmacyfood.fridge.client.HeladeraStatusChangeDTO;
 import com.farmacyfood.fridge.client.NotificacionClient;
-import com.farmacyfood.fridge.constants.AuditMessages;
 import com.farmacyfood.fridge.dto.HeladeraCreateDTO;
 import com.farmacyfood.fridge.dto.HeladeraResponseDTO;
 import com.farmacyfood.fridge.dto.HeladeraUpdateDTO;
@@ -27,9 +25,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class HeladeraServiceImpl implements HeladeraService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final HeladeraRepository heladeraRepository;
     private final StatusEventRepository statusEventRepository;
@@ -71,11 +66,8 @@ public class HeladeraServiceImpl implements HeladeraService {
                 .status(dto.status())
                 .build();
             Heladera saved = heladeraRepository.save(heladera);
-            HeladeraResponseDTO response = toDTO(saved);
-            auditLogger.success("CREATE_FRIDGE", AuditMessages.FRIDGE_CREATED, response);
-            return response;
+            return toDTO(saved);
         } catch (Exception e) {
-            auditLogger.error("CREATE_FRIDGE", "Error al crear heladera: " + e.getMessage(), dto);
             throw e;
         }
     }
@@ -119,14 +111,10 @@ public class HeladeraServiceImpl implements HeladeraService {
                 }
             }
 
-            HeladeraResponseDTO response = toDTO(saved);
-            auditLogger.success("UPDATE_FRIDGE", AuditMessages.FRIDGE_UPDATED, response);
-            return response;
+            return toDTO(saved);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("UPDATE_FRIDGE", AuditMessages.FRIDGE_NOT_FOUND + ": " + id, id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UPDATE_FRIDGE", "Error al actualizar heladera: " + e.getMessage(), id);
             throw e;
         }
     }
@@ -139,12 +127,9 @@ public class HeladeraServiceImpl implements HeladeraService {
                 throw new HeladeraNotFoundException("No existe heladera con id: " + id);
             }
             heladeraRepository.deleteById(id);
-            auditLogger.success("DELETE_FRIDGE", AuditMessages.FRIDGE_DELETED, id);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("DELETE_FRIDGE", AuditMessages.FRIDGE_NOT_FOUND + ": " + id, id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("DELETE_FRIDGE", "Error al eliminar heladera: " + e.getMessage(), id);
             throw e;
         }
     }
@@ -158,14 +143,10 @@ public class HeladeraServiceImpl implements HeladeraService {
 
             heladera.getUsernames().add(username);
             Heladera saved = heladeraRepository.save(heladera);
-            HeladeraResponseDTO response = toDTO(saved);
-            auditLogger.success("LINK_KITCHEN", AuditMessages.KITCHEN_LINKED, response);
-            return response;
+            return toDTO(saved);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("LINK_KITCHEN", AuditMessages.FRIDGE_NOT_FOUND + ": " + heladeraId, heladeraId);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("LINK_KITCHEN", "Error al vincular cocina: " + e.getMessage(), heladeraId);
             throw e;
         }
     }
@@ -179,14 +160,10 @@ public class HeladeraServiceImpl implements HeladeraService {
 
             heladera.getUsernames().remove(username);
             Heladera saved = heladeraRepository.save(heladera);
-            HeladeraResponseDTO response = toDTO(saved);
-            auditLogger.success("UNLINK_KITCHEN", AuditMessages.KITCHEN_UNLINKED, response);
-            return response;
+            return toDTO(saved);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("UNLINK_KITCHEN", AuditMessages.FRIDGE_NOT_FOUND + ": " + heladeraId, heladeraId);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UNLINK_KITCHEN", "Error al desvincular cocina: " + e.getMessage(), heladeraId);
             throw e;
         }
     }

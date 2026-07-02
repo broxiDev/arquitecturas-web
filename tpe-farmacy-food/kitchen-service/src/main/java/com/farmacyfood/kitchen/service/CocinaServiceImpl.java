@@ -1,8 +1,6 @@
 package com.farmacyfood.kitchen.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.kitchen.client.UserClient;
-import com.farmacyfood.kitchen.constants.AuditMessages;
 import com.farmacyfood.kitchen.dto.CocinaCreateDTO;
 import com.farmacyfood.kitchen.dto.CocinaResponseDTO;
 import com.farmacyfood.kitchen.entity.postgres.Cocina;
@@ -18,9 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CocinaServiceImpl implements CocinaService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final CocinaRepository cocinaRepository;
     private final UserClient userClient;
@@ -49,11 +44,8 @@ public class CocinaServiceImpl implements CocinaService {
 
             Cocina saved = cocinaRepository.save(cocina);
             log.info("Cocina creada con id {} para usuario {}", saved.getId(), saved.getUsuario());
-            CocinaResponseDTO response = toDTO(saved);
-            auditLogger.success("CREATE_KITCHEN", AuditMessages.KITCHEN_CREATED, response);
-            return response;
+            return toDTO(saved);
         } catch (Exception e) {
-            auditLogger.error("CREATE_KITCHEN", "Error al crear cocina: " + e.getMessage(), request);
             throw e;
         }
     }

@@ -1,8 +1,6 @@
 package com.farmacyfood.order.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.order.client.*;
-import com.farmacyfood.order.constants.AuditMessages;
 import com.farmacyfood.order.dto.*;
 import com.farmacyfood.order.entity.Order;
 import com.farmacyfood.order.entity.OrderItem;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +31,6 @@ public class OrderServiceImpl implements OrderService {
     private final FridgeClient fridgeClient;
     private final PaymentGateway paymentGateway;
     private final KitchenClient kitchenClient;
-    private final AuditLogger auditLogger;
 
     //  Valida usuario con UserClient.getUser(userId) — si 404, lanza excepción
     //  Verifica stock con FridgeClient.getStock(fridgeId, productId) por cada item
@@ -54,31 +50,23 @@ public class OrderServiceImpl implements OrderService {
                 FridgeStockDTO stockItem = stock.stream()
                         .filter(s -> s.productId().equals(item.productId()))
                         .findFirst()
-                        .orElseThrow(() -> {
-                            auditLogger.error("CREATE_ORDER", AuditMessages.PRODUCT_NOT_FOUND,
-                                    "Producto " + item.productId() + " no encontrado en la heladera");
-                            return new OutOfStockException(
-                                    "Producto " + item.productId() + " no encontrado en la heladera");
-                        });
+                        .orElseThrow(() -> new OutOfStockException(
+                                "Producto " + item.productId() + " no encontrado en la heladera"));
 
                 if (stockItem.quantity() < item.quantity()) {
                     String error = "Stock insuficiente para producto " + item.productId()
                             + ". Disponible: " + stockItem.quantity()
                             + ", solicitado: " + item.quantity();
-                    auditLogger.error("CREATE_ORDER", AuditMessages.INSUFFICIENT_STOCK, error);
                     throw new OutOfStockException(error);
                 }
             }
 
             Order order = toEntity(dto, userId);
             order = orderRepository.save(order);
-            OrderResponseDTO response = toResponseDTO(order);
-            auditLogger.success("CREATE_ORDER", AuditMessages.ORDER_CREATED, response);
-            return response;
+            return toResponseDTO(order);
         } catch (OrderNotFoundException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("CREATE_ORDER", "Error inesperado al crear orden", e.getMessage());
             throw e;
         }
     }
@@ -95,21 +83,16 @@ public class OrderServiceImpl implements OrderService {
     public PaymentResponseDTO payOrder(Long id) {
         try {
             Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> {
-                        auditLogger.error("PAY_ORDER", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
-                        return new OrderNotFoundException("Orden no encontrada: " + id);
-                    });
+                    .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
 
             if (!"PENDING".equals(order.getStatus())) {
-                auditLogger.error("PAY_ORDER", AuditMessages.ORDER_NOT_PENDING, "orderId: " + id);
-                throw new FailedPaymentException(AuditMessages.ORDER_NOT_PENDING);
+                throw new FailedPaymentException("La orden no está en estado PENDING");
             }
 
             PaymentResponseDTO payment = paymentGateway.processPayment(order.getTotal(), "USD");
 
             if (!"COMPLETED".equals(payment.status())) {
-                auditLogger.error("PAY_ORDER", AuditMessages.PAYMENT_FAILED, "orderId: " + id);
-                throw new FailedPaymentException(AuditMessages.PAYMENT_FAILED);
+                throw new FailedPaymentException("El pago no fue completado");
             }
 
             order.setStatus("PAID");
@@ -130,47 +113,32 @@ public class OrderServiceImpl implements OrderService {
                         new FridgeStockUpdateDTO(item.getProductId(), stockItem.cocinaId(), stockItem.productName(), newQty, stockItem.price()));
             }
 
-            auditLogger.success("PAY_ORDER", AuditMessages.ORDER_PAID, payment);
             return payment;
         } catch (FailedPaymentException | OrderNotFoundException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("PAY_ORDER", "Error inesperado al pagar orden", e.getMessage());
             throw e;
         }
     }
 
-    // busca la orden con FindById o lanza OrderNotFoundException
-    //	Valida que status == PAID
-    //	cambia el status pending a Status → PICKED_UP
-    //	FridgeClient.decrementStock(fridgeId, items) — libera stock definitivo
-    //	Guarda y retorna OrderResponseDTO
-    //  Audita casos exitosos y errores
     @Override
     @Transactional
     public OrderResponseDTO confirmPickup(Long id) {
         try {
             Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> {
-                        auditLogger.error("CONFIRM_PICKUP", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
-                        return new OrderNotFoundException("Orden no encontrada: " + id);
-                    });
+                    .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
 
             if (!"PAID".equals(order.getStatus())) {
-                auditLogger.error("CONFIRM_PICKUP", AuditMessages.ORDER_NOT_PAID, "orderId: " + id);
-                throw new IllegalStateException(AuditMessages.ORDER_NOT_PAID);
+                throw new IllegalStateException("La orden no está pagada");
             }
 
             order.setStatus("PICKED_UP");
             orderRepository.save(order);
 
-            OrderResponseDTO response = toResponseDTO(order);
-            auditLogger.success("CONFIRM_PICKUP", AuditMessages.PICKUP_CONFIRMED, response);
-            return response;
+            return toResponseDTO(order);
         } catch (OrderNotFoundException | IllegalStateException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("CONFIRM_PICKUP", "Error inesperado al confirmar retiro", e.getMessage());
             throw e;
         }
     }
@@ -227,19 +195,14 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDTO cancelOrder(Long id, OrderCancelDTO dto) {
         try {
             Order order = orderRepository.findById(id)
-                    .orElseThrow(() -> {
-                        auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_NOT_FOUND, "ID: " + id);
-                        return new OrderNotFoundException("Orden no encontrada: " + id);
-                    });
+                    .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada: " + id));
             Long userId = getCurrentUserId();
             if (!order.getUserId().equals(userId)) {
-                auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_NOT_OWNER, "userId: " + userId + ", orderId: " + id);
-                throw new IllegalStateException(AuditMessages.ORDER_NOT_OWNER);
+                throw new IllegalStateException("La orden no pertenece al usuario");
             }
 
             if (!"PENDING".equals(order.getStatus()) && !"PAID".equals(order.getStatus())) {
-                auditLogger.error("CANCEL_ORDER", AuditMessages.ORDER_INVALID_STATUS_CANCEL, "orderId: " + id + ", status: " + order.getStatus());
-                throw new IllegalStateException(AuditMessages.ORDER_INVALID_STATUS_CANCEL);
+                throw new IllegalStateException("La orden no puede cancelarse en su estado actual: " + order.getStatus());
             }
 
             if ("PAID".equals(order.getStatus())) {
@@ -260,14 +223,10 @@ public class OrderServiceImpl implements OrderService {
 
             order.setStatus("CANCELLED");
             orderRepository.save(order);
-            OrderResponseDTO response = toResponseDTO(order);
-            auditLogger.success("CANCEL_ORDER", AuditMessages.ORDER_CANCELLED,
-                    Map.of("orderId", response.orderId(), "status", "CANCELLED"));
-            return response;
+            return toResponseDTO(order);
         } catch (OrderNotFoundException | IllegalStateException | OutOfStockException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("CANCEL_ORDER", "Error inesperado al cancelar orden", e.getMessage());
             throw e;
         }
     }

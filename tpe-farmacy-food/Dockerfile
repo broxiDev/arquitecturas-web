@@ -13,7 +13,7 @@ COPY notification-service/pom.xml notification-service/pom.xml
 COPY audit-service/pom.xml audit-service/pom.xml
 COPY auth-service/pom.xml auth-service/pom.xml
 RUN mvn -q -pl ${MODULE} -am dependency:go-offline
-COPY . .
+COPY ${MODULE}/src ${MODULE}/src
 RUN mvn -q -pl ${MODULE} -am package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine

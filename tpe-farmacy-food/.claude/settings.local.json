@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f \"kitchen-service/docs/auth-flow.md\" \"kitchen-service/src/main/java/com/farmacyfood/kitchen/client/UserResponseDTO.java\" \"kitchen-service/src/main/java/com/farmacyfood/kitchen/config/FeignClientConfig.java\" \"kitchen-service/src/main/java/com/farmacyfood/kitchen/config/SecurityConfig.java\")",
+      "Bash(rm -rf \"kitchen-service/src/main/java/com/farmacyfood/kitchen/filter\" \"kitchen-service/src/main/java/com/farmacyfood/kitchen/security\")",
+      "Bash(curl *)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ]
+  }
+}

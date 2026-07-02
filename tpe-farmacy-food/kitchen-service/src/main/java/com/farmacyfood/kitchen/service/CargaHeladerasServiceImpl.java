@@ -1,7 +1,6 @@
 package com.farmacyfood.kitchen.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
-import com.farmacyfood.kitchen.constants.AuditMessages;
+
 import com.farmacyfood.kitchen.dto.CargaHeladeraRequestDTO;
 import com.farmacyfood.kitchen.dto.CargaProductoDTO;
 import com.farmacyfood.kitchen.entity.postgres.CatalogoProducto;
@@ -20,9 +19,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CargaHeladerasServiceImpl implements CargaHeladerasService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final CatalogoProductoRepository catalogoProductoRepository;
     private final FridgeClient fridgeClient;
@@ -56,9 +52,7 @@ public class CargaHeladerasServiceImpl implements CargaHeladerasService {
             fridgeClient.cargarStockEnHeladera(request.heladeraId(), request.productos());
 
             log.info("Carga exitosa de {} productos en heladera {}", request.productos().size(), request.heladeraId());
-            auditLogger.success("LOAD_FRIDGE", AuditMessages.FRIDGE_LOADED, request);
         } catch (Exception e) {
-            auditLogger.error("LOAD_FRIDGE", "Error al cargar productos en heladera: " + e.getMessage(), request);
             throw e;
         }
     }

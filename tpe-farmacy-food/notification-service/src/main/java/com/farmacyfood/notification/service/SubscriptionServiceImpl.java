@@ -1,7 +1,6 @@
 package com.farmacyfood.notification.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
-import com.farmacyfood.notification.constants.AuditMessages;
+
 import com.farmacyfood.notification.dto.SubscriptionCreateDTO;
 import com.farmacyfood.notification.dto.SubscriptionResponseDTO;
 import com.farmacyfood.notification.dto.SubscriptionUpdateDTO;
@@ -22,9 +21,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Autowired
     private SubscriptionRepository repository;
 
-    @Autowired
-    private AuditLogger auditLogger;
-
     @Override
     public SubscriptionResponseDTO crearOActualizar(SubscriptionCreateDTO dto) {
         try {
@@ -36,19 +32,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 suscripcion.setProductPreferences(dto.productPreferences());
                 suscripcion.setHeladeraIds(dto.heladeraIds());
                 suscripcion.setUpdatedAt(LocalDateTime.now());
-                SubscriptionResponseDTO response = SubscriptionResponseDTO.from(repository.save(suscripcion));
-                auditLogger.success("UPSERT_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_UPDATED,
-                        "userId: " + dto.userId());
-                return response;
+                return SubscriptionResponseDTO.from(repository.save(suscripcion));
             }
 
             Subscription nueva = new Subscription(dto.userId(), dto.deviceToken(), dto.productPreferences(), dto.heladeraIds());
-            SubscriptionResponseDTO response = SubscriptionResponseDTO.from(repository.save(nueva));
-            auditLogger.success("UPSERT_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_CREATED,
-                    "userId: " + dto.userId());
-            return response;
+            return SubscriptionResponseDTO.from(repository.save(nueva));
         } catch (Exception e) {
-            auditLogger.error("UPSERT_SUBSCRIPTION", "Error al crear/actualizar suscripción", e.getMessage());
             throw e;
         }
     }
@@ -57,12 +46,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionResponseDTO actualizar(Long userId, SubscriptionUpdateDTO dto) {
         try {
             Subscription suscripcion = repository.findByUserId(userId)
-                    .orElseThrow(() -> {
-                        auditLogger.error("UPDATE_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_NOT_FOUND,
-                                "userId: " + userId);
-                        return new SubscriptionNotFoundException(
-                                "Suscripción no encontrada para userId: " + userId);
-                    });
+                    .orElseThrow(() -> new SubscriptionNotFoundException(
+                            "Suscripción no encontrada para userId: " + userId));
 
             if (dto.deviceToken() != null) {
                 suscripcion.setDeviceToken(dto.deviceToken());
@@ -75,14 +60,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             }
             suscripcion.setUpdatedAt(LocalDateTime.now());
 
-            SubscriptionResponseDTO response = SubscriptionResponseDTO.from(repository.save(suscripcion));
-            auditLogger.success("UPDATE_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_UPDATED,
-                    "userId: " + userId);
-            return response;
+            return SubscriptionResponseDTO.from(repository.save(suscripcion));
         } catch (SubscriptionNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UPDATE_SUBSCRIPTION", "Error al actualizar suscripción", e.getMessage());
             throw e;
         }
     }
@@ -99,19 +80,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void eliminar(Long userId) {
         try {
             Subscription suscripcion = repository.findByUserId(userId)
-                    .orElseThrow(() -> {
-                        auditLogger.error("DELETE_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_NOT_FOUND,
-                                "userId: " + userId);
-                        return new SubscriptionNotFoundException(
-                                "Suscripción no encontrada para userId: " + userId);
-                    });
+                    .orElseThrow(() -> new SubscriptionNotFoundException(
+                            "Suscripción no encontrada para userId: " + userId));
             repository.delete(suscripcion);
-            auditLogger.success("DELETE_SUBSCRIPTION", AuditMessages.SUBSCRIPTION_DELETED,
-                    "userId: " + userId);
         } catch (SubscriptionNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("DELETE_SUBSCRIPTION", "Error al eliminar suscripción", e.getMessage());
             throw e;
         }
     }

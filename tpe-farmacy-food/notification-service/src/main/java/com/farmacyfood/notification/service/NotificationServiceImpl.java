@@ -1,7 +1,6 @@
 package com.farmacyfood.notification.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
-import com.farmacyfood.notification.constants.AuditMessages;
+
 import com.farmacyfood.notification.dto.HeladeraStatusChangeDTO;
 import com.farmacyfood.notification.dto.NotificationResponseDTO;
 import com.farmacyfood.notification.entity.Notification;
@@ -31,9 +30,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private NotificationPushService pushService;
 
-    @Autowired
-    private AuditLogger auditLogger;
-
     @Override
     public void enviarNotificaciones(Long fridgeId, List<Long> productIds) {
         try {
@@ -46,10 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
                     pushService.enviarPush(subscription.getDeviceToken(), message);
                 }
             }
-            auditLogger.success("NOTIFY_AVAILABILITY", AuditMessages.AVAILABILITY_NOTIFIED,
-                    "fridgeId: " + fridgeId + ", products: " + productIds);
         } catch (Exception e) {
-            auditLogger.error("NOTIFY_AVAILABILITY", "Error al enviar notificaciones de disponibilidad", e.getMessage());
             log.error("Error al enviar notificaciones", e);
         }
     }
@@ -73,10 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
                 notificationRepository.save(notification);
                 pushService.enviarPush(admin.getDeviceToken(), message);
             }
-            auditLogger.success("STATUS_CHANGE", AuditMessages.STATUS_CHANGE_NOTIFIED,
-                    "heladeraId: " + dto.heladeraId() + ", newStatus: " + dto.newStatus());
         } catch (Exception e) {
-            auditLogger.error("STATUS_CHANGE", "Error al notificar cambio de estado", e.getMessage());
             log.error("Error al notificar cambio de estado", e);
         }
     }
@@ -102,14 +92,10 @@ public class NotificationServiceImpl implements NotificationService {
                     .orElseThrow(() -> new NotificationNotFoundException("Notification no encontrada con id: " + id));
             notification.setRead(true);
             notification.setReadAt(LocalDateTime.now());
-            NotificationResponseDTO response = NotificationResponseDTO.from(notificationRepository.save(notification));
-            auditLogger.success("MARK_READ", AuditMessages.NOTIFICATION_MARKED_READ, "notificationId: " + id);
-            return response;
+            return NotificationResponseDTO.from(notificationRepository.save(notification));
         } catch (NotificationNotFoundException e) {
-            auditLogger.error("MARK_READ", AuditMessages.NOTIFICATION_NOT_FOUND, "id: " + id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("MARK_READ", "Error al marcar notificación como leída", e.getMessage());
             throw e;
         }
     }
@@ -120,12 +106,9 @@ public class NotificationServiceImpl implements NotificationService {
             Notification notification = notificationRepository.findById(id)
                     .orElseThrow(() -> new NotificationNotFoundException("Notification no encontrada con id: " + id));
             notificationRepository.delete(notification);
-            auditLogger.success("DELETE_NOTIFICATION", AuditMessages.NOTIFICATION_DELETED, "id: " + id);
         } catch (NotificationNotFoundException e) {
-            auditLogger.error("DELETE_NOTIFICATION", AuditMessages.NOTIFICATION_NOT_FOUND, "id: " + id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("DELETE_NOTIFICATION", "Error al eliminar notificación", e.getMessage());
             throw e;
         }
     }

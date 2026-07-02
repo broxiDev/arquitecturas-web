@@ -1,9 +1,7 @@
 package com.farmacyfood.kitchen.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.kitchen.client.FridgeClient;
 import com.farmacyfood.kitchen.client.OrdenClient;
-import com.farmacyfood.kitchen.constants.AuditMessages;
 import com.farmacyfood.kitchen.dto.FridgeRemainderDTO;
 import com.farmacyfood.kitchen.dto.ItemPlanDTO;
 import com.farmacyfood.kitchen.dto.PlanDiarioResponseDTO;
@@ -29,9 +27,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class PlanDiarioServiceImpl implements PlanDiarioService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final PlanDiarioRepository planDiarioRepository;
     private final OrdenClient ordenClient;
@@ -86,11 +81,8 @@ public class PlanDiarioServiceImpl implements PlanDiarioService {
             }
 
             DailyPlan saved = planDiarioRepository.save(plan);
-            PlanDiarioResponseDTO response = toDTO(saved);
-            auditLogger.success("GENERATE_PLAN", AuditMessages.DAILY_PLAN_GENERATED, response);
-            return response;
+            return toDTO(saved);
         } catch (Exception e) {
-            auditLogger.error("GENERATE_PLAN", "Error al generar plan diario: " + e.getMessage(), cocinaId);
             throw e;
         }
     }

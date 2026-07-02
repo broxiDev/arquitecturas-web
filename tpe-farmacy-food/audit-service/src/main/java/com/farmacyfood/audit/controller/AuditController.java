@@ -9,14 +9,19 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auditoria")
-@Tag(name = "Audit Service", description = "Registro de eventos de auditoría (fire-and-forget)")
+@Tag(name = "Audit Service", description = "Registro y consulta de eventos de auditoría")
 public class AuditController {
 
     @Autowired
@@ -28,5 +33,18 @@ public class AuditController {
             @Valid @RequestBody AuditEventRequest request) {
         AuditEventResponse response = auditService.registrarEvento(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Listar eventos de auditoría")
+    @GetMapping("/eventos")
+    public ResponseEntity<List<AuditEventResponse>> listarEventos(
+            @RequestParam(required = false) String serviceName) {
+        return ResponseEntity.ok(auditService.listarEventos(serviceName));
+    }
+
+    @Operation(summary = "Obtener un evento de auditoría por ID")
+    @GetMapping("/eventos/{id}")
+    public ResponseEntity<AuditEventResponse> obtenerEvento(@PathVariable Long id) {
+        return ResponseEntity.ok(auditService.obtenerEvento(id));
     }
 }

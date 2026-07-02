@@ -22,7 +22,6 @@
         <module>notification-service</module>
         <module>audit-service</module>
         <module>auth-service</module>
-        <module>audit-client</module>
     </modules>
 
     <parent>

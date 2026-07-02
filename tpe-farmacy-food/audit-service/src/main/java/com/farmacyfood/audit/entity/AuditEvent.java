@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "auditoria_eventos", indexes = {
-        @Index(name = "idx_auditoria_event_type", columnList = "event_type"),
-        @Index(name = "idx_auditoria_action", columnList = "action")
+        @Index(name = "idx_auditoria_service_name", columnList = "service_name")
 })
 public class AuditEvent {
 
@@ -23,15 +22,6 @@ public class AuditEvent {
 
     @Column(name = "service_name", nullable = false, length = 100)
     private String serviceName;
-
-    @Column(name = "event_type", nullable = false, length = 20)
-    private String eventType;
-
-    @Column(nullable = false, length = 100)
-    private String action;
-
-    @Column(columnDefinition = "TEXT")
-    private String message;
 
     @Column(columnDefinition = "TEXT")
     private String request;
@@ -51,32 +41,18 @@ public class AuditEvent {
         }
     }
 
-    public AuditEvent(String serviceName, String eventType, String action, String message,
-                      String request, String response, LocalDateTime timestamp) {
+    public AuditEvent(String serviceName, String request, String response) {
         this.serviceName = serviceName;
-        this.eventType = eventType;
-        this.action = action;
-        this.message = message;
         this.request = request;
         this.response = response;
-        this.timestamp = timestamp != null ? timestamp : LocalDateTime.now();
+        this.timestamp = LocalDateTime.now();
     }
 
-    // --- Getters y Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getServiceName() { return serviceName; }
     public void setServiceName(String serviceName) { this.serviceName = serviceName; }
-
-    public String getEventType() { return eventType; }
-    public void setEventType(String eventType) { this.eventType = eventType; }
-
-    public String getAction() { return action; }
-    public void setAction(String action) { this.action = action; }
-
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
 
     public String getRequest() { return request; }
     public void setRequest(String request) { this.request = request; }

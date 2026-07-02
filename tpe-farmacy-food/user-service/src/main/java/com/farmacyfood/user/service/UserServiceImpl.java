@@ -1,8 +1,6 @@
 package com.farmacyfood.user.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.user.client.OrderServiceClient;
-import com.farmacyfood.user.constants.AuditMessages;
 import com.farmacyfood.user.dto.OrderSummaryDTO;
 import com.farmacyfood.user.entity.User;
 import com.farmacyfood.user.exception.DuplicateAuthUsernameException;
@@ -30,9 +28,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private OrderServiceClient orderClient;
 
-    @Autowired
-    private AuditLogger auditLogger;
-
     @Override
     @Transactional
     public User register(User user) {
@@ -43,11 +38,8 @@ public class UserServiceImpl implements UserService {
             if (repository.findByAuthUsername(user.getAuthUsername()).isPresent()) {
                 throw new DuplicateAuthUsernameException("El usuario " + user.getAuthUsername() + " ya tiene un perfil");
             }
-            User saved = repository.save(user);
-            auditLogger.success("REGISTER", AuditMessages.PROFILE_CREATED, saved);
-            return saved;
+            return repository.save(user);
         } catch (Exception e) {
-            auditLogger.error("REGISTER", "Error al registrar usuario: " + e.getMessage(), user);
             throw e;
         }
     }
@@ -83,14 +75,10 @@ public class UserServiceImpl implements UserService {
             if (updated.getEmail() != null) user.setEmail(updated.getEmail());
             if (updated.getAuthUsername() != null) user.setAuthUsername(updated.getAuthUsername());
             if (updated.getDietaryPreferences() != null) user.setDietaryPreferences(updated.getDietaryPreferences());
-            User saved = repository.save(user);
-            auditLogger.success("UPDATE", AuditMessages.PROFILE_UPDATED, saved);
-            return saved;
+            return repository.save(user);
         } catch (UserNotFoundException e) {
-            auditLogger.error("UPDATE", AuditMessages.USER_NOT_FOUND + ": " + id, id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UPDATE", "Error al actualizar usuario: " + e.getMessage(), id);
             throw e;
         }
     }
@@ -103,14 +91,10 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
             validarPreferencias(dietaryPreferences);
             user.setDietaryPreferences(dietaryPreferences);
-            User saved = repository.save(user);
-            auditLogger.success("UPDATE_PREFERENCES", AuditMessages.PREFERENCES_UPDATED, saved);
-            return saved;
+            return repository.save(user);
         } catch (UserNotFoundException e) {
-            auditLogger.error("UPDATE_PREFERENCES", AuditMessages.USER_NOT_FOUND + ": " + id, id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UPDATE_PREFERENCES", "Error al actualizar preferencias: " + e.getMessage(), id);
             throw e;
         }
     }
@@ -123,12 +107,9 @@ public class UserServiceImpl implements UserService {
                 throw new UserNotFoundException("Usuario no encontrado con id: " + id);
             }
             repository.deleteById(id);
-            auditLogger.success("DELETE", AuditMessages.USER_DELETED, id);
         } catch (UserNotFoundException e) {
-            auditLogger.error("DELETE", AuditMessages.USER_NOT_FOUND + ": " + id, id);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("DELETE", "Error al eliminar usuario: " + e.getMessage(), id);
             throw e;
         }
     }

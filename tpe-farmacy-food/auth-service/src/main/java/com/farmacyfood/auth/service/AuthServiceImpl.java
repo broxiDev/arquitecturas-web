@@ -1,9 +1,7 @@
 package com.farmacyfood.auth.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.auth.client.UserClient;
 import com.farmacyfood.auth.config.JwtUtil;
-import com.farmacyfood.auth.constants.AuditMessages;
 import com.farmacyfood.auth.dto.AuthResponse;
 import com.farmacyfood.auth.dto.LoginRequest;
 import com.farmacyfood.auth.dto.RegisterRequest;
@@ -29,20 +27,17 @@ public class AuthServiceImpl implements AuthService {
     private final AuthUserRepository authUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final AuditLogger auditLogger;
     private final UserClient userClient;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
         try {
             if (!ALLOWED_ROLES.contains(request.rol())) {
-                auditLogger.error("REGISTER", AuditMessages.INVALID_ROLE, "rol: " + request.rol());
                 throw new IllegalArgumentException("Rol no permitido: '" + request.rol()
                         + "'. Roles permitidos: cliente, cocina");
             }
 
             if (authUserRepository.existsByUsername(request.username())) {
-                auditLogger.error("REGISTER", AuditMessages.USER_ALREADY_EXISTS, "username: " + request.username());
                 throw new DuplicateUserException("El usuario '" + request.username() + "' ya existe");
             }
 
@@ -65,7 +60,6 @@ public class AuthServiceImpl implements AuthService {
             }
 
             String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
-            auditLogger.success("REGISTER", AuditMessages.USER_REGISTERED, "username: " + request.username());
             return new AuthResponse(token);
         } catch (Exception e) {
             log.warn("Error en registro: {}", e.getMessage());
@@ -77,23 +71,17 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         try {
             AuthUser authUser = authUserRepository.findByUsername(request.username())
-                    .orElseThrow(() -> {
-                        auditLogger.error("LOGIN", AuditMessages.LOGIN_FAILED, "username: " + request.username());
-                        return new InvalidCredentialsException("Usuario o contraseña incorrectos");
-                    });
+                    .orElseThrow(() -> new InvalidCredentialsException("Usuario o contraseña incorrectos"));
 
             if (!passwordEncoder.matches(request.password(), authUser.getPassword())) {
-                auditLogger.error("LOGIN", AuditMessages.LOGIN_FAILED, "username: " + request.username());
                 throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
             }
 
             String token = jwtUtil.generateToken(authUser.getUsername(), authUser.getRol());
-            auditLogger.success("LOGIN", AuditMessages.USER_LOGGED_IN, "username: " + request.username());
             return new AuthResponse(token);
         } catch (InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
-            auditLogger.error("LOGIN", "Error inesperado en inicio de sesión", e.getMessage());
             throw e;
         }
     }

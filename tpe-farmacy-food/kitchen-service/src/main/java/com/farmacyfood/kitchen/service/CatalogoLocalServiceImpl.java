@@ -1,7 +1,6 @@
 package com.farmacyfood.kitchen.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
-import com.farmacyfood.kitchen.constants.AuditMessages;
+
 import com.farmacyfood.kitchen.dto.CatalogoLocalRequestDTO;
 import com.farmacyfood.kitchen.dto.CatalogoLocalResponseDTO;
 import com.farmacyfood.kitchen.entity.postgres.CatalogoProducto;
@@ -21,9 +20,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CatalogoLocalServiceImpl implements CatalogoLocalService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final CatalogoProductoRepository catalogoProductoRepository;
     private final CocinaContextResolver cocinaContextResolver;
@@ -58,11 +54,8 @@ public class CatalogoLocalServiceImpl implements CatalogoLocalService {
             log.info("Producto {} creado en cocina {}", request.productId(), cocinaId);
 
             CatalogoProducto saved = catalogoProductoRepository.save(producto);
-            CatalogoLocalResponseDTO response = toDTO(saved);
-            auditLogger.success("ADD_PRODUCT", AuditMessages.PRODUCT_ADDED, response);
-            return response;
+            return toDTO(saved);
         } catch (Exception e) {
-            auditLogger.error("ADD_PRODUCT", "Error al agregar producto al catálogo: " + e.getMessage(), request);
             throw e;
         }
     }

@@ -1,9 +1,7 @@
 package com.farmacyfood.fridge.service;
 
-import com.farmacyfood.audit.client.AuditLogger;
 import com.farmacyfood.fridge.client.DisponibilidadNotificacionDTO;
 import com.farmacyfood.fridge.client.NotificacionClient;
-import com.farmacyfood.fridge.constants.AuditMessages;
 import com.farmacyfood.fridge.dto.FridgeRemainderDTO;
 import com.farmacyfood.fridge.dto.ProductRemainderDTO;
 import com.farmacyfood.fridge.dto.StockCreateDTO;
@@ -30,9 +28,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
-
-    @Autowired
-    private AuditLogger auditLogger;
 
     private final StockRepository stockRepository;
     private final HeladeraRepository heladeraRepository;
@@ -89,14 +84,10 @@ public class StockServiceImpl implements StockService {
                     new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
             }
 
-            StockResponseDTO response = toDTO(saved);
-            auditLogger.success("ADD_STOCK", AuditMessages.STOCK_ADDED, response);
-            return response;
+            return toDTO(saved);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("ADD_STOCK", AuditMessages.FRIDGE_NOT_FOUND + ": " + heladeraId, heladeraId);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("ADD_STOCK", "Error al agregar stock: " + e.getMessage(), dto);
             throw e;
         }
     }
@@ -122,14 +113,10 @@ public class StockServiceImpl implements StockService {
                     new DisponibilidadNotificacionDTO(heladeraId, List.of(dto.productId())));
             }
 
-            StockResponseDTO response = toDTO(saved);
-            auditLogger.success("UPDATE_STOCK", AuditMessages.STOCK_UPDATED, response);
-            return response;
+            return toDTO(saved);
         } catch (HeladeraNotFoundException e) {
-            auditLogger.error("UPDATE_STOCK", AuditMessages.STOCK_NOT_FOUND + ": " + dto.productId(), dto);
             throw e;
         } catch (Exception e) {
-            auditLogger.error("UPDATE_STOCK", "Error al actualizar stock: " + e.getMessage(), dto);
             throw e;
         }
     }
