@@ -1,5 +1,8 @@
 # FarmacyFood
 
+## MVP
+![img.png](img.png)
+
 Sistema backend de microservicios que conecta una cocina fantasma con heladeras inteligentes distribuidas en comercios.
 
 ## Getting Started
